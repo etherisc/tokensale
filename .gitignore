@@ -1,0 +1,10 @@
+.idea
+node_modules
+build
+contracts
+migrations
+test
+external/encryptedQuery/allEncryptedQueryStrings.txt
+external/encryptedQuery/encryptedQueryString.txt
+ContractLogs.log
+.node-xmlhttprequest-*
