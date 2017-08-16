@@ -1,10 +1,11 @@
+*.sublime-project
+*.sublime-workspace
+npm-debug.log
 .idea
 node_modules
 build
 contracts
+installed_contracts
 migrations
 test
-external/encryptedQuery/allEncryptedQueryStrings.txt
-external/encryptedQuery/encryptedQueryString.txt
-ContractLogs.log
 .node-xmlhttprequest-*
