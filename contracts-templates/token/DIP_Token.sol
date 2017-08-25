@@ -10,7 +10,7 @@
 pragma solidity @@include('./util/snippets/solidity_version_string.txt');
 
 
-import "./VestedToken.sol";
+import "../../installed_contracts/zeppelin/contracts/token/VestedToken.sol";
 
 
 contract DIP_Token is VestedToken {
