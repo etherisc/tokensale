@@ -14,7 +14,10 @@
     "deploy-testrpc": "truffle deploy --reset --network testrpc",
     "console": "truffle console --network testrpc",
     "lint-js": "eslint **/*.js",
-    "lint-sol": "solium --dir ./"
+    "lint-sol": "solium --dir ./",
+    "preprocess": "./util/preprocessor.js -s contracts-templates -d contracts",
+    "migselect": "./util/migselect.sh",
+    "testselect": "./util/testselect.sh"
   },
   "dependencies": {
     "eslint": "^4.4.1",
@@ -22,6 +25,8 @@
     "eslint-plugin-import": "^2.7.0",
     "ethereumjs-testrpc": "^4.0.1",
     "solium": "^0.5.5",
+    "optimist": "^0.6.1",
+    "preprocessor": "^1.4.0",
     "truffle": "^3.4.7"
   }
 }

@@ -3,6 +3,10 @@
 /**
  * simple text preprocessor for solidity files
  * extends https://www.npmjs.com/package/preprocessor with inline includes.
+ *
+ * Attention: preprocessor does not create subdirs in the destination folder,
+ * these have to be created manually.
+ * 
  */
 
 const fs = require('fs');
@@ -12,7 +16,7 @@ const optimist = require('optimist');
 const solProcessor = (inputfile, outputfile, defines) => {
   let content = fs.readFileSync(inputfile).toString();
 
-  const matches = content.match(/@@include\(\'[^\)]*\'\)/g);
+  const matches = content.match(/@@include\('[^)]*'\)/g);
   const includes = [];
   for (const idx in matches) {
     const filename = matches[idx].slice(11, -2);
@@ -25,19 +29,47 @@ const solProcessor = (inputfile, outputfile, defines) => {
   fs.writeFileSync(outputfile, new Preprocessor(content).process(defines));
 };
 
-const preprocessContracts = (sourceDir, destinationDir, defines) => {
-  const contracts = fs.readdirSync(sourceDir)
-    .filter(elem => elem.match(/.sol$/));
 
+const walk = (dir, done) => {
+  let results = [];
+  fs.readdir(dir, (err, list) => {
+    if (err) return done(err);
+    let i = 0;
+    (function next() {
+      let file = list[i++];
+      if (!file) return done(null, results);
+      file = dir + '/' + file;
+      fs.stat(file, (err, stat) => {
+        if (stat && stat.isDirectory()) {
+          walk(file, (err, res) => {
+            results = results.concat(res);
+            next();
+          });
+        } else {
+          results.push(file);
+          next();
+        }
+      });
+    })();
+  });
+};
+
+const preprocessContracts = (sourceDir, destinationDir, defines) => {
   console.log(`Defines: ${JSON.stringify(defines)}`);
-  for (var idx in contracts) {
-    console.log(`Processing ${contracts[idx]} ...`);
-    solProcessor(
-      sourceDir + contracts[idx],
-      destinationDir + contracts[idx],
-      defines
-    );
-  }
+
+  walk(sourceDir, function (err, result) {
+    const contracts = result.filter(elem => elem.match(/.sol$/));
+    console.log(contracts);
+
+    for (var idx in contracts) {
+      console.log(`Processing ${contracts[idx]} ...`);
+      solProcessor(
+        contracts[idx],
+        destinationDir + contracts[idx].slice(sourceDir.length),
+        defines
+      );
+    }
+  });
 };
 
 const cmdline = () => {
@@ -56,9 +88,9 @@ const cmdline = () => {
     .argv;
 
   let sourceDir = argv.source;
-  if (sourceDir.slice(-1) !== '/') sourceDir += '/';
+  // if (sourceDir.slice(-1) !== '/') sourceDir += '/';
   let destinationDir = argv.destination;
-  if (destinationDir.slice(-1) !== '/') destinationDir += '/';
+  // if (destinationDir.slice(-1) !== '/') destinationDir += '/';
   delete argv._;
   delete argv.$0;
   delete argv.source;
