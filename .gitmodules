@@ -1,0 +1,3 @@
+[submodule "installed_contracts/zeppelin"]
+	path = installed_contracts/zeppelin
+	url = https://github.com/open-zeppelin/zeppelin
