@@ -11,9 +11,10 @@ pragma solidity @@include('./util/snippets/solidity_version_string.txt');
 
 
 import "../../installed_contracts/zeppelin/contracts/token/VestedToken.sol";
+import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 
 
-contract DIP_Token is VestedToken {
+contract DIP_Token is VestedToken, MintableToken {
 
   string public name = "DecentralizedInsurance";
   string public symbol = "DIP";

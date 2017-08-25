@@ -19,3 +19,4 @@ rules:
       imports: never
       exports: never
       functions: ignore
+  func-names: as-needed

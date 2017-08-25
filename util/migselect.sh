@@ -11,7 +11,8 @@ rm *
 #
 #	Comment/uncomment desired migrations:
 #
-ln -s ../migrations-available/302_deploy_Other.js 302_deploy_Other.js
+ln -s ../migrations-available/1_initial_migration.js 1_initial_migration.js
+ln -s ../migrations-available/2_deploy_contracts.js 2_deploy_contracts.js
 
 #
 #	List selected migrations
