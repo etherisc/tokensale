@@ -20,8 +20,9 @@ contract TokenTimelock is TokenStakeERC20, Ownable {
     }
   }
 
-  function release(address _staker, uint256 _value) {
-    releaseTime[_staker][now].sub(_value); // will throw if result < 0
+  function release(address _staker, uint _releaseTime, uint256 _value) {
+    require(now >= releaseTime);
+    releaseTime[_staker][_releaseTime].sub(_value); // will throw if result < 0
     super.release(_staker, _value);
   }
 
