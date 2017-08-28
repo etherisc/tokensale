@@ -37,6 +37,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   // @return true if buyers can buy at the moment
   function validPurchase() internal constant returns (bool) {
     // [TODO] issue with overriding and associativity of logical operators
+    // [TODO] DIP: Where should we put the DIP logic?
     return super.validPurchase() || (!hasEnded() && isWhitelisted(msg.sender)); 
   }
 
