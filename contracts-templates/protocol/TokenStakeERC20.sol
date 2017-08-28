@@ -9,7 +9,10 @@
 
 pragma solidity @@include('./util/snippets/solidity_version_string.txt');
 
-contract TokenStake {
+import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
+import "../../installed_contracts/zeppelin/contracts/token/StandardToken.sol";
+
+contract TokenStakeERC20 {
   using SafeMath for uint256;
 
   StandardToken token;
@@ -19,7 +22,8 @@ contract TokenStake {
   event Released(address _staker, uint256 _value);
 
   modifier onlyToken {
-    require (msg.sender == token.address); 
+    require (msg.sender == address(token)); 
+    _;
   }
 
   function TokenStake (StandardToken _token) {
@@ -37,7 +41,7 @@ contract TokenStake {
   }
 
   // this function should be overridden with custom logic
-  function release(address _staker, uint _value) {
+  function release(address _staker, uint _value) internal {
     if (staked[_staker] > _value) {
       staked[_staker].sub(_value);
       token.transfer(_staker, _value);

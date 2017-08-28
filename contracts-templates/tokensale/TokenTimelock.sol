@@ -9,6 +9,11 @@
 
 pragma solidity @@include('./util/snippets/solidity_version_string.txt');
 
+import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
+import "../../installed_contracts/zeppelin/contracts/ownership/Ownable.sol";
+import "../protocol/TokenStakeERC20.sol";
+
+
 contract TokenTimelock is TokenStakeERC20, Ownable {
   using SafeMath for uint256;
 
@@ -20,10 +25,10 @@ contract TokenTimelock is TokenStakeERC20, Ownable {
     }
   }
 
-  function release(address _staker, uint _releaseTime, uint256 _value) {
-    require(now >= releaseTime);
+  function releaseTimelock(address _staker, uint _releaseTime, uint256 _value) {
+    require(now >= _releaseTime);
     releaseTime[_staker][_releaseTime].sub(_value); // will throw if result < 0
-    super.release(_staker, _value);
+    release(_staker, _value);
   }
 
 }
