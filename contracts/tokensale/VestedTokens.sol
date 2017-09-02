@@ -1,13 +1,11 @@
 /**
  * @title Generic Token Time Lock
- * @dev The Decentralized Insurance Platform Token. 
+ * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
  */
-cliff
-@@include('./util/snippets/templatewarning.txt')
 
-pragma solidity @@include('./util/snippets/solidity_version_string.txt');
+pragma solidity ^0.4.11;
 
 import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 import "../tokensale/TokenTimelock.sol";
@@ -30,7 +28,7 @@ contract VestedTokens is TokenTimelock {
 
     require(vestingPeriod == cliff.mul(numberOfPeriods));
 
-  }  
+  }
 
   // precondition: granter has approved this contract to the amount to be granted
   function grant(address _beneficiary, uint256 _amount, uint256 _startTime) onlyOwner {

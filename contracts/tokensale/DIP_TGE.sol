@@ -1,13 +1,11 @@
 /**
  * @title DIP Token Generating Event
- * @dev The Decentralized Insurance Platform Token. 
+ * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
  */
 
-@@include('./util/snippets/templatewarning.txt')
-
-pragma solidity @@include('./util/snippets/solidity_version_string.txt');
+pragma solidity ^0.4.11;
 
 import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 import "../../installed_contracts/zeppelin/contracts/crowdsale/Crowdsale.sol";
@@ -26,7 +24,7 @@ contract DIP_TGE is WhitelistedCrowdsale, CappedCrowdsale, FinalizableCrowdsale 
     uint256 _rate,
     address _wallet,
     uint256 _hardcap
-    ) 
+    )
   CappedCrowdsale(_hardcap)
   WhitelistedCrowdsale()
   FinalizableCrowdsale()
@@ -47,7 +45,7 @@ contract DIP_TGE is WhitelistedCrowdsale, CappedCrowdsale, FinalizableCrowdsale 
   // @return true if buyers can buy at the moment
   function validPurchase() internal constant returns (bool) {
     // only whitelisted buyers can buy
-    return (!hasEnded() && isWhitelisted(msg.sender)); 
+    return (!hasEnded() && isWhitelisted(msg.sender));
   }
 
 

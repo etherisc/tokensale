@@ -1,13 +1,11 @@
 /**
  * @title DIP Token Generating Event
- * @dev The Decentralized Insurance Platform Token. 
+ * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
  */
 
-@@include('./util/snippets/templatewarning.txt')
-
-pragma solidity @@include('./util/snippets/solidity_version_string.txt');
+pragma solidity ^0.4.11;
 
 import '../../installed_contracts/zeppelin/contracts/math/SafeMath.sol';
 import '../../installed_contracts/zeppelin/contracts/crowdsale/Crowdsale.sol';
@@ -15,7 +13,7 @@ import '../../installed_contracts/zeppelin/contracts/crowdsale/Crowdsale.sol';
 /**
  * @title WhitelistedCrowdsale
  * @dev Extension of Crowsdale where an owner can whitelist addresses
- * which can buy in crowdsale before it opens to the public 
+ * which can buy in crowdsale before it opens to the public
  */
 contract WhitelistedCrowdsale is Crowdsale, Ownable {
   using SafeMath for uint256;
@@ -25,7 +23,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
 
   function addToWhitelist(address buyer) public onlyOwner {
     require(buyer != 0x0);
-    whitelist[buyer] = true; 
+    whitelist[buyer] = true;
   }
 
   // @return true if buyer is whitelisted
@@ -38,7 +36,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   function validPurchase() internal constant returns (bool) {
     // [TODO] issue with overriding and associativity of logical operators
     // [TODO] DIP: Where should we put the DIP logic?
-    return super.validPurchase() || (!hasEnded() && isWhitelisted(msg.sender)); 
+    return super.validPurchase() || (!hasEnded() && isWhitelisted(msg.sender));
   }
 
 }

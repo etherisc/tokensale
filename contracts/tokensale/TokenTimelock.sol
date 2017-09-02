@@ -1,13 +1,11 @@
 /**
  * @title Generic Token Time Lock
- * @dev The Decentralized Insurance Platform Token. 
+ * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
  */
 
-@@include('./util/snippets/templatewarning.txt')
-
-pragma solidity @@include('./util/snippets/solidity_version_string.txt');
+pragma solidity ^0.4.11;
 
 import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 import "../../installed_contracts/zeppelin/contracts/ownership/Ownable.sol";

@@ -1,13 +1,11 @@
 /**
  * @title DIP Token
- * @dev The Decentralized Insurance Platform Token. 
+ * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
  */
 
-@@include('./util/snippets/templatewarning.txt')
-
-pragma solidity @@include('./util/snippets/solidity_version_string.txt');
+pragma solidity ^0.4.11;
 
 import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 
@@ -57,7 +55,7 @@ contract BasicSale {
     function processPurchase(address beneficiary) internal {
         uint256 weiAmount = msg.value;
 
-        // calculate token amount to be created 
+        // calculate token amount to be created
         uint256 tokens = weiAmount.mul(rate);
 
         // update state
