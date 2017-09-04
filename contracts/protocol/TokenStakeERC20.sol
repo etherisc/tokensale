@@ -17,7 +17,7 @@ contract TokenStakeERC20 {
   mapping (address => uint256) staked;
 
   event Staked(address _staker, uint256 _value);
-  event Released(address _staker, uint256 _value);
+  event Released(address _staker, address _beneficiary, uint256 _value);
 
   modifier onlyToken {
     require (msg.sender == address(token));
@@ -38,13 +38,17 @@ contract TokenStakeERC20 {
     return false;
   }
 
-  // this function should be overridden with custom logic
-  function release(address _staker, uint _value) internal {
+  // this functions should be overridden with custom logic
+  function release(address _staker, address _beneficiary, uint _value) internal {
     if (staked[_staker] > _value) {
       staked[_staker].sub(_value);
-      token.transfer(_staker, _value);
-      Released(_staker, _value);
-    }
+      token.transfer(_beneficiary, _value);
+      Released(_staker, _beneficiary, _value);    
+    } 
+  }
+
+  function release(address _staker, uint _value) internal {
+    release(_staker, _staker, _value);
   }
 
   function stakedOf(address _staker) constant returns (uint256) {

@@ -18,6 +18,7 @@ contract VestedTokens is TokenTimelock {
   uint256 cliff;
   uint256 numberOfPeriods;
   address granter;
+  // uint256 UpperBound = 25;
 
   function VestedTokens(address _granter, uint256 _vestingPeriod, uint256 _cliff) {
 
@@ -27,6 +28,7 @@ contract VestedTokens is TokenTimelock {
     numberOfPeriods = vestingPeriod.div(cliff);
 
     require(vestingPeriod == cliff.mul(numberOfPeriods));
+    // require(numberOfPeriods < UpperBound); // no unbounded for loops
 
   }
 
