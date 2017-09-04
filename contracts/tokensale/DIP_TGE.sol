@@ -14,6 +14,7 @@ import "../../installed_contracts/zeppelin/contracts/crowdsale/CappedCrowdsale.s
 import "../token/DIP_Token.sol";
 import "./WhitelistedCrowdsale.sol";
 
+
 contract DIP_TGE is WhitelistedCrowdsale, CappedCrowdsale, FinalizableCrowdsale {
 
   uint256 rate;
@@ -24,11 +25,12 @@ contract DIP_TGE is WhitelistedCrowdsale, CappedCrowdsale, FinalizableCrowdsale 
     uint256 _rate,
     address _wallet,
     uint256 _hardcap
-    )
-  CappedCrowdsale(_hardcap)
-  WhitelistedCrowdsale()
-  FinalizableCrowdsale()
-  Crowdsale(_startBlock, _endBlock, _rate, _wallet) {
+    ) 
+    CappedCrowdsale(_hardcap) 
+    WhitelistedCrowdsale() 
+    FinalizableCrowdsale() 
+    Crowdsale(_startBlock, _endBlock, _rate, _wallet) 
+    {
 
     require(_rate > 0);
     rate = _rate;
@@ -47,7 +49,6 @@ contract DIP_TGE is WhitelistedCrowdsale, CappedCrowdsale, FinalizableCrowdsale 
     // only whitelisted buyers can buy
     return (!hasEnded() && isWhitelisted(msg.sender));
   }
-
 
   // end token minting on finalization
   // override this with custom logic if needed

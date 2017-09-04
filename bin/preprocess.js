@@ -9,7 +9,7 @@ const chalk = require('chalk');
 const compilerVersion = JSON.parse(fs.read('package.json')).config['solidity-compiler'];
 
 const workingmode = process.argv[2];
-const debug = process.argv[3] || false;
+const debug = process.argv[3] ? true : false;
 
 
 /**

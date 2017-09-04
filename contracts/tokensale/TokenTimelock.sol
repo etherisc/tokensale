@@ -29,9 +29,4 @@ contract TokenTimelock is TokenStakeERC20, Ownable {
     release(_staker, _value);
   }
 
-//--> debug-mode
-//    das ist debug-mode
-// <-- debug-mode
-
-
 }

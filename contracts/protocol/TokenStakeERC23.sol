@@ -10,6 +10,7 @@ pragma solidity ^0.4.11;
 import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 import "../../installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 
+
 contract TokenStakeERC23 {
   using SafeMath for uint256;
 
@@ -24,7 +25,7 @@ contract TokenStakeERC23 {
     _;
   }
 
-  function TokenStake (StandardToken _token) {
+  function TokenStakeERC23 (StandardToken _token) {
     token = _token;
   }
 
@@ -33,7 +34,7 @@ contract TokenStakeERC23 {
   }
 
   // could be overridden in case you need to do something with _data
-  function stake(address _sender, uint256 _value, bytes _data) internal returns (bool){
+  function stake(address _sender, uint256 _value, bytes _data) internal returns (bool) {
     staked[_sender] = staked[_sender].add(_value);
     Staked(_sender, _value);
     return true;

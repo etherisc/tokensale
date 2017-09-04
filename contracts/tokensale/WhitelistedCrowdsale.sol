@@ -10,6 +10,7 @@ pragma solidity ^0.4.11;
 import '../../installed_contracts/zeppelin/contracts/math/SafeMath.sol';
 import '../../installed_contracts/zeppelin/contracts/crowdsale/Crowdsale.sol';
 
+
 /**
  * @title WhitelistedCrowdsale
  * @dev Extension of Crowsdale where an owner can whitelist addresses

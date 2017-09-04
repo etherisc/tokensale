@@ -10,6 +10,7 @@ pragma solidity ^0.4.11;
 import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 import "../../installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 
+
 contract TokenStakeERC20 {
   using SafeMath for uint256;
 
@@ -24,7 +25,7 @@ contract TokenStakeERC20 {
     _;
   }
 
-  function TokenStake (StandardToken _token) {
+  function TokenStakeERC20 (StandardToken _token) {
     token = _token;
   }
 

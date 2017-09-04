@@ -9,6 +9,7 @@ pragma solidity ^0.4.11;
 
 import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 
+
 contract BasicSale {
     using SafeMath for uint256;
 

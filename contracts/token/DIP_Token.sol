@@ -10,6 +10,7 @@ pragma solidity ^0.4.11;
 import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 import "../../installed_contracts/zeppelin/contracts/token/PausableToken.sol";
 
+
 contract DIP_Token is PausableToken, MintableToken {
 
   string public name = "DecentralizedInsurance";
@@ -37,7 +38,8 @@ contract DIP_Token is PausableToken, MintableToken {
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(address _to, uint256 _amount) returns (bool) {
-    if (totalSupply.add(_amount) > MAXIMUM_SUPPLY) return false;
+    if (totalSupply.add(_amount) > MAXIMUM_SUPPLY) 
+      return false;
     return super.mint(_to, _amount);
   }
 
