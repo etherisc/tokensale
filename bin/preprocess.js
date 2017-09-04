@@ -3,10 +3,14 @@
 const os = require('os');
 const crypto = require('crypto');
 const fs = require('fs-jetpack');
-const execSync = require('child_process').execSync;
 const log = require('../util/logger');
+const chalk = require('chalk');
 
 const compilerVersion = JSON.parse(fs.read('package.json')).config['solidity-compiler'];
+
+const workingmode = process.argv[2];
+const debug = process.argv[3] || false;
+
 
 /**
  * Preprocess input data with solidity compiler version
@@ -61,8 +65,6 @@ function setMode(source, regexp, mode, label) {
  */
 function preprocessData(input) {
     let data = input;
-    const mode = process.argv[2];
-    const debug = process.argv[3] || false;
 
     const debugRegexp = /--> debug-mode[\s\S]+?<-- debug-mode/g;
     const devRegexp = /--> test-mode[\s\S]+?<-- test-mode/g;
@@ -72,11 +74,10 @@ function preprocessData(input) {
     data = setCompilerVersion(data);
 
     // Set defined mode
-    if (mode === 'test') {
+    if (workingmode === 'test') {
         data = setMode(data, devRegexp, 'on', 'test');
         data = setMode(data, prodRegexp, 'off', 'prod');
-    } else if (mode === 'prod') {
-
+    } else if (workingmode === 'prod') {
         data = setMode(data, devRegexp, 'off', 'test');
         data = setMode(data, prodRegexp, 'on', 'prod');
     }
@@ -96,6 +97,7 @@ function preprocessData(input) {
  * @param {any} dir
  */
 function preprocess(dir) {
+    log.info(`Processing folder: ${dir}`);
     fs.find(dir, { matching: '*.sol', })
         .forEach((contract) => {
             const input = fs.read(contract, 'utf8');
@@ -106,11 +108,23 @@ function preprocess(dir) {
 
             if (inputHash !== outputHash) {
                 fs.write(contract, output);
-                log.info(`${contract} preprocessed`);
+                log.info(`${contract} ${chalk.green('preprocessed')}`);
+            } else {
+                log.info(`${contract}: ${chalk.gray('nothing to do!')}`);
             }
 
             fs.write(contract, output);
         });
 }
 
-preprocess('contracts');
+/**
+ * Main Routine.
+ *
+ */
+function main() {
+    log.info(`Working Mode: ${workingmode}`);
+    log.info(`Debugging   : ${debug}`);
+    preprocess('contracts');
+}
+
+main();
