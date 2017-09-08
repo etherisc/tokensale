@@ -35,7 +35,6 @@ The first parameter is an array of `address`es, the second an array of `priority
 For each `address` in the first parameter, the list is modified according to the second and third parameter and the field `isActive` set to `true`.
 The three arrays must have the same length, otherwise the function will throw.
 1. During the TGE, the `contributionAmount` and `tokensIssued` are registered.
-1. INVARIANT: After each transaction, and for all members of the list, the following is true: If any field of the struct is non-zero, `isActive` is always `true`.
 
 ## TGE phases
 1. The phases of the TGE are delimited by the following parameters, denoted as `uint256`:

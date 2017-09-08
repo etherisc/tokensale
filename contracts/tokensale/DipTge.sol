@@ -5,6 +5,22 @@
  * @copyright 2017 Etherisc GmbH
  */
 
+/* Based on OpenZeppelin 1.2.0 
+ * 
+ * Used Zeppelin Contracts: 
+ * - BasicToken.sol
+ * - ERC20.sol
+ * - ERC20Basic.sol
+ * - MintableToken.sol
+ * - PausableToken.sol
+ * - Crowdsale.sol
+ * - FinalizableCrowdsale.sol
+ * - Pausable.sol
+ * - Math.sol
+ * - SafeMath.sol
+ * - Ownable.sol
+ */
+
 pragma solidity ^0.4.11;
 
 import '../../installed_contracts/zeppelin/contracts/math/SafeMath.sol';

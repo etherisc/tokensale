@@ -27,9 +27,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
   struct ContributorData {
     uint256 priorityPassAllowance;
-    // uint256 communityAllowance; // remove this!
     uint256 otherAllowance;
-    bool isActive; // do we really need this?
     uint256 contributionAmount;
     uint256 tokensIssued;
   }
@@ -91,11 +89,10 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       ); // Check if input data is consistent
 
     for(uint cnt = 0; cnt < _contributorAddresses.length; cnt++){
-      contributorList[_contributorAddresses[cnt]].isActive = true;                                        // Activate contributor
-      contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];  // Set PP allowance
-      contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];// Set community whitelist allowance
+      contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];
+      contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];
       // TODO: Fix this! 
-      contributorIndexes[nextContributorIndex] = _contributorAddresses[cnt];                              // Set users index
+      contributorIndexes[nextContributorIndex] = _contributorAddresses[cnt];
       nextContributorIndex++;
     }
   }
@@ -107,44 +104,44 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function calculateMaxContribution(address _contributor) constant returns (uint256 maxContribution){
     uint256 maxContrib;
-    if (crowdsaleState == state.priorityPass){    // Check if we are in priority pass
+    if (crowdsaleState == state.priorityPass){
       maxContrib = contributorList[_contributor].priorityPassAllowance - contributorList[_contributor].contributionAmount;
-      if (maxContrib > hardCap1 - weiRaised){   // Check if max contribution is more that max cap
-        maxContrib = hardCap1 - weiRaised;        // Alter max cap
+      if (maxContrib > hardCap1 - weiRaised){
+        maxContrib = hardCap1 - weiRaised;
       }
     }
     else{
-      maxContrib = hardCap2 - weiRaised;            // Alter max cap
+      maxContrib = hardCap2 - weiRaised;
     }
     return maxContrib;
   }
 
   function setCrowdsaleState() {
-    if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded){                         // Check if max cap is reached
+    if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded){
       crowdsaleState = state.crowdsaleEnded;
-      HardCap2Reached(block.number);                                                              // Close the crowdsale
-      DipTgeEnded(block.number);                                                             // Raise event
+      HardCap2Reached(block.number);
+      DipTgeEnded(block.number);
     }
 
-    if (block.number >= startBlock && block.number < startOpenPpBlock){  // Check if we are in presale phase
-      if (crowdsaleState != state.priorityPass) {                                          // Check if state needs to be changed
-        crowdsaleState = state.priorityPass;                                              // Set new state
-        DipTgeStarted(block.number);                                                     // Raise event
+    if (block.number >= startBlock && block.number < startOpenPpBlock){
+      if (crowdsaleState != state.priorityPass) {
+        crowdsaleState = state.priorityPass;
+        DipTgeStarted(block.number);
       }
-    } else if (block.number >= startOpenPpBlock && block.number < startPublicBlock){ // Check if we are in presale unlimited phase
-      if (crowdsaleState != state.openedPriorityPass) {                                          // Check if state needs to be changed
-        crowdsaleState = state.openedPriorityPass;                                              // Set new state
-        OpenPpStarted(block.number);                                                  // Raise event
+    } else if (block.number >= startOpenPpBlock && block.number < startPublicBlock){
+      if (crowdsaleState != state.openedPriorityPass) {
+        crowdsaleState = state.openedPriorityPass;
+        OpenPpStarted(block.number);
       }
-    } else if (block.number >= startPublicBlock && block.number <= endBlock){        // Check if we are in crowdsale state
-      if (crowdsaleState != state.crowdsale) {                                                   // Check if state needs to be changed
-        crowdsaleState = state.crowdsale;                                                       // Set new state
-        PublicStarted(block.number);                                                         // Raise event
+    } else if (block.number >= startPublicBlock && block.number <= endBlock){        
+      if (crowdsaleState != state.crowdsale) {                                       
+        crowdsaleState = state.crowdsale;
+        PublicStarted(block.number);
       }
     } else {
-      if (crowdsaleState != state.crowdsaleEnded && block.number > endBlock){        // Check if crowdsale is over
-        crowdsaleState = state.crowdsaleEnded;                                                  // Set new state
-        DipTgeEnded(block.number);                                                           // Raise event
+      if (crowdsaleState != state.crowdsaleEnded && block.number > endBlock){
+        crowdsaleState = state.crowdsaleEnded;
+        DipTgeEnded(block.number);
       }
     }
   }
@@ -174,7 +171,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     if (weiRaised > minCap)
       MinCapReached(block.number);
 
-    token.mint(_beneficiary, tokens);
+    if (!token.mint(_beneficiary, tokens)) revert();
     TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
     contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
