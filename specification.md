@@ -77,3 +77,4 @@ in case the `msg.value` is greater then the possible investment.
 
 ## Vested tokens
 1. The finalization function mints the remaining tokens and transfers it to a special multiSig address, from which
+vested tokens are distributed. // working hypotheses
