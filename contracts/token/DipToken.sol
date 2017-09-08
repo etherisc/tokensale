@@ -18,19 +18,6 @@ contract DipToken is PausableToken, MintableToken {
   uint256 public decimals = 18;
   uint256 public MAXIMUM_SUPPLY = 100000000; // 100 Million 100'000'000
 
-
-  // TODO: Fix ERC20 short address attack (should WE fix this??)
-  /*
-    modifier onlyPayloadSize(uint size) {
-      assert(msg.data.length == size + 4);
-      _;
-    function transfer(address _to, uint256 _value) onlyPayloadSize(2 * 32) {
-    // do stuff
-  }
-   }
-  */
-
-
   /**
    * @dev Function to mint tokens
    * @param _to The address that will recieve the minted tokens.
