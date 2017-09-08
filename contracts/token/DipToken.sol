@@ -11,7 +11,7 @@ import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 import "../../installed_contracts/zeppelin/contracts/token/PausableToken.sol";
 
 
-contract DIP_Token is PausableToken, MintableToken {
+contract DipToken is PausableToken, MintableToken {
 
   string public name = "DecentralizedInsurance";
   string public symbol = "DIP";
@@ -42,5 +42,7 @@ contract DIP_Token is PausableToken, MintableToken {
       return false;
     return super.mint(_to, _amount);
   }
+
+  
 
 }

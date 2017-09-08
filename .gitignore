@@ -8,3 +8,4 @@ installed_contracts
 migrations
 test
 .node-xmlhttprequest-*
+/lint-sol.out
