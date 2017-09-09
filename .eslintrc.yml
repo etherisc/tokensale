@@ -12,14 +12,19 @@ extends:
     - airbnb-base
 
 rules:
+    func-names: 
+        - error
+        - as-needed
     require-jsdoc:
-    - error
-    - require:
-        FunctionDeclaration: true
-        MethodDefinition: false
-        ClassDeclaration: false
-        ArrowFunctionExpression: false
-    indent: [ "error", 4 ]
+        - error
+        - require:
+            FunctionDeclaration: true
+            MethodDefinition: false
+            ClassDeclaration: false
+            ArrowFunctionExpression: false
+    indent: 
+        - error
+        - 4
     comma-dangle:
         - error
         - arrays: always

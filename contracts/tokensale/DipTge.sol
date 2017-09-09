@@ -23,9 +23,9 @@
 
 pragma solidity ^0.4.11;
 
-import '../../installed_contracts/zeppelin/contracts/math/SafeMath.sol';
-import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
-import "../../installed_contracts/zeppelin/contracts/crowdsale/FinalizableCrowdsale.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/token/MintableToken.sol";
+import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "../token/DipToken.sol";
 import "./DipWhitelistedCrowdsale.sol";
 

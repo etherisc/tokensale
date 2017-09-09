@@ -7,8 +7,8 @@
 
 pragma solidity ^0.4.11;
 
-import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
-import "../../installed_contracts/zeppelin/contracts/ownership/Ownable.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../protocol/TokenStakeERC20.sol";
 
 

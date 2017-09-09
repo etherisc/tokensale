@@ -7,8 +7,8 @@
 
 pragma solidity ^0.4.11;
 
-import "../../installed_contracts/zeppelin/contracts/token/MintableToken.sol";
-import "../../installed_contracts/zeppelin/contracts/token/PausableToken.sol";
+import "zeppelin-solidity/contracts/token/MintableToken.sol";
+import "zeppelin-solidity/contracts/token/PausableToken.sol";
 
 
 contract DipToken is PausableToken, MintableToken {

@@ -7,7 +7,7 @@
 
 pragma solidity ^0.4.11;
 
-import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "../tokensale/TokenTimelock.sol";
 
 

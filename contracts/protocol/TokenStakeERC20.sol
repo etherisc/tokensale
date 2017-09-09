@@ -7,8 +7,8 @@
 
 pragma solidity ^0.4.11;
 
-import "../../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
-import "../../installed_contracts/zeppelin/contracts/token/StandardToken.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/token/StandardToken.sol";
 
 
 contract TokenStakeERC20 {

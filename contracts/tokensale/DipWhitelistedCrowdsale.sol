@@ -7,8 +7,8 @@
 
 pragma solidity ^0.4.11;
 
-import '../../installed_contracts/zeppelin/contracts/math/SafeMath.sol';
-import '../../installed_contracts/zeppelin/contracts/crowdsale/Crowdsale.sol';
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import 'zeppelin-solidity/contracts/crowdsale/Crowdsale.sol';
 
 
 contract DipWhitelistedCrowdsale is Crowdsale, Ownable {

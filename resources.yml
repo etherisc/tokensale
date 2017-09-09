@@ -3,3 +3,18 @@ migrations:
     - 2_deploy_contracts.js
 
 test:
+    - helpers/assertJump.js
+    - helpers/advanceToBlock.js
+    - helpers/BasicTokenMock.sol
+    - helpers/PausableMock.sol
+    - helpers/PausableTokenMock.sol
+    - helpers/SafeMathMock.sol
+    - helpers/StandardTokenMock.sol
+    - BasicToken.js
+#    - Crowdsale.js
+#    - FinalizableCrowdsale.js  
+#    - MintableToken.js
+#    - Pausable.js
+#    - PausableToken.js
+#    - SafeMath.js
+    - StandardToken.js

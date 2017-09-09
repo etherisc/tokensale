@@ -1,16 +1,19 @@
 # DIP token and TGE Specification.
 This is the final and authoritative description of the DIP Token and TGE.
 
-## General
+## Contracts Specification
+
+### General
 1. All math is done with the SafeMath lib.
 
-## Specificaton of DIP Token.
+### Specificaton of DIP Token.
 1. Symbol of DIP token is "DIP".
 1. Name of DIP token is "Decentralized Insurance Platform Token" .
 1. Decimals is 18. 1 DIP is represented by the `uint256 1000000000000000000`. 
 1. Maximum Supply is 100.000.000 (100 Millions).
+1. The Token Contract implements ERC20 Specification according to [cite].
 
-## Specification of general TGE parameters
+### Specification of general TGE parameters
 1. TGE starts at block `startBlock` (inclusive).
 1. TGE ends no later then `endBlock` (inclusive).
 1. A maximum of `hardcap2` wei is raised.
@@ -21,7 +24,7 @@ This is the final and authoritative description of the DIP Token and TGE.
 1. Conversion from ETH to DIP is done via a parameter `uint256 rate`. 
 Conversion is calculated as follows: # of DIP tokens = Amount in ETH * `rate`. Therefore, 10^-18 DIP = 1 wei * `rate`.
 
-## PriorityPass Members and selected individuals
+### PriorityPass Members and selected individuals
 1. PriorityPass members and selected individuals are registered and stored in a data structure `contributorList`.
 1. The index of the first entry is 0. The total number of contributors is kept in a variable `nextContributorIndex`.
 1. Elements of this list are `struct`s with fields, all of which default to zero:
@@ -30,13 +33,13 @@ Conversion is calculated as follows: # of DIP tokens = Amount in ETH * `rate`. T
     - `bool isActive`;
     - `uint256 contributionAmount`;
     - `uint256 tokensIssued`;
-1. The `owner` of the contract can fill and modify this list at any time by calling a function with 3 parameters.
+1. The `owner` of the TGE contract can fill and modify this list at any time by calling a function with 3 parameters.
 The first parameter is an array of `address`es, the second an array of `priorityPassAllowance`s, the third parameter is an array of `otherAllowance`s.
 For each `address` in the first parameter, the list is modified according to the second and third parameter and the field `isActive` set to `true`.
 The three arrays must have the same length, otherwise the function will throw.
 1. During the TGE, the `contributionAmount` and `tokensIssued` are registered.
 
-## TGE phases
+### TGE phases
 1. The phases of the TGE are delimited by the following parameters, denoted as `uint256`:
     - `startBlock`
     - `startOpenPpBlock`
@@ -54,7 +57,7 @@ The three arrays must have the same length, otherwise the function will throw.
 1. At every transaction, the state is checked and set according to the above conditions.
 1. If `state = state.crowdsaleEnded` is set, a finalization function is called, which mints and distributes the remaining tokens.
 
-## Investments 
+### Investments 
 1. In what follows, "invest/investment" means that the default function is called, the possible investment is calculated, 
 the respective number of tokens is minted, and a possible surplus of funds is returned,
 in case the `msg.value` is greater then the possible investment.
@@ -74,6 +77,21 @@ in case the `msg.value` is greater then the possible investment.
     - `block.number >= startPublicBlock  && block.number <= endBlock         && state == state.crowdsale`
     - `block.number > endBlock                                               && state == state.crowdsaleEnded`
 
-## Vested tokens
+### Vested tokens
 1. The finalization function mints the remaining tokens and transfers it to a special multiSig address, from which
 vested tokens are distributed. // working hypotheses
+
+## Test Concept
+
+All of the following tests are implemented:
+
+### Token Contract
+1. After Contract deployment:
+    - `name == "Decentralized Insurance Platform Token"`
+    - `symbol == "DIP"`
+    - `decimals == "18"`
+    - `MAXIMUM_SUPPLY == "100000000"`
+    - `totalSupply == 0`
+    - `paused = false`
+    - `
+
