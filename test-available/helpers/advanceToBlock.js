@@ -18,7 +18,7 @@ function advanceBlock() {
  * @param  {[type]} number [description]
  * @return {[type]}        [description]
  */
-module.exports = async function advanceToBlock(number) {
+async function advanceToBlock(number) {
     if (web3.eth.blockNumber > number) {
         throw Error(`block number ${number} is in the past (current is ${web3.eth.blockNumber})`);
     }
@@ -26,4 +26,6 @@ module.exports = async function advanceToBlock(number) {
     while (web3.eth.blockNumber < number) {
         await advanceBlock(); // eslint-disable-line no-await-in-loop
     }
-};
+}
+
+module.exports = { advanceToBlock, };

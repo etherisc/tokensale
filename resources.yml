@@ -10,11 +10,12 @@ test:
     - helpers/PausableTokenMock.sol
     - helpers/SafeMathMock.sol
     - helpers/StandardTokenMock.sol
+    - helpers/FinalizableCrowdsaleImpl.sol
     - BasicToken.js
-#    - Crowdsale.js
-#    - FinalizableCrowdsale.js  
-#    - MintableToken.js
-#    - Pausable.js
-#    - PausableToken.js
-#    - SafeMath.js
+    - Crowdsale.js
+    - FinalizableCrowdsale.js  
+    - MintableToken.js
+    - Pausable.js
+    - PausableToken.js
+    - SafeMath.js
     - StandardToken.js
