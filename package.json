@@ -18,7 +18,7 @@
     "prod-mode": "npm run clean && ./bin/preprocess.js prod",
     "select-resources": "./bin/select-resources.js",
     "testrpc": "./bin/testrpc.js",
-    "lint-js": "eslint **/*.js",
+    "lint-js": "./node_modules/.bin/eslint **/*.js",
     "lint-sol": "solium --dir ./"
   },
   "dependencies": {

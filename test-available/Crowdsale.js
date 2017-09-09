@@ -32,7 +32,7 @@ contract('Crowdsale', (accounts) => {
         this.token = MintableToken.at(await this.crowdsale.token());
 
     });
-
+/*
     it('should be token owner', async () => {
 
         const owner = await this.token.owner();
@@ -84,7 +84,7 @@ contract('Crowdsale', (accounts) => {
         });
 
     });
-
+*/
     describe('high-level purchase', () => {
 
         beforeEach(async () => {
@@ -135,7 +135,7 @@ contract('Crowdsale', (accounts) => {
 
             const pre = web3.eth.getBalance(wallet);
             await this.crowdsale.sendTransaction({
-                someValue,
+                value: someValue,
                 from: investor,
             });
             const post = web3.eth.getBalance(wallet);
@@ -175,7 +175,7 @@ contract('Crowdsale', (accounts) => {
         it('should increase totalSupply', async () => {
 
             await this.crowdsale.buyTokens(investor, {
-                someValue,
+                value: someValue,
                 from: purchaser,
             });
             const totalSupply = await this.token.totalSupply();
@@ -186,7 +186,7 @@ contract('Crowdsale', (accounts) => {
         it('should assign tokens to beneficiary', async () => {
 
             await this.crowdsale.buyTokens(investor, {
-                someValue,
+                value: someValue,
                 from: purchaser,
             });
             const balance = await this.token.balanceOf(investor);
@@ -198,7 +198,7 @@ contract('Crowdsale', (accounts) => {
 
             const pre = web3.eth.getBalance(wallet);
             await this.crowdsale.buyTokens(investor, {
-                someValue,
+                value: someValue,
                 from: purchaser,
             });
             const post = web3.eth.getBalance(wallet);
