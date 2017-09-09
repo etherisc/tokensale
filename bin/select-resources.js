@@ -13,8 +13,11 @@ const log = require('../util/logger');
  * @returns
  */
 function selectResources(dir, resources) {
+
     if (!fs.exists(dir)) {
+
         fs.dir(dir);
+
     }
 
     fs.list(dir)
@@ -22,18 +25,27 @@ function selectResources(dir, resources) {
         .forEach(file => fs.remove(`${dir}/${file}`));
 
     if (resources && resources.length) {
+
         resources.forEach((file) => {
+
             const src = path.resolve(`${dir}-available/${file}`);
             const dest = path.resolve(`${dir}/${file}`);
 
             if (fs.exists(src)) {
+
                 fs.symlink(src, dest);
                 log.info(`Selected ${dir}: ${dir}/${file}`);
+
             } else {
+
                 log.error(`${dir}/${file} doesn't exists`);
+
             }
+
         });
+
     }
+
 }
 
 /**
@@ -41,14 +53,20 @@ function selectResources(dir, resources) {
  *
  */
 function main() {
+
     try {
+
         const { migrations, test, } = yaml.safeLoad(fs.read('resources.yml'));
 
         selectResources('migrations', migrations);
         selectResources('test', test);
+
     } catch (e) {
+
         log.error(e);
+
     }
+
 }
 
 main();

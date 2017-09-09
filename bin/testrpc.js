@@ -22,9 +22,13 @@ const options = {
 TestRPC
     .server(options)
     .listen(options.port, (err, state) => {
+
         if (err) {
+
             log.error(err);
+
         } else {
+
             log.info('EthereumJS TestRPC');
 
             log.info('Accounts:');
@@ -34,5 +38,7 @@ TestRPC
             );
 
             log.info(`Listening on ${(options.hostname || 'localhost')}:${options.port}`);
+
         }
+
     });

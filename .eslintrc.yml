@@ -32,6 +32,9 @@ rules:
           imports: never
           exports: never
           functions: ignore
+    padded-blocks:
+        - error
+        - always
 
 globals:
     artifacts: true
