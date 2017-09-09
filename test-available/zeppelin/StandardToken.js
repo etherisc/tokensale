@@ -1,6 +1,6 @@
-const assertJump = require('./helpers/assertJump');
+const assertJump = require('../helpers/assertJump').assertJump;
 
-const StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
+const StandardTokenMock = artifacts.require('../helpers/StandardTokenMock.sol');
 
 contract('StandardToken', (accounts) => {
 
@@ -27,6 +27,7 @@ contract('StandardToken', (accounts) => {
 
         const token = await StandardTokenMock.new(accounts[0], 100);
         await token.transfer(accounts[1], 100);
+
         const balance0 = await token.balanceOf(accounts[0]);
         assert.equal(balance0, 0);
 
@@ -44,7 +45,8 @@ contract('StandardToken', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');
@@ -82,7 +84,8 @@ contract('StandardToken', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');

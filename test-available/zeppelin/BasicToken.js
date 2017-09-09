@@ -1,6 +1,7 @@
-const assertJump = require('./helpers/assertJump');
 
-const BasicTokenMock = artifacts.require('./helpers/BasicTokenMock.sol');
+const assertJump = require('../helpers/assertJump').assertJump;
+
+const BasicTokenMock = artifacts.require('../helpers/BasicTokenMock.sol');
 
 contract('BasicToken', (accounts) => {
 
@@ -35,7 +36,8 @@ contract('BasicToken', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');

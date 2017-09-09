@@ -1,5 +1,5 @@
 
-const Mintabletoken = artifacts.require('../contracts/Tokens/MintableToken.sol');
+const Mintabletoken = artifacts.require('MintableToken.sol');
 
 contract('Mintable', (accounts) => {
 

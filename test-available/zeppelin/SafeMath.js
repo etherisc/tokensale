@@ -1,6 +1,6 @@
-const assertJump = require('./helpers/assertJump');
+const assertJump = require('../helpers/assertJump').assertJump;
 
-const SafeMathMock = artifacts.require('./helpers/SafeMathMock.sol');
+const SafeMathMock = artifacts.require('../helpers/SafeMathMock.sol');
 
 contract('SafeMath', (accounts) => {
 
@@ -54,7 +54,8 @@ contract('SafeMath', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');
@@ -71,7 +72,8 @@ contract('SafeMath', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');
@@ -88,7 +90,8 @@ contract('SafeMath', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');

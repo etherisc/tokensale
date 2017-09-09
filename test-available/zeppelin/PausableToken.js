@@ -1,7 +1,7 @@
 
-const assertJump = require('./helpers/assertJump');
+const assertJump = require('../helpers/assertJump').assertJump;
 
-const PausabconstokenMock = artifacts.require('./helpers/PausableTokenMock.sol');
+const PausabconstokenMock = artifacts.require('../helpers/PausableTokenMock.sol');
 
 contract('Pausabletoken', (accounts) => {
 
@@ -73,7 +73,8 @@ contract('Pausabletoken', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');
@@ -89,7 +90,8 @@ contract('Pausabletoken', (accounts) => {
 
         } catch (error) {
 
-            return assertJump(error);
+            assertJump(error);
+            return;
 
         }
         assert.fail('should have thrown before');

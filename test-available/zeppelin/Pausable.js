@@ -1,8 +1,8 @@
-const assertJump = require('./helpers/assertJump');
+const assertJump = require('../helpers/assertJump').assertJump;
 
-const PausableMock = artifacts.require('helpers/PausableMock.sol');
+const PausableMock = artifacts.require('../helpers/PausableMock.sol');
 
-contract('Pausable', (accounts) => {
+contract('Pausable', (accounts) => { // eslint-disable-line no-unused-variables
 
     it('can perform normal process in non-pause', async () => {
 
@@ -30,6 +30,7 @@ contract('Pausable', (accounts) => {
         } catch (error) {
 
             assertJump(error);
+            return;
 
         }
         const count1 = await Pausable.count();
@@ -48,6 +49,7 @@ contract('Pausable', (accounts) => {
         } catch (error) {
 
             assertJump(error);
+            return;
 
         }
 

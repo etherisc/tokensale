@@ -1,5 +1,5 @@
-const advanceToBlock = require('./helpers/advanceToBlock').advanceToBlock;
-const EVMThrow = require('./helpers/EVMThrow').EVMThrow;
+const advanceToBlock = require('../helpers/advanceToBlock').advanceToBlock;
+const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
 
 const BigNumber = web3.BigNumber;
 
@@ -8,11 +8,14 @@ const should = require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-const FinalizableCrowdsale = artifacts.require('./helpers/FinalizableCrowdsaleImpl.sol');
+const FinalizableCrowdsale = artifacts.require('../helpers/FinalizableCrowdsaleImpl.sol');
 const MintableToken = artifacts.require('MintableToken');
 
-contract('FinalizableCrowdsale', ([_, owner, wallet, thirdparty, ]) => {
+contract('FinalizableCrowdsale', (accounts) => {
 
+    const owner = accounts[1];
+    const wallet = accounts[2];
+    const thirdparty = accounts[3];
     const rate = new BigNumber(1000);
 
     beforeEach(async () => {
