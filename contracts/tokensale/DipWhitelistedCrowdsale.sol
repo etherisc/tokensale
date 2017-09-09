@@ -78,8 +78,8 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function editContributors(
     address[] _contributorAddresses, 
-    uint[] _contributorPPAllowances, 
-    uint[] _contributorOtherAllowance) 
+    uint256[] _contributorPPAllowances, 
+    uint256[] _contributorOtherAllowance) 
     onlyOwner 
     {
     

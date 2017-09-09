@@ -1,6 +1,5 @@
 /**
- * [advanceBlock description]
- * @return {[type]} [description]
+ * Mine one block.
  */
 function advanceBlock() {
 
@@ -18,9 +17,8 @@ function advanceBlock() {
 }
 
 /**
- * [advanceToBlock description]
- * @param  {[type]} number [description]
- * @return {[type]}        [description]
+ * Advance TestRPC to specific block.number
+ * @param  {integer} number the desired block
  */
 async function advanceToBlock(number) {
 
