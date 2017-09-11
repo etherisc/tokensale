@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+echo "Neuer Versuch"
 npm run testrpc > testrpc.log &
 
 echo "Select resources"
