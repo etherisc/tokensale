@@ -47,7 +47,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event HardCap2Reached(uint256 _blockNumber);
   event DipTgeEnded(uint256 _blockNumber);
 
-
   /**
    * Constructor
    * @param _startOpenPpBlock starting block for open PriorityPass phase
@@ -102,44 +101,61 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * @param  _contributor the address of the contributor
    * @return maxContribution maximum allowed amount in wei
    */
-  function calculateMaxContribution(address _contributor) constant returns (uint256 maxContribution){
+  function calculateMaxContribution(address _contributor) constant returns (uint256) {
+
     uint256 maxContrib;
-    if (crowdsaleState == state.priorityPass){
-      maxContrib = contributorList[_contributor].priorityPassAllowance - contributorList[_contributor].contributionAmount;
+    if (crowdsaleState == state.pendingStart) {
+      maxContrib = 0;
+    } else if (crowdsaleState == state.priorityPass) {
+      maxContrib = 
+        contributorList[_contributor].priorityPassAllowance +
+        contributorList[_contributor].otherAllowance - 
+        contributorList[_contributor].contributionAmount;
       if (maxContrib > hardCap1 - weiRaised){
         maxContrib = hardCap1 - weiRaised;
       }
-    }
-    else{
+    } else if (crowdsaleState == state.openedPriorityPass) {
+      if (contributorList[_contributor].priorityPassAllowance + 
+          contributorList[_contributor].otherAllowance > 0) {
+        maxContrib = hardCap1 - weiRaised;
+      } else {
+        maxContrib = 0;
+      }
+    } else if (crowdsaleState == state.crowdsale) {
       maxContrib = hardCap2 - weiRaised;
-    }
+    } else {
+      maxContrib = 0;
+    } 
     return maxContrib;
   }
 
+  /**
+   * Set the current state of the crowdsale.
+   */
   function setCrowdsaleState() {
-    if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded){
+    if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded) {
       crowdsaleState = state.crowdsaleEnded;
       HardCap2Reached(block.number);
       DipTgeEnded(block.number);
     }
 
-    if (block.number >= startBlock && block.number < startOpenPpBlock){
+    if (block.number >= startBlock && block.number < startOpenPpBlock) {
       if (crowdsaleState != state.priorityPass) {
         crowdsaleState = state.priorityPass;
         DipTgeStarted(block.number);
       }
-    } else if (block.number >= startOpenPpBlock && block.number < startPublicBlock){
+    } else if (block.number >= startOpenPpBlock && block.number < startPublicBlock) {
       if (crowdsaleState != state.openedPriorityPass) {
         crowdsaleState = state.openedPriorityPass;
         OpenPpStarted(block.number);
       }
-    } else if (block.number >= startPublicBlock && block.number <= endBlock){        
+    } else if (block.number >= startPublicBlock && block.number <= endBlock) {
       if (crowdsaleState != state.crowdsale) {                                       
         crowdsaleState = state.crowdsale;
         PublicStarted(block.number);
       }
     } else {
-      if (crowdsaleState != state.crowdsaleEnded && block.number > endBlock){
+      if (crowdsaleState != state.crowdsaleEnded && block.number > endBlock) {
         crowdsaleState = state.crowdsaleEnded;
         DipTgeEnded(block.number);
       }
