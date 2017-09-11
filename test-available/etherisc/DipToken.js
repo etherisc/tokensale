@@ -1,6 +1,13 @@
 const DipTokenMock = artifacts.require('DipTokenMock');
 const DipToken = artifacts.require('DipToken');
 
+const BigNumber = web3.BigNumber;
+
+const should = require('chai')
+    .use(require('chai-as-promised'))
+    .use(require('chai-bignumber')(BigNumber))
+    .should();
+
 contract('DipTokenMock', (accounts) => {
 
     let mock;
@@ -16,16 +23,16 @@ contract('DipTokenMock', (accounts) => {
     it('should be constructed with the correct parameters', async () => {
 
         const name = await token.name();
-        assert.equal(name, 'DecentralizedInsurance');
+        name.should.be.equal('DecentralizedInsurance');
 
         const symbol = await token.symbol();
-        assert.equal(symbol, 'DIP');
+        symbol.should.be.equal('DIP');
 
         const decimals = await token.decimals();
-        assert.equal(decimals, 18);
+        decimals.should.be.bignumber.equal(18);
 
         const maxSupply = await token.MAXIMUM_SUPPLY();
-        assert.equal(maxSupply, 100000000);
+        maxSupply.should.be.bignumber.equal(new BigNumber('1e8').mul(new BigNumber('1e18')));
 
     });
 
