@@ -454,17 +454,6 @@ contract('DipTge', (accounts) => {
 
         });
 
-        // should reject payments over allowance from whitelisted PP participant
-        // should reject payments over allowance from whitelisted other participant
-        // should reject payments after reaching hardCap1 from whitelisted PP participants
-        // should reject payments after reaching hardCap1 from whitelisted other participants
-        // should reject payments after reaching hardCap2 from whitelisted PP participants
-        // should reject payments after reaching hardCap2 from whitelisted other participants
-        // should partially accept payments if near hardCap1 for whitelisted PP participants
-        // should partially accept payments if near hardCap1 for whitelisted other participants
-        // should partially accept payments if near hardCap2 for whitelisted PP participants
-        // should partially accept payments if near hardCap2 for whitelisted other participants
-
     });
 
     describe('rejecting payments', () => {
@@ -518,6 +507,54 @@ contract('DipTge', (accounts) => {
 
         });
 
+        it('should reject payments after end from anybody', async () => {
+
+            await advanceToBlock(this.endBlock + 1);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+            await this.crowdsale.buyTokens(anonInvestor, {
+                from: purchaser,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+        });
+
+        it('should reject payments after end from whitelisted PP participant', async () => {
+
+            await advanceToBlock(this.endBlock + 1);
+
+            await this.crowdsale.sendTransaction({
+                from: ppInvestor,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+            await this.crowdsale.buyTokens(ppInvestor, {
+                from: purchaser,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+        });
+
+        it('should reject payments after end from whitelisted other participant', async () => {
+
+            await advanceToBlock(this.endBlock + 1);
+
+            await this.crowdsale.sendTransaction({
+                from: otherInvestor,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+            await this.crowdsale.buyTokens(otherInvestor, {
+                from: purchaser,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+        });
+
 
         // should reject payments over allowance from whitelisted PP participant
         // should reject payments over allowance from whitelisted other participant
@@ -525,38 +562,6 @@ contract('DipTge', (accounts) => {
         // should reject payments after reaching hardCap1 from whitelisted other participants
         // should reject payments after reaching hardCap2 from whitelisted PP participants
         // should reject payments after reaching hardCap2 from whitelisted other participants
-        // should partially accept payments if near hardCap1 for whitelisted PP participants
-        // should partially accept payments if near hardCap1 for whitelisted other participants
-        // should partially accept payments if near hardCap2 for whitelisted PP participants
-        // should partially accept payments if near hardCap2 for whitelisted other participants
-
-    });
-
-    describe('high-level purchase', () => {
-
-        beforeEach(async () => {
-
-            await advanceToBlock(this.startBlock);
-
-        });
-
-    // should accept allowed payments from PP Participants
-    // should accept allowed payments from other Participants
-    // should accept higher payments after startOpenPpBlock from PP Participants
-    // should accept higher payments after startOpenPpBlock from other Participants
-    // should accept payments after startPublicBlock from any Participants
-
-    });
-
-    describe('low-level purchase', () => {
-
-        beforeEach(async () => {
-
-            await advanceToBlock(this.startBlock);
-
-        });
-
-    // see above
 
     });
 
