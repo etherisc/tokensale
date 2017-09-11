@@ -2,11 +2,11 @@ language: node_js
 node_js:
   - "7"
 script: ./ci-cd/travis-testrpc.sh
-#cache:
-#  directories:
-#    - $HOME/.npm
-#    - $HOME/.cache/pip
-#    - $HOME/build
+cache:
+  directories:
+    - $HOME/.npm
+    - $HOME/.cache/pip
+    - $HOME/build
 
 sudo: required
 addons:
