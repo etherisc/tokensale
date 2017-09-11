@@ -1,7 +1,7 @@
-const DIP_Token = artifacts.require('./token/DIP_Token.sol'); // eslint-disable-line camelcase
+const DipToken = artifacts.require('./token/DipToken.sol');
 
-module.exports = function (deployer) {
+module.exports = (deployer) => {
 
-    deployer.deploy(DIP_Token);
+    deployer.deploy(DipToken);
 
 };
