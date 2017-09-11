@@ -36,6 +36,7 @@
     "fs-jetpack": "^1.2.0",
     "js-yaml": "^3.9.1",
     "rimraf": "^2.6.1",
+    "solidity-coverage": "^0.2.2",
     "solium": "^0.5.5",
     "truffle": "^3.4.7",
     "web3": "^1.0.0-beta.18",
