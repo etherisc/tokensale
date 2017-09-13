@@ -11,16 +11,16 @@ test:
     - helpers/SafeMathMock.sol
     - helpers/StandardTokenMock.sol
     - helpers/FinalizableCrowdsaleImpl.sol
-#    - zeppelin/SafeMath.js
-#    - zeppelin/BasicToken.js
-#    - zeppelin/StandardToken.js
-#    - zeppelin/MintableToken.js
-#    - zeppelin/Pausable.js
-#    - zeppelin/PausableToken.js
-#    - zeppelin/FinalizableCrowdsale.js  
-#    - zeppelin/Crowdsale.js
-    - etherisc/TokenStake.js
-    - etherisc/TokenStakeMock.sol
-#    - etherisc/DipToken.js
-#    - etherisc/DipTokenMock.sol
-#    - etherisc/DipTge.js
+    - zeppelin/SafeMath.js
+    - zeppelin/BasicToken.js
+    - zeppelin/StandardToken.js
+    - zeppelin/MintableToken.js
+    - zeppelin/Pausable.js
+    - zeppelin/PausableToken.js
+    - zeppelin/FinalizableCrowdsale.js  
+    - zeppelin/Crowdsale.js
+#    - etherisc/TokenStake.js
+#    - etherisc/TokenStakeMock.sol
+    - etherisc/DipToken.js
+    - etherisc/DipTokenMock.sol
+    - etherisc/DipTge.js
