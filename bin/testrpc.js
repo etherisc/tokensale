@@ -14,7 +14,7 @@ const options = {
         { secretKey: '0x945377fad41211126252e15f9390dd20ffb43f4d637eda54b8e6b9c10eb00005', balance: 1000000000000000000000000, }, // 5
         { secretKey: '0x945377fad41211126252e15f9390dd20ffb43f4d637eda54b8e6b9c10eb00007', balance: 1000000000000000000000000, }, // 6
     ],
-    debug: true,
+    // debug: true,
     logger: { log: log.info, },
     blocktime: 0,
 };

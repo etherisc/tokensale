@@ -9,10 +9,11 @@ pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "../protocol/TokenStakeERC20.sol";
+import "../protocol/TokenStake.sol";
 
 
-contract TokenTimelock is TokenStakeERC20, Ownable {
+contract TokenTimelock is TokenStake, Ownable {
+  
   using SafeMath for uint256;
 
   mapping (address => mapping(uint256 => uint256)) releaseTime;

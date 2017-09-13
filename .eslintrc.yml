@@ -8,8 +8,8 @@ env:
 parserOptions:
   ecmaVersion: 2017
 
-extends:
-    - airbnb-base
+#extends:
+#    - airbnb-base
 
 rules:
     func-names: 

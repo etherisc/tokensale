@@ -133,32 +133,48 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * Set the current state of the crowdsale.
    */
   function setCrowdsaleState() {
+
     if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded) {
+
       crowdsaleState = state.crowdsaleEnded;
       HardCap2Reached(block.number);
       DipTgeEnded(block.number);
-    }
 
-    if (block.number >= startBlock && block.number < startOpenPpBlock) {
-      if (crowdsaleState != state.priorityPass) {
-        crowdsaleState = state.priorityPass;
-        DipTgeStarted(block.number);
-      }
-    } else if (block.number >= startOpenPpBlock && block.number < startPublicBlock) {
-      if (crowdsaleState != state.openedPriorityPass) {
-        crowdsaleState = state.openedPriorityPass;
-        OpenPpStarted(block.number);
-      }
-    } else if (block.number >= startPublicBlock && block.number <= endBlock) {
-      if (crowdsaleState != state.crowdsale) {                                       
-        crowdsaleState = state.crowdsale;
-        PublicStarted(block.number);
-      }
-    } else {
-      if (crowdsaleState != state.crowdsaleEnded && block.number > endBlock) {
+    } else if (
+      block.number >= startBlock && 
+      block.number < startOpenPpBlock && 
+      crowdsaleState != state.priorityPass
+      ) {
+
+      crowdsaleState = state.priorityPass;
+      DipTgeStarted(block.number);
+
+    } else if (
+      block.number >= startOpenPpBlock && 
+      block.number < startPublicBlock &&
+      crowdsaleState != state.openedPriorityPass
+      ) {
+
+      crowdsaleState = state.openedPriorityPass;
+      OpenPpStarted(block.number);
+
+    } else if (
+      block.number >= startPublicBlock && 
+      block.number <= endBlock &&
+      crowdsaleState != state.crowdsale
+      ) {                     
+
+      crowdsaleState = state.crowdsale;
+      PublicStarted(block.number);
+
+    } else if (
+        crowdsaleState != state.crowdsaleEnded && 
+        block.number > endBlock
+        ) {
+
         crowdsaleState = state.crowdsaleEnded;
         DipTgeEnded(block.number);
-      }
+        
     }
   }
 
@@ -179,22 +195,26 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       weiAmount = maxContrib;
     }
 
-    // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    if (weiAmount > 0) {
+      // calculate token amount to be created
+      uint256 tokens = weiAmount.mul(rate);
 
-    // update state
-    weiRaised = weiRaised.add(weiAmount);
-    if (weiRaised > minCap)
-      MinCapReached(block.number);
+      // update state
+      weiRaised = weiRaised.add(weiAmount);
+      if (weiRaised > minCap)
+        MinCapReached(block.number);
 
-    if (!token.mint(_beneficiary, tokens)) revert();
-    TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
+      if (!token.mint(_beneficiary, tokens)) revert();
+      TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
-    contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
-    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(tokens);
+      contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
+      contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(tokens);
 
-    wallet.transfer(weiAmount);
+      wallet.transfer(weiAmount);
+    }
+
     if (refund != 0) msg.sender.transfer(refund);
+
   }
 
 

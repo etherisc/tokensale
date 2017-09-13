@@ -30,6 +30,7 @@ contract('DipTge', (accounts) => {
     const allowPP = ether(51);
     const allowOther = ether(52);
     const zeroEther = ether(0);
+    const zeroBig = new BigNumber(0);
 
 
     beforeEach(async () => {
@@ -49,6 +50,39 @@ contract('DipTge', (accounts) => {
             rate,
             wallet);
         this.token = DipToken.at(await this.crowdsale.token());
+
+    });
+
+
+
+    it('should throw if rate == 0', async () => {
+
+        try {
+
+            this.startBlock = web3.eth.blockNumber + 5; // 10;
+            this.startOpenPpBlock = web3.eth.blockNumber + 10; // 20;
+            this.startPublicBlock = web3.eth.blockNumber + 15; // 30;
+            this.endBlock = web3.eth.blockNumber + 20; // 40;
+            this.crowdsale = await DipTge.new(
+                this.startBlock,
+                this.startOpenPpBlock,
+                this.startPublicBlock,
+                this.endBlock,
+                minCap,
+                hardCap1,
+                hardCap2,
+                zeroBig,
+                wallet);
+
+        } catch (error) {
+
+            assertJump(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
 
     });
 
@@ -295,9 +329,11 @@ contract('DipTge', (accounts) => {
                 [allowPP.mul(3), zeroEther],
                 [zeroEther, allowOther.mul(3)]
             );
+
             await advanceToBlock(this.startBlock);
 
         });
+
 
         it('should accept payments from priority pass members', async () => {
 
@@ -366,6 +402,48 @@ contract('DipTge', (accounts) => {
 
             const weiRaised = await this.crowdsale.weiRaised();
             weiRaised.should.be.bignumber.equal(allowOther.mul(3));
+
+        });
+
+        it('should limit to hardCap1 in priority Phase for priority pass members', async () => {
+
+            await this.crowdsale.editContributors(
+                [ppInvestor, otherInvestor],
+                [hardCap1.add(1), zeroEther],
+                [zeroEther, hardCap1.add(2)]
+            );
+
+            await this.crowdsale.sendTransaction({
+                from: ppInvestor,
+                value: hardCap1.add(11),
+            }).should.be.fulfilled;
+
+            const tokenBalance = await this.token.balanceOf(ppInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap1));
+
+            const weiRaised = await this.crowdsale.weiRaised();
+            weiRaised.should.be.bignumber.equal(hardCap1);
+
+        });
+
+        it('should limit to hardCap1 in priority Phase for other listed members', async () => {
+
+            await this.crowdsale.editContributors(
+                [ppInvestor, otherInvestor],
+                [hardCap1.add(1), zeroEther],
+                [zeroEther, hardCap1.add(2)]
+            );
+
+            await this.crowdsale.sendTransaction({
+                from: otherInvestor,
+                value: hardCap1.add(12),
+            }).should.be.fulfilled;
+
+            const tokenBalance = await this.token.balanceOf(otherInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap1));
+
+            const weiRaised = await this.crowdsale.weiRaised();
+            weiRaised.should.be.bignumber.equal(hardCap1);
 
         });
 
@@ -565,18 +643,117 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('finalization', () => {
+    describe('misceallenous tests', () => {
 
-    // should mint remaining tokens to ...
-    // should finish minting
+
+        it('should throw if token doesn`t mint', async () => {
+
+            try {
+
+                this.crowdsale = await DipTge.new(
+                    this.startBlock,
+                    this.startOpenPpBlock,
+                    this.startPublicBlock,
+                    this.endBlock,
+                    minCap,
+                    hardCap1,
+                    hardCap2,
+                    // we set rate so that MAXIMUM_SUPPLY will be surpassed
+                    new BigNumber(100000000),
+                    wallet);
+
+                await advanceToBlock(this.startPublicBlock);
+
+                await this.crowdsale.buyTokens(anonInvestor, {
+                    from: purchaser,
+                    value: someValue,
+                });
+
+            } catch (error) {
+
+                assertJump(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if beneficiary is 0x0', async () => {
+
+            await advanceToBlock(this.startBlock);
+
+            await this.crowdsale.buyTokens(0, {
+                from: purchaser,
+                value: someValue,
+            }).should.be.rejectedWith(EVMThrow);
+
+        });
+
+        it('should transfer remaining tokens to wallet', async () => {
+
+            await advanceToBlock(this.endBlock + 1);
+
+            await this.crowdsale.finalize().should.be.fulfilled;
+
+            const totalSupply = await this.token.totalSupply();
+            const maxSupply = await this.token.MAXIMUM_SUPPLY();
+            totalSupply.should.be.bignumber.equal(maxSupply);
+
+            const balance = await this.token.balanceOf(wallet);
+            balance.should.be.bignumber.equal(maxSupply);
+
+        });
+
+        it('should end sale after hardCap2 is reached', async () => {
+
+            await advanceToBlock(this.startPublicBlock);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: hardCap2,
+            }).should.be.fulfilled;
+
+            let weiRaised = await this.crowdsale.weiRaised();
+            weiRaised.should.be.bignumber.equal(hardCap2);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: someValue,
+            }).should.be.fulfilled;
+
+            weiRaised = await this.crowdsale.weiRaised();
+            weiRaised.should.be.bignumber.equal(hardCap2);
+
+            const state = await this.crowdsale.crowdsaleState();
+            state.toNumber().should.be.equal(4);
+
+        });
+
+        it('should salvage tokens which have been sent to contract by mistake', async () => {
+
+            await advanceToBlock(this.startPublicBlock);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: someValue,
+            }).should.be.fulfilled;
+
+            await this.crowdsale.unpauseToken().should.be.fulfilled;
+
+            await this.token.transfer(this.crowdsale.address, rate.mul(someValue), {
+                from: anonInvestor,
+            }).should.be.fulfilled;
+
+            await this.crowdsale.salvageTokens(this.token.address, anonInvestor)
+                .should.be.fulfilled;
+
+            const balance = await this.token.balanceOf(anonInvestor);
+            balance.should.be.bignumber.equal(rate.mul(someValue));
+
+        });
 
     });
-
-    describe('salvage Tokens', () => {
-
-    // should salvage tokens
-
-    });
-
 
 });

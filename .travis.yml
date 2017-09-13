@@ -6,7 +6,6 @@ cache:
   directories:
     - $HOME/.npm
     - $HOME/.cache/pip
-    #- $HOME/build
 
 sudo: required
 addons:

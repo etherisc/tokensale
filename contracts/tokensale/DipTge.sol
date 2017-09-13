@@ -68,6 +68,12 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   }
 
+  function unpauseToken() onlyOwner {
+
+    DipToken(token).unpause();
+
+  }
+
   /**
    * Creates an new ERC20 Token contract for the DIP Token.
    * @return the created token

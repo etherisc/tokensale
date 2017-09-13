@@ -10,8 +10,13 @@ pragma solidity ^0.4.11;
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/token/StandardToken.sol";
 
+/**
+ * TokenStake Contract.
+ * This contract has to be extended to be useful, as
+ * all of its functions are internal.
+ */
+contract TokenStake {
 
-contract TokenStakeERC20 {
   using SafeMath for uint256;
 
   StandardToken token;
@@ -20,12 +25,7 @@ contract TokenStakeERC20 {
   event Staked(address _staker, uint256 _value);
   event Released(address _staker, address _beneficiary, uint256 _value);
 
-  modifier onlyToken {
-    require (msg.sender == address(token));
-    _;
-  }
-
-  function TokenStakeERC20 (StandardToken _token) {
+  function TokenStake (StandardToken _token) {
     token = _token;
   }
 
@@ -39,17 +39,21 @@ contract TokenStakeERC20 {
     return false;
   }
 
-  // this functions should be overridden with custom logic
-  function release(address _staker, address _beneficiary, uint _value) internal {
+  function releaseFor(address _beneficiary, address _staker, uint _value) internal returns (bool) {
     if (staked[_staker] > _value) {
       staked[_staker].sub(_value);
-      token.transfer(_beneficiary, _value);
-      Released(_staker, _beneficiary, _value);    
+      if (token.transfer(_beneficiary, _value)) {
+        Released(_staker, _beneficiary, _value);
+        return true;
+      } else {
+        staked[_staker].add(_value);
+        return false;
+      }
     } 
   }
 
-  function release(address _staker, uint _value) internal {
-    release(_staker, _staker, _value);
+  function release(address _staker, uint _value) internal returns (bool) {
+    return releaseFor(_staker, _staker, _value);
   }
 
   function stakedOf(address _staker) constant returns (uint256) {
