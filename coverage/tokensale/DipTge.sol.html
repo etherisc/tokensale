@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>0/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">50% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>1/2</span>
+        <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>0/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>8/8</span>
+        <span class='fraction'>0/8</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -209,34 +209,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36×</span>
-<span class="cline-any cline-yes">36×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,7 +227,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,7 +296,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * @param _hardcap1   hardcap for priority pass 
    * @param _hardcap2   hardcap overall
    */
-  function DipTge (
+<span class="fstat-no" title="function not covered" >  function DipTge (</span>
     uint256 _startBlock,
     uint256 _startOpenPpBlock,
     uint256 _startPublicBlock,
@@ -312,16 +312,16 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     FinalizableCrowdsale() 
   {
 &nbsp;
-    <span class="missing-if-branch" title="else path not taken" >E</span>require(_rate &gt; 0);
-    rate = _rate;
+<span class="cstat-no" title="statement not covered" >    require(_rate &gt; 0)</span>;
+<span class="cstat-no" title="statement not covered" >    rate = _rate</span>;
 &nbsp;
-    DipToken(token).pause();
+<span class="cstat-no" title="statement not covered" >    DipToken(token)</span>.pause();
 &nbsp;
   }
 &nbsp;
-  function unpauseToken() onlyOwner {
+<span class="fstat-no" title="function not covered" >  function unpauseToken() onlyOwner </span>{
 &nbsp;
-    DipToken(token).unpause();
+<span class="cstat-no" title="statement not covered" >    DipToken(token)</span>.unpause();
 &nbsp;
   }
 &nbsp;
@@ -329,15 +329,15 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * Creates an new ERC20 Token contract for the DIP Token.
    * @return the created token
    */
-  function createTokenContract() internal returns (MintableToken) {
-    return new DipToken();
+<span class="fstat-no" title="function not covered" >  function createTokenContract() internal returns (MintableToken) </span>{
+<span class="cstat-no" title="statement not covered" >    return new DipToken();</span>
   }
 &nbsp;
   /**
    * Finalize sale and perform cleanup actions.
    */
-  function finalization() internal {
-    uint256 maxSupply = DipToken(token).MAXIMUM_SUPPLY(); 
+<span class="fstat-no" title="function not covered" >  function finalization() internal </span>{
+<span class="cstat-no" title="statement not covered" >    uint256 maxSupply = DipToken(token).MAXIMUM_SUPPLY()</span>; 
     token.mint(wallet, maxSupply.sub(token.totalSupply())); // Alternativly, hardcode remaining token distribution.
     token.finishMinting();
   }
@@ -347,7 +347,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * @param  _token address of token contract of the respective tokens
    * @param  _to where to send the tokens
    */
-  function salvageTokens(ERC20Basic _token, address _to) onlyOwner {
+<span class="fstat-no" title="function not covered" >  function salvageTokens(ERC20Basic _token, address _to) onlyOwner </span>{
     _token.transfer(_to, _token.balanceOf(this));
   }
 &nbsp;
@@ -358,7 +358,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Sep 12 2017 20:46:11 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Sep 14 2017 09:44:33 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>

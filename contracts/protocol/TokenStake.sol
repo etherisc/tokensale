@@ -20,7 +20,7 @@ contract TokenStake {
   using SafeMath for uint256;
 
   StandardToken token;
-  mapping (address => uint256) staked;
+  mapping (address => uint256) public staked;
 
   event Staked(address _staker, uint256 _value);
   event Released(address _staker, address _beneficiary, uint256 _value);
@@ -30,8 +30,8 @@ contract TokenStake {
   }
 
   // requires approval of token transfer before calling this function
-  function stake(address _sender, address _staker, uint256 _value) internal returns (bool) {
-    if (token.transferFrom(_sender, this, _value)) {
+  function stakeFor(address _sender, address _staker, uint256 _value) internal returns (bool) {
+    if (token.transferFrom(_sender, address(this), _value)) {
       staked[_staker] = staked[_staker].add(_value);
       Staked(_staker, _value);
       return true;
@@ -39,25 +39,23 @@ contract TokenStake {
     return false;
   }
 
+  function stake(address _staker, uint256 _value) internal returns (bool) {
+    return stakeFor(_staker, _staker, _value);
+  }
+
   function releaseFor(address _beneficiary, address _staker, uint _value) internal returns (bool) {
-    if (staked[_staker] > _value) {
-      staked[_staker].sub(_value);
-      if (token.transfer(_beneficiary, _value)) {
-        Released(_staker, _beneficiary, _value);
-        return true;
-      } else {
-        staked[_staker].add(_value);
-        return false;
-      }
-    } 
+    staked[_staker].sub(_value); // will throw if _value > staked[_staker]
+    if (token.transfer(_beneficiary, _value)) {
+      Released(_staker, _beneficiary, _value);
+      return true;
+    } else {
+      staked[_staker].add(_value);
+      return false;
+    }
   }
 
   function release(address _staker, uint _value) internal returns (bool) {
     return releaseFor(_staker, _staker, _value);
-  }
-
-  function stakedOf(address _staker) constant returns (uint256) {
-    return staked[_staker];
   }
 
 }

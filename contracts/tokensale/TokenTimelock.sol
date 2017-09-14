@@ -19,7 +19,7 @@ contract TokenTimelock is TokenStake, Ownable {
   mapping (address => mapping(uint256 => uint256)) releaseTime;
 
   function setTimelock(address _sender, address _staker, uint256 _releaseTime, uint256 _value) {
-    if (stake(_sender, _staker, _value)) {
+    if (stakeFor(_sender, _staker, _value)) {
       releaseTime[_staker][_releaseTime].add(_value);
     }
   }

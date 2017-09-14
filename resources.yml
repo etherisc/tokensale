@@ -6,21 +6,23 @@ test:
     - helpers/assertJump.js
     - helpers/advanceToBlock.js
     - helpers/BasicTokenMock.sol
+    - helpers/SoftPausableToken.sol
     - helpers/PausableMock.sol
     - helpers/PausableTokenMock.sol
+    - helpers/SoftPausableTokenMock.sol
     - helpers/SafeMathMock.sol
     - helpers/StandardTokenMock.sol
     - helpers/FinalizableCrowdsaleImpl.sol
-    - zeppelin/SafeMath.js
-    - zeppelin/BasicToken.js
-    - zeppelin/StandardToken.js
-    - zeppelin/MintableToken.js
-    - zeppelin/Pausable.js
-    - zeppelin/PausableToken.js
-    - zeppelin/FinalizableCrowdsale.js  
-    - zeppelin/Crowdsale.js
-#    - etherisc/TokenStake.js
-#    - etherisc/TokenStakeMock.sol
-    - etherisc/DipToken.js
-    - etherisc/DipTokenMock.sol
-    - etherisc/DipTge.js
+#    - zeppelin/SafeMath.js
+#    - zeppelin/BasicToken.js
+#    - zeppelin/StandardToken.js
+#    - zeppelin/MintableToken.js
+#    - zeppelin/Pausable.js
+#    - zeppelin/PausableToken.js
+#    - zeppelin/FinalizableCrowdsale.js  
+#    - zeppelin/Crowdsale.js
+    - etherisc/TokenStake.js
+    - etherisc/TokenStakeMock.sol
+#    - etherisc/DipToken.js
+#    - etherisc/DipTokenMock.sol
+#    - etherisc/DipTge.js

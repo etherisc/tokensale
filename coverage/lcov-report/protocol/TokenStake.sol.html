@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Code coverage report for tokensale/VestedTokens.sol</title>
+    <title>Code coverage report for protocol/TokenStake.sol</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -16,32 +16,32 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../index.html">all files</a> / <a href="index.html">tokensale/</a> VestedTokens.sol
+      <a href="../index.html">all files</a> / <a href="index.html">protocol/</a> TokenStake.sol
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/9</span>
+        <span class='fraction'>12/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/4</span>
+        <span class='fraction'>4/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/2</span>
+        <span class='fraction'>5/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/7</span>
+        <span class='fraction'>13/13</span>
       </div>
     </div>
   </div>
-  <div class='status-line low'></div>
+  <div class='status-line high'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -91,7 +91,20 @@
 46
 47
 48
-49</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -115,32 +128,45 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @title Generic Token Time Lock
+ * @title Generic Token Staking Contract
  * @dev The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
  * @copyright 2017 Etherisc GmbH
@@ -149,42 +175,55 @@
 pragma solidity ^0.4.11;
 &nbsp;
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
-import "../tokensale/TokenTimelock.sol";
+import "zeppelin-solidity/contracts/token/StandardToken.sol";
 &nbsp;
+/**
+ * TokenStake Contract.
+ * This contract has to be extended to be useful, as
+ * all of its functions are internal.
+ */
+contract TokenStake {
 &nbsp;
-contract VestedTokens is TokenTimelock {
   using SafeMath for uint256;
 &nbsp;
-  uint256 vestingPeriod;
-  uint256 cliff;
-  uint256 numberOfPeriods;
-  address granter;
-  // uint256 UpperBound = 25;
+  StandardToken token;
+  mapping (address =&gt; uint256) public staked;
 &nbsp;
-<span class="fstat-no" title="function not covered" >  function VestedTokens(address _granter, uint256 _vestingPeriod, uint256 _cliff) </span>{
+  event Staked(address _staker, uint256 _value);
+  event Released(address _staker, address _beneficiary, uint256 _value);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    granter = _granter</span>;
-<span class="cstat-no" title="statement not covered" >    vestingPeriod = _vestingPeriod</span>; // e.g. 2 years
-<span class="cstat-no" title="statement not covered" >    cliff = _cliff</span>; // e.g. 6 months
-<span class="cstat-no" title="statement not covered" >    numberOfPeriods = vestingPeriod.div(cliff)</span>;
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    require(vestingPeriod == cliff.mul(numberOfPeriods))</span>;
-    // require(numberOfPeriods &lt; UpperBound); // no unbounded for loops
-&nbsp;
+  function TokenStake (StandardToken _token) {
+    token = _token;
   }
 &nbsp;
-  // precondition: granter has approved this contract to the amount to be granted
-<span class="fstat-no" title="function not covered" >  function grant(address _beneficiary, uint256 _amount, uint256 _startTime) onlyOwner </span>{
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    uint256 part = _amount.div(numberOfPeriods)</span>;
-<span class="cstat-no" title="statement not covered" >    require(_amount == (part.mul(numberOfPeriods)))</span>;
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    for (uint256 period = 1; period &lt;= numberOfPeriods; period++) {</span>
-<span class="cstat-no" title="statement not covered" >      setTimelock(granter, _beneficiary, _startTime + period.mul(cliff), part)</span>;
+  // requires approval of token transfer before calling this function
+  function stakeFor(address _sender, address _staker, uint256 _value) internal returns (bool) {
+    if (token.transferFrom(_sender, address(this), _value)) {
+      staked[_staker] = staked[_staker].add(_value);
+      Staked(_staker, _value);
+      return true;
     }
-&nbsp;
+    return false;
   }
 &nbsp;
+  function stake(address _staker, uint256 _value) internal returns (bool) {
+    return stakeFor(_staker, _staker, _value);
+  }
+&nbsp;
+  function releaseFor(address _beneficiary, address _staker, uint _value) internal returns (bool) {
+    staked[_staker].sub(_value); // will throw if _value &gt; staked[_staker]
+    if (token.transfer(_beneficiary, _value)) {
+      Released(_staker, _beneficiary, _value);
+      return true;
+    } else {
+      staked[_staker].add(_value);
+      return false;
+    }
+  }
+&nbsp;
+  function release(address _staker, uint _value) internal returns (bool) {
+    return releaseFor(_staker, _staker, _value);
+  }
 &nbsp;
 }
 &nbsp;</pre></td></tr>
