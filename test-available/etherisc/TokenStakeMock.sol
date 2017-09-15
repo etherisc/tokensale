@@ -18,23 +18,23 @@ contract TokenStakeMock is TokenStake {
 
   }
 
-  function doStakeFor(address _sender, address _staker, uint256 _value) public returns (bool) {
-    lastResult = stakeFor(_sender, _staker, _value);
+  function doStakeFor(address _staker, uint256 _value) public returns (bool) {
+    lastResult = stakeFor(_staker, _value);
     return lastResult;
   }
 
-  function doStake(address _staker, uint256 _value) public returns (bool) {
-    lastResult = stake(_staker, _value);
+  function doStake(uint256 _value) public returns (bool) {
+    lastResult = stake(_value);
     return lastResult;
   }
 
-  function doReleaseFor(address _beneficiary, address _staker, uint _value) public returns (bool) {
-    lastResult = releaseFor(_beneficiary, _staker, _value);
+  function doReleaseFor(address _beneficiary, uint _value) public returns (bool) {
+    lastResult = releaseFor(_beneficiary, _value);
     return lastResult;
   }
 
-  function doRelease(address _staker, uint _value) public returns (bool) {
-    lastResult = release(_staker, _value);
+  function doRelease(uint _value) public returns (bool) {
+    lastResult = release(_value);
     return lastResult;
   }
 

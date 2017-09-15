@@ -13,8 +13,8 @@ const should = require('chai')
 
 const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
 
-const TokenStakeMock = artifacts.require('../etherisc/TokenStakeMock');
-const SoftPausableTokenMock = artifacts.require('../helpers/SoftPausableTokenMock');
+const TokenStakeMock = artifacts.require('TokenStakeMock');
+const SoftPausableTokenMock = artifacts.require('SoftPausableTokenMock');
 
 
 contract('TokenStakeMock', (accounts) => {
@@ -39,7 +39,9 @@ contract('TokenStakeMock', (accounts) => {
             from: spender,
         });
 
-        const result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        const result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         const event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
@@ -56,11 +58,15 @@ contract('TokenStakeMock', (accounts) => {
             from: spender,
         });
 
-        let result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        let result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
@@ -77,7 +83,9 @@ contract('TokenStakeMock', (accounts) => {
             from: staker,
         });
 
-        const result = await this.tokenStake.doStake(staker, 20);
+        const result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         const event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
@@ -94,11 +102,15 @@ contract('TokenStakeMock', (accounts) => {
             from: staker,
         });
 
-        let result = await this.tokenStake.doStake(staker, 20);
+        let result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doStake(staker, 20);
+        result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
@@ -115,11 +127,15 @@ contract('TokenStakeMock', (accounts) => {
             from: spender,
         });
 
-        let result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        let result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doReleaseFor(beneficiary, staker, 20);
+        result = await this.tokenStake.doReleaseFor(beneficiary, 20, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
@@ -136,15 +152,21 @@ contract('TokenStakeMock', (accounts) => {
             from: spender,
         });
 
-        let result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        let result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doReleaseFor(beneficiary, staker, 10);
+        result = await this.tokenStake.doReleaseFor(beneficiary, 10, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
-        result = await this.tokenStake.doReleaseFor(beneficiary, staker, 10);
+        result = await this.tokenStake.doReleaseFor(beneficiary, 10, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
@@ -161,11 +183,15 @@ contract('TokenStakeMock', (accounts) => {
             from: staker,
         });
 
-        let result = await this.tokenStake.doStake(staker, 20);
+        let result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doRelease(staker, 20);
+        result = await this.tokenStake.doRelease(20, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
@@ -182,15 +208,21 @@ contract('TokenStakeMock', (accounts) => {
             from: staker,
         });
 
-        let result = await this.tokenStake.doStake(staker, 20);
+        let result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         let event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        result = await this.tokenStake.doRelease(staker, 10);
+        result = await this.tokenStake.doRelease(10, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
-        result = await this.tokenStake.doRelease(staker, 10);
+        result = await this.tokenStake.doRelease(10, {
+            from: staker,
+        });
         event = result.logs.find(e => e.event === 'Released');
         should.exist(event);
 
@@ -207,11 +239,15 @@ contract('TokenStakeMock', (accounts) => {
             from: spender,
         });
 
-        const result = await this.tokenStake.doStakeFor(spender, staker, 20);
+        const result = await this.tokenStake.doStakeFor(staker, 20, {
+            from: spender,
+        });
         const event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        await this.tokenStake.doReleaseFor(beneficiary, staker, 30)
+        await this.tokenStake.doReleaseFor(beneficiary, 30, {
+            from: staker,
+        })
             .should.be.rejectedWith(EVMThrow);
 
         let balance = await this.token.balanceOf(this.tokenStake.address);
@@ -221,17 +257,21 @@ contract('TokenStakeMock', (accounts) => {
 
     });
 
-    it('should throw if trying to release more than staked tokens from staker for beneficiary', async () => {
+    it('should throw if trying to release more than staked tokens from staker for staker', async () => {
 
         await this.token.approve(this.tokenStake.address, 50, {
             from: staker,
         });
 
-        const result = await this.tokenStake.doStake(staker, 20);
+        const result = await this.tokenStake.doStake(20, {
+            from: staker,
+        });
         const event = result.logs.find(e => e.event === 'Staked');
         should.exist(event);
 
-        await this.tokenStake.doRelease(staker, 30)
+        await this.tokenStake.doRelease(30, {
+            from: staker,
+        })
             .should.be.rejectedWith(EVMThrow);
 
         let balance = await this.token.balanceOf(this.tokenStake.address);
@@ -249,9 +289,12 @@ contract('TokenStakeMock', (accounts) => {
 
         await this.token.pause();
 
-        await this.tokenStake.doStake(staker, 20).should.be.fulfilled;
+        await this.tokenStake.doStake(20, {
+            from: staker,
+        }).should.be.fulfilled;
+
         const lastResult = await this.tokenStake.lastResult();
-        lastResult.should.be.false;
+        lastResult.should.be.false; // eslint-disable-line no-unused-expressions
 
         let balance = await this.token.balanceOf(this.tokenStake.address);
         balance.should.be.bignumber.equal(0);
@@ -266,13 +309,18 @@ contract('TokenStakeMock', (accounts) => {
             from: staker,
         });
 
-        await this.tokenStake.doStake(staker, 20);
+        await this.tokenStake.doStake(20, {
+            from: staker,
+        });
 
         await this.token.pause();
 
-        await this.tokenStake.doRelease(staker, 20).should.be.fulfilled;
+        await this.tokenStake.doRelease(20, {
+            from: staker,
+        }).should.be.fulfilled;
+
         const lastResult = await this.tokenStake.lastResult();
-        lastResult.should.be.false;
+        lastResult.should.be.false; // eslint-disable-line no-unused-expressions
 
         let balance = await this.token.balanceOf(this.tokenStake.address);
         balance.should.be.bignumber.equal(20);

@@ -35,6 +35,7 @@
     "ethereumjs-testrpc": "^4.0.1",
     "fs-jetpack": "^1.2.0",
     "js-yaml": "^3.9.1",
+    "moment": "^2.18.1",
     "rimraf": "^2.6.1",
     "solidity-coverage": "^0.2.2",
     "solium": "^0.5.5",

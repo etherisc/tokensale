@@ -13,6 +13,7 @@ test:
     - helpers/SafeMathMock.sol
     - helpers/StandardTokenMock.sol
     - helpers/FinalizableCrowdsaleImpl.sol
+    - helpers/increaseTime.js
 #    - zeppelin/SafeMath.js
 #    - zeppelin/BasicToken.js
 #    - zeppelin/StandardToken.js
@@ -21,8 +22,12 @@ test:
 #    - zeppelin/PausableToken.js
 #    - zeppelin/FinalizableCrowdsale.js  
 #    - zeppelin/Crowdsale.js
-    - etherisc/TokenStake.js
-    - etherisc/TokenStakeMock.sol
+#    - etherisc/TokenStake.js
+#    - etherisc/TokenStakeMock.sol
+    - etherisc/TokenTimelockMock.sol
+    - etherisc/TokenTimelock.js
+#    - etherisc/MappingTest.js
+#    - etherisc/MappingTest.sol
 #    - etherisc/DipToken.js
 #    - etherisc/DipTokenMock.sol
 #    - etherisc/DipTge.js
