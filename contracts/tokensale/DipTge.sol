@@ -61,9 +61,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     FinalizableCrowdsale() 
   {
 
-    require(_rate > 0);
-    rate = _rate;
-
     DipToken(token).pause();
 
   }
