@@ -14,31 +14,26 @@ import "../tokensale/TokenTimelock.sol";
 contract VestedTokens is TokenTimelock {
   using SafeMath for uint256;
 
-  uint256 vestingPeriod;
-  uint256 cliff;
-  uint256 numberOfPeriods;
-  // uint256 UpperBound = 25;
+  // uint256 UpperBound = 25; // could be implemented to limit the numberOfPeriods
 
-  function VestedTokens(uint256 _vestingPeriod, uint256 _cliff) {
+  event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
 
-    vestingPeriod = _vestingPeriod; // e.g. 2 years
-    cliff = _cliff; // e.g. 6 months
-    numberOfPeriods = vestingPeriod.div(cliff);
-
-    require(vestingPeriod == cliff.mul(numberOfPeriods));
-    // require(numberOfPeriods < UpperBound); // no unbounded for loops
-
+  function VestedTokens(StandardToken _token) TokenTimelock(_token) {
+    // nothing to do; Constructor is only used to pass constructor argument
   }
 
   // precondition: granter has approved this contract to the amount to be granted
-  function grant(address _beneficiary, uint256 _amount, uint256 _startTime) {
+  function grant(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod) {
 
+    uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
     uint256 part = _amount.div(numberOfPeriods);
     require(_amount == (part.mul(numberOfPeriods)));
 
     for (uint256 period = 1; period <= numberOfPeriods; period++) {
-      setTimelockFor(_beneficiary, _startTime + period.mul(cliff), part);
+      setTimelockFor(_beneficiary, _startTime + period.mul(_cliff), part);
     }
+
+    GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
 
   }
 

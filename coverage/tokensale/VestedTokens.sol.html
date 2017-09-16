@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/8</span>
+        <span class='fraction'>6/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/4</span>
+        <span class='fraction'>2/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/2</span>
+        <span class='fraction'>2/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/6</span>
+        <span class='fraction'>6/6</span>
       </div>
     </div>
   </div>
-  <div class='status-line low'></div>
+  <div class='status-line high'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -83,12 +83,7 @@
 38
 39
 40
-41
-42
-43
-44
-45
-46</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+41</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -113,22 +108,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,31 +139,26 @@ import "../tokensale/TokenTimelock.sol";
 contract VestedTokens is TokenTimelock {
   using SafeMath for uint256;
 &nbsp;
-  uint256 vestingPeriod;
-  uint256 cliff;
-  uint256 numberOfPeriods;
-  // uint256 UpperBound = 25;
+  // uint256 UpperBound = 25; // could be implemented to limit the numberOfPeriods
 &nbsp;
-<span class="fstat-no" title="function not covered" >  function VestedTokens(uint256 _vestingPeriod, uint256 _cliff) </span>{
+  event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    vestingPeriod = _vestingPeriod</span>; // e.g. 2 years
-<span class="cstat-no" title="statement not covered" >    cliff = _cliff</span>; // e.g. 6 months
-<span class="cstat-no" title="statement not covered" >    numberOfPeriods = vestingPeriod.div(cliff)</span>;
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    require(vestingPeriod == cliff.mul(numberOfPeriods))</span>;
-    // require(numberOfPeriods &lt; UpperBound); // no unbounded for loops
-&nbsp;
+  function VestedTokens(StandardToken _token) TokenTimelock(_token) {
+    // nothing to do; Constructor is only used to pass constructor argument
   }
 &nbsp;
   // precondition: granter has approved this contract to the amount to be granted
-<span class="fstat-no" title="function not covered" >  function grant(address _beneficiary, uint256 _amount, uint256 _startTime) </span>{
+  function grant(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod) {
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    uint256 part = _amount.div(numberOfPeriods)</span>;
-<span class="cstat-no" title="statement not covered" >    require(_amount == (part.mul(numberOfPeriods)))</span>;
+    uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
+    uint256 part = _amount.div(numberOfPeriods);
+    require(_amount == (part.mul(numberOfPeriods)));
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    for (uint256 period = 1; period &lt;= numberOfPeriods; period++) {</span>
-<span class="cstat-no" title="statement not covered" >      setTimelockFor(_beneficiary, _startTime + period.mul(cliff), part)</span>;
+    for (uint256 period = 1; period &lt;= numberOfPeriods; period++) {
+      setTimelockFor(_beneficiary, _startTime + period.mul(_cliff), part);
     }
+&nbsp;
+    GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
 &nbsp;
   }
 &nbsp;
@@ -184,7 +169,7 @@ contract VestedTokens is TokenTimelock {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Sep 15 2017 18:09:02 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Sep 16 2017 13:13:25 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>

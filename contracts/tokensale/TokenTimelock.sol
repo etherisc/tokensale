@@ -74,7 +74,7 @@ contract TokenTimelock is TokenStake, Ownable {
    * @param _value amount of tokens to be released
    * @return true on success.
    */
-  function releaseTimelock(uint _releaseTime, uint256 _value) returns (bool) {
+  function releaseTimelock(uint256 _releaseTime, uint256 _value) returns (bool) {
     return releaseTimelockFor(msg.sender, _releaseTime, _value);
   } 
 

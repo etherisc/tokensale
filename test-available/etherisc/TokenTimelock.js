@@ -15,6 +15,7 @@ const moment = require('moment');
 
 const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
 const increaseTime = require('../helpers/increaseTime').increaseTime;
+const latestTime = require('../helpers/latestTime').latestTime;
 
 const TokenTimelockMock = artifacts.require('TokenTimelockMock');
 const SoftPausableTokenMock = artifacts.require('SoftPausableTokenMock');
@@ -28,6 +29,7 @@ contract('TokenTimelock', (accounts) => {
 
     beforeEach(async () => {
 
+        this.lockTime = latestTime().add(50, 'days').unix();
         this.token = await SoftPausableTokenMock.new(spender, 100);
         this.tokenTimelock = await TokenTimelockMock.new(this.token.address);
         this.token.transfer(staker, 50, {
@@ -47,9 +49,7 @@ contract('TokenTimelock', (accounts) => {
 
     it('should set timelock from spender for staker', async () => {
 
-        const lockTime = (Date.now() / 1000) + 5;
-
-        const result = await this.tokenTimelock.setTimelockFor(staker, lockTime, 20, {
+        const result = await this.tokenTimelock.setTimelockFor(staker, this.lockTime, 20, {
             from: spender,
         });
         let event = result.logs.find(e => e.event === 'Staked');
@@ -62,16 +62,14 @@ contract('TokenTimelock', (accounts) => {
         balance = await this.token.balanceOf(spender);
         balance.should.be.bignumber.equal(30);
 
-        const lockedTokens = await this.tokenTimelock.releaseTime(staker, lockTime);
+        const lockedTokens = await this.tokenTimelock.releaseTime(staker, this.lockTime);
         lockedTokens.should.be.bignumber.equal(20);
 
     });
 
     it('should set timelock from staker for staker', async () => {
 
-        const lockTime = (Date.now() / 1000) + 5;
-
-        const result = await this.tokenTimelock.setTimelock(lockTime, 20, {
+        const result = await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         });
         let event = result.logs.find(e => e.event === 'Staked');
@@ -84,22 +82,20 @@ contract('TokenTimelock', (accounts) => {
         balance = await this.token.balanceOf(staker);
         balance.should.be.bignumber.equal(30);
 
-        const lockedTokens = await this.tokenTimelock.releaseTime(staker, lockTime);
+        const lockedTokens = await this.tokenTimelock.releaseTime(staker, this.lockTime);
         lockedTokens.should.be.bignumber.equal(20);
 
     });
 
     it('should release timelock from staker for beneficiary', async () => {
 
-        const lockTime = (Date.now() / 1000) + 5;
-
-        await this.tokenTimelock.setTimelock(lockTime, 20, {
+        await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         });
 
-        await increaseTime(moment.duration(5, 'seconds'));
+        await increaseTime(moment.duration(60, 'days'));
 
-        const result = await this.tokenTimelock.releaseTimelockFor(beneficiary, lockTime, 15, {
+        const result = await this.tokenTimelock.releaseTimelockFor(beneficiary, this.lockTime, 15, {
             from: staker,
         });
         let event = result.logs.find(e => e.event === 'Released');
@@ -112,22 +108,20 @@ contract('TokenTimelock', (accounts) => {
         balance = await this.token.balanceOf(this.tokenTimelock.address);
         balance.should.be.bignumber.equal(5);
 
-        const lockedTokens = await this.tokenTimelock.releaseTime(staker, lockTime);
+        const lockedTokens = await this.tokenTimelock.releaseTime(staker, this.lockTime);
         lockedTokens.should.be.bignumber.equal(5);
 
     });
 
     it('should release timelock from staker for staker', async () => {
 
-        const lockTime = (Date.now() / 1000) + 5;
-
-        await this.tokenTimelock.setTimelock(lockTime, 20, {
+        await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         });
 
-        await increaseTime(moment.duration(5, 'seconds'));
+        await increaseTime(moment.duration(60, 'days'));
 
-        const result = await this.tokenTimelock.releaseTimelock(lockTime, 15, {
+        const result = await this.tokenTimelock.releaseTimelock(this.lockTime, 15, {
             from: staker,
         });
         let event = result.logs.find(e => e.event === 'Released');
@@ -140,24 +134,23 @@ contract('TokenTimelock', (accounts) => {
         balance = await this.token.balanceOf(this.tokenTimelock.address);
         balance.should.be.bignumber.equal(5);
 
-        const lockedTokens = await this.tokenTimelock.releaseTime(staker, lockTime);
+        const lockedTokens = await this.tokenTimelock.releaseTime(staker, this.lockTime);
         lockedTokens.should.be.bignumber.equal(5);
 
     });
 
     it('should throw if trying to release before releaseTime', async () => {
 
-        const lockTime = (Date.now() / 1000) + 50;
 
-        await this.tokenTimelock.setTimelock(lockTime, 20, {
+        await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         });
 
-        await this.tokenTimelock.releaseTimelock(lockTime, 15, {
+        await this.tokenTimelock.releaseTimelock(this.lockTime, 15, {
             from: staker,
         }).should.be.rejectedWith(EVMThrow);
 
-        await this.tokenTimelock.releaseTimelockFor(beneficiary, lockTime, 15, {
+        await this.tokenTimelock.releaseTimelockFor(beneficiary, this.lockTime, 15, {
             from: staker,
         }).should.be.rejectedWith(EVMThrow);
 
@@ -166,22 +159,20 @@ contract('TokenTimelock', (accounts) => {
         balance = await this.token.balanceOf(this.tokenTimelock.address);
         balance.should.be.bignumber.equal(20);
 
-        const lockedTokens = await this.tokenTimelock.releaseTime(staker, lockTime);
+        const lockedTokens = await this.tokenTimelock.releaseTime(staker, this.lockTime);
         lockedTokens.should.be.bignumber.equal(20);
 
     });
 
     it('should throw if token is paused during locking', async () => {
 
-        const lockTime = (Date.now() / 1000) + 50;
-
         await this.token.pause();
 
-        await this.tokenTimelock.setTimelock(lockTime, 20, {
+        await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         }).should.be.rejectedWith(EVMThrow);
 
-        await this.tokenTimelock.setTimelockFor(beneficiary, lockTime, 20, {
+        await this.tokenTimelock.setTimelockFor(beneficiary, this.lockTime, 20, {
             from: staker,
         }).should.be.rejectedWith(EVMThrow);
 
@@ -189,26 +180,24 @@ contract('TokenTimelock', (accounts) => {
 
     it('should return false if token is paused during unlocking', async () => {
 
-        const lockTime = (Date.now() / 1000) + 5;
-
-        await this.tokenTimelock.setTimelock(lockTime, 20, {
+        await this.tokenTimelock.setTimelock(this.lockTime, 20, {
             from: staker,
         }).should.be.fulfilled;
 
-        await this.tokenTimelock.setTimelockFor(beneficiary, lockTime, 20, {
+        await this.tokenTimelock.setTimelockFor(beneficiary, this.lockTime, 20, {
             from: staker,
         }).should.be.fulfilled;
 
         await this.token.pause();
-        await increaseTime(moment.duration(5, 'seconds'));
+        await increaseTime(moment.duration(60, 'days'));
 
-        await this.tokenTimelock.releaseTimelock(lockTime, 15, {
+        await this.tokenTimelock.releaseTimelock(this.lockTime, 15, {
             from: staker,
         }).should.be.fulfilled;
         let lastResult = await this.tokenTimelock.lastResult();
         lastResult.should.be.false; // eslint-disable-line no-unused-expressions
 
-        await this.tokenTimelock.releaseTimelockFor(beneficiary, lockTime, 15, {
+        await this.tokenTimelock.releaseTimelockFor(beneficiary, this.lockTime, 15, {
             from: staker,
         }).should.be.fulfilled;
         lastResult = await this.tokenTimelock.lastResult();

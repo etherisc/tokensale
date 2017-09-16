@@ -35,6 +35,9 @@ rules:
     padded-blocks:
         - error
         - always
+    max-len:
+        - error
+        - never
 
 globals:
     artifacts: true
