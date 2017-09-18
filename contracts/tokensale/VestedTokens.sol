@@ -30,7 +30,7 @@ contract VestedTokens is TokenTimelock {
     require(_amount == (part.mul(numberOfPeriods)));
 
     for (uint256 period = 1; period <= numberOfPeriods; period++) {
-      setTimelockFor(_beneficiary, _startTime + period.mul(_cliff), part);
+      setTimelockFor(_beneficiary, _startTime.add(period.mul(_cliff)), part);
     }
 
     GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);

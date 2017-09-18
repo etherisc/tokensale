@@ -34,10 +34,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
   // list of addresses that can purchase in priorityPass phase  
   mapping (address => ContributorData) public contributorList;
-  // counter for contributors
-  uint256 nextContributorIndex;
-  // ordered list to make it accessible
-  mapping (uint256 => address) contributorIndexes;
 
   event DipTgeStarted(uint256 _blockNumber);
   event OpenPpStarted(uint256 _blockNumber);
@@ -46,6 +42,8 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event HardCap1Reached(uint256 _blockNumber);
   event HardCap2Reached(uint256 _blockNumber);
   event DipTgeEnded(uint256 _blockNumber);
+  event Whitelisted(address indexed _contributor, uint256 _ppAllowance, uint256 _otherAllowance)
+
 
   /**
    * Constructor
@@ -87,12 +85,10 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       _contributorAddresses.length == _contributorOtherAllowance.length
       ); // Check if input data is consistent
 
-    for(uint cnt = 0; cnt < _contributorAddresses.length; cnt++){
+    for(uint cnt = 0; cnt < _contributorAddresses.length; cnt.add(1)){
       contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];
       contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];
-      // TODO: Fix this! 
-      contributorIndexes[nextContributorIndex] = _contributorAddresses[cnt];
-      nextContributorIndex++;
+      Whitelisted(_contributorAddresses[cnt], _contributorPPAllowances[cnt], _contributorOtherAllowance[cnt]);
     }
   }
 
@@ -108,21 +104,21 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       maxContrib = 0;
     } else if (crowdsaleState == state.priorityPass) {
       maxContrib = 
-        contributorList[_contributor].priorityPassAllowance +
-        contributorList[_contributor].otherAllowance - 
-        contributorList[_contributor].contributionAmount;
+        contributorList[_contributor].priorityPassAllowance.add(
+          contributorList[_contributor].otherAllowance.sub( 
+            contributorList[_contributor].contributionAmount));
       if (maxContrib > hardCap1 - weiRaised){
-        maxContrib = hardCap1 - weiRaised;
+        maxContrib = hardCap1.sub(weiRaised);
       }
     } else if (crowdsaleState == state.openedPriorityPass) {
-      if (contributorList[_contributor].priorityPassAllowance + 
-          contributorList[_contributor].otherAllowance > 0) {
-        maxContrib = hardCap1 - weiRaised;
+      if (contributorList[_contributor].priorityPassAllowance.add( 
+            contributorList[_contributor].otherAllowance) > 0) {
+        maxContrib = hardCap1.sub(weiRaised);
       } else {
         maxContrib = 0;
       }
     } else if (crowdsaleState == state.crowdsale) {
-      maxContrib = hardCap2 - weiRaised;
+      maxContrib = hardCap2.sub(weiRaised);
     } else {
       maxContrib = 0;
     } 
