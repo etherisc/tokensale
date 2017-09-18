@@ -28,8 +28,6 @@ test:
     - etherisc/TokenTimelockMock.sol
     - etherisc/TokenTimelock.js
     - etherisc/VestedTokens.js
-    - etherisc/MappingTest.js
-    - etherisc/MappingTest.sol
     - etherisc/DipToken.js
     - etherisc/DipTokenMock.sol
     - etherisc/DipTge.js

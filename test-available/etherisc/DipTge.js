@@ -48,7 +48,9 @@ contract('DipTge', (accounts) => {
             hardCap1,
             hardCap2,
             rate,
-            wallet);
+            wallet, {
+                gaslimit: 4700000,
+            });
         this.token = DipToken.at(await this.crowdsale.token());
 
     });
@@ -138,7 +140,9 @@ contract('DipTge', (accounts) => {
         beforeEach(async () => {
 
             await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther]);
+                [ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther], {
+                    gaslimit: 4700000,
+                });
 
         });
 

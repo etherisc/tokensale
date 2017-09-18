@@ -85,7 +85,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       _contributorAddresses.length == _contributorOtherAllowance.length
       ); // Check if input data is consistent
 
-    for(uint cnt = 0; cnt < _contributorAddresses.length; cnt.add(1)){
+    for(uint cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)){
       contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];
       contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];
       Whitelisted(_contributorAddresses[cnt], _contributorPPAllowances[cnt], _contributorOtherAllowance[cnt]);
@@ -104,9 +104,9 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       maxContrib = 0;
     } else if (crowdsaleState == state.priorityPass) {
       maxContrib = 
-        contributorList[_contributor].priorityPassAllowance.add(
-          contributorList[_contributor].otherAllowance.sub( 
-            contributorList[_contributor].contributionAmount));
+        (contributorList[_contributor].priorityPassAllowance.add(
+          contributorList[_contributor].otherAllowance)).sub( 
+            contributorList[_contributor].contributionAmount);
       if (maxContrib > hardCap1 - weiRaised){
         maxContrib = hardCap1.sub(weiRaised);
       }
