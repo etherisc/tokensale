@@ -138,7 +138,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       DipTgeEnded(block.number);
 
     } else if (
-      block.number >= startBlock && 
+      block.number >= startBlock &&
       block.number < startOpenPpBlock && 
       crowdsaleState != state.priorityPass
       ) {
