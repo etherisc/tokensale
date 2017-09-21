@@ -10,7 +10,7 @@ This is the final and authoritative description of the DIP Token and TGE.
 1. Symbol of DIP token is "DIP".
 1. Name of DIP token is "Decentralized Insurance Platform Token" .
 1. Decimals is 18. 1 DIP is represented by the `uint256 1000000000000000000`. 
-1. Maximum Supply is 100.000.000 (100 Millions).
+1. Maximum Supply is 100.000.000.000 (100 Billions).
 1. The Token Contract implements ERC20 Specification according to [cite].
 
 ### Specification of general TGE parameters
@@ -26,7 +26,7 @@ Conversion is calculated as follows: # of DIP tokens = Amount in ETH * `rate`. T
 
 ### PriorityPass Members and selected individuals
 1. PriorityPass members and selected individuals are registered and stored in a data structure `contributorList`.
-1. The index of the first entry is 0. The total number of contributors is kept in a variable `nextContributorIndex`.
+1. The index of the first entry is 0. 
 1. Elements of this list are `struct`s with fields, all of which default to zero:
     - `uint256 priorityPassAllowance`;
     - `uint256 otherAllowance`;
@@ -79,19 +79,26 @@ in case the `msg.value` is greater then the possible investment.
 
 ### Vested tokens
 1. The finalization function mints the remaining tokens and transfers it to a special multiSig address, from which
-vested tokens are distributed. // working hypotheses
+vested tokens are distributed.
+1. The Vesting contract VestedTokens.sol extends the TokenTimelock.sol contract, which in turn extends the TokenStake.sol contract.
+1. The TokenStake contract locks tokens. The sequence of transactions is as follows:
+    - The original owner of tokens approves the TokenStake contract to transfer tokens.
+    - The TokenStake contracts public "stakeFor" or "stake" function is called from the original owner. 
+    - These functions return `false` if the transfer is not approved.
+    - If `stake` is called, the tokens are staked for the original owner.
+    - If `stakeFor` is called, the tokens are staked for someone else (any given address)
+    - The TokenStake contract has two other internal functions `release` and `releaseFor` which are complementary to the `stake` and `stakeFor` functions.
+    - Because the functions are internal, tokens transfered to the contract via `stake` and `stakeFor` are "locked" ("staked").
+    - Contracts extending the TokenStake contract can provide public functions which make the `release` and `releaseFor` functions accessible, mostly by checking some condition.
+1. The TokenTimelock.sol contract extends the TokenStake.sol contract. It introduces a table where for any tuple (address, releaseTime) a certain amount of tokens can be released.
+1. Token are locked by calling `setTimelock` or `setTimelockFor`. 
+1. The VestedTokens.sol contract automates the setting of Timelocks for vested Tokens. For a certain beneficiary, tokens are vested by setting individual timelocks for a portion of granted tokens. The `vestingPeriod` is divided in `numberOfPeriods` individual periods of length `cliff`.  The granted amount of tokens has to be divisible by `numberOfPeriods`. For every individual period, a timelock is set in the underlying TokenTimelock.sol contract. Every grant triggers a GrantGiven Event to record the grants.
+
+
+### Miscellenaous functions
+1. The DipToken.sol and DipTge.sol contracts both contain a `salvageTokens` function. 
+It can be called by the owner to return tokens which have been sent to these contracts by mistake.
 
 ## Test Concept
 
-All of the following tests are implemented:
-
-### Token Contract
-1. After Contract deployment:
-    - `name == "Decentralized Insurance Platform Token"`
-    - `symbol == "DIP"`
-    - `decimals == "18"`
-    - `MAXIMUM_SUPPLY == "100000000"`
-    - `totalSupply == 0`
-    - `paused = false`
-    - `
-
+(see separate document testing.md)

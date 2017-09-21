@@ -16,7 +16,8 @@ contract DipToken is PausableToken, MintableToken {
   string public name = "DecentralizedInsurance";
   string public symbol = "DIP";
   uint256 public decimals = 18;
-  uint256 public MAXIMUM_SUPPLY = 10**8 * 10**18; // 100 Million 100'000'000
+  // uint256 public MAXIMUM_SUPPLY = 10**8 * 10**18; // 100 Million 100'000'000
+  uint256 public MAXIMUM_SUPPLY = 10**11 * 10**18; // 100 Billion 100'000'000'000
 
   /**
    * @dev Function to mint tokens
