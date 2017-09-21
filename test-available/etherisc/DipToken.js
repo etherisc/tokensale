@@ -51,4 +51,22 @@ contract('DipTokenMock', (accounts) => {
 
     });
 
+    it('should salvage tokens which have been sent to contract by mistake', async () => {
+
+        await mock.mint(accounts[1], 10);
+        result = await mock.result();
+        assert.equal(result, false);
+
+        await this.token.transfer(this.token.address, 5, {
+            from: accounts[1],
+        }).should.be.fulfilled;
+
+        await this.token.salvageTokens(this.token.address, account[1])
+            .should.be.fulfilled;
+
+        const balance = await this.token.balanceOf(account[1]);
+        balance.should.be.bignumber.equal(10);
+
+    });
+
 });

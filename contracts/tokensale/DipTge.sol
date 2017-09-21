@@ -55,7 +55,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     uint256 _hardcap2,
     uint256 _rate,
     address _wallet
-    ) 
+    ) public
     Crowdsale(_startBlock, _endBlock, _rate, _wallet) 
     DipWhitelistedCrowdsale(_startOpenPpBlock, _startPublicBlock, _minCap, _hardcap1, _hardcap2) 
     FinalizableCrowdsale() 
@@ -65,7 +65,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   }
 
-  function unpauseToken() onlyOwner {
+  function unpauseToken() public onlyOwner {
 
     DipToken(token).unpause();
 
@@ -93,7 +93,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * @param  _token address of token contract of the respective tokens
    * @param  _to where to send the tokens
    */
-  function salvageTokens(ERC20Basic _token, address _to) onlyOwner {
+  function salvageTokens(ERC20Basic _token, address _to) public onlyOwner {
     _token.transfer(_to, _token.balanceOf(this));
   }
 

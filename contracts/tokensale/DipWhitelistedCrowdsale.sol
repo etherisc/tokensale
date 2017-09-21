@@ -54,13 +54,13 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * @param _hardCap2         hardcap overall
    */
   
-  function DipWhitelistedCrowdsale(
+  function DipWhitelistedCrowdsale (
     uint256 _startOpenPpBlock,
     uint256 _startPublicBlock, 
     uint256 _minCap,
     uint256 _hardCap1, 
     uint256 _hardCap2
-    ) 
+    ) public
   {
     startOpenPpBlock = _startOpenPpBlock;
     startPublicBlock = _startPublicBlock;
@@ -73,10 +73,11 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * Push contributor data to the contract before the crowdsale so that they are eligible for priorit pass
    * 
    */
-  function editContributors(
+  function editContributors (
     address[] _contributorAddresses, 
     uint256[] _contributorPPAllowances, 
-    uint256[] _contributorOtherAllowance) 
+    uint256[] _contributorOtherAllowance
+    ) public 
     onlyOwner 
     {
     
@@ -97,7 +98,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * @param  _contributor the address of the contributor
    * @return maxContribution maximum allowed amount in wei
    */
-  function calculateMaxContribution(address _contributor) constant returns (uint256) {
+  function calculateMaxContribution(address _contributor) public constant returns (uint256) {
 
     uint256 maxContrib;
     if (crowdsaleState == state.pendingStart) {
@@ -128,7 +129,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   /**
    * Set the current state of the crowdsale.
    */
-  function setCrowdsaleState() {
+  function setCrowdsaleState() public {
 
     if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded) {
 
@@ -178,7 +179,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * The token buying function.
    * @param  _beneficiary  receiver of tokens.
    */
-  function buyTokens(address _beneficiary) payable {
+  function buyTokens(address _beneficiary) public payable {
     require(_beneficiary != 0x0);
     require(validPurchase());
 

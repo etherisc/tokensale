@@ -23,7 +23,7 @@ contract TokenTimelock is TokenStake, Ownable {
   event TimeUnlocked(address _beneficiary, uint256 _releaseTime, uint256 _value);
 
 
-  function TokenTimelock(StandardToken _token) TokenStake(_token) {
+  function TokenTimelock(StandardToken _token) public TokenStake(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
@@ -34,7 +34,7 @@ contract TokenTimelock is TokenStake, Ownable {
    * @param _releaseTime timestamp after which the tokens are unlocked
    * @param _value       amount of tokens
    */
-  function setTimelockFor(address _staker, uint256 _releaseTime, uint256 _value) {
+  function setTimelockFor(address _staker, uint256 _releaseTime, uint256 _value) public {
     require(stakeFor(_staker, _value));
     releaseTime[_staker][_releaseTime] = releaseTime[_staker][_releaseTime].add(_value);
     TimeLocked(_staker, _releaseTime, _value);
@@ -45,7 +45,7 @@ contract TokenTimelock is TokenStake, Ownable {
    * @param _releaseTime timestamp after which tokens are unlocked
    * @param _value       amount of tokens
    */
-  function setTimelock(uint256 _releaseTime, uint256 _value) {
+  function setTimelock(uint256 _releaseTime, uint256 _value) public {
     setTimelockFor(msg.sender, _releaseTime, _value);
   }
 
@@ -56,7 +56,7 @@ contract TokenTimelock is TokenStake, Ownable {
    * @param  _value amount of tokens to be released
    * @return true on success.
    */
-  function releaseTimelockFor(address _beneficiary, uint256 _releaseTime, uint256 _value) returns (bool) {
+  function releaseTimelockFor(address _beneficiary, uint256 _releaseTime, uint256 _value) public returns (bool) {
     require(now >= _releaseTime);
     releaseTime[msg.sender][_releaseTime] = releaseTime[msg.sender][_releaseTime].sub(_value); // will throw if result < 0
     if (releaseFor(_beneficiary, _value)) {
@@ -74,7 +74,7 @@ contract TokenTimelock is TokenStake, Ownable {
    * @param _value amount of tokens to be released
    * @return true on success.
    */
-  function releaseTimelock(uint256 _releaseTime, uint256 _value) returns (bool) {
+  function releaseTimelock(uint256 _releaseTime, uint256 _value) public returns (bool) {
     return releaseTimelockFor(msg.sender, _releaseTime, _value);
   } 
 

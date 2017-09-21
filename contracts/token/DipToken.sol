@@ -25,12 +25,19 @@ contract DipToken is PausableToken, MintableToken {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount) returns (bool) {
+  function mint(address _to, uint256 _amount) public returns (bool) {
     if (totalSupply.add(_amount) > MAXIMUM_SUPPLY) 
       return false;
     return super.mint(_to, _amount);
   }
 
-  
+  /**
+   * Owner can transfer back tokens which have been sent to this contract by mistake.
+   * @param  _token address of token contract of the respective tokens
+   * @param  _to where to send the tokens
+   */
+  function salvageTokens(ERC20Basic _token, address _to) public onlyOwner {
+    _token.transfer(_to, _token.balanceOf(this));
+  }
 
 }

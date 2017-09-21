@@ -18,12 +18,19 @@ contract VestedTokens is TokenTimelock {
 
   event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
 
-  function VestedTokens(StandardToken _token) TokenTimelock(_token) {
+  function VestedTokens(StandardToken _token) public TokenTimelock(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
   // precondition: granter has approved this contract to the amount to be granted
-  function grant(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod) {
+  function grant(
+    address _beneficiary, 
+    uint256 _amount, 
+    uint256 _startTime, 
+    uint256 _cliff, 
+    uint256 _vestingPeriod
+    ) public 
+    {
 
     uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
     uint256 part = _amount.div(numberOfPeriods);

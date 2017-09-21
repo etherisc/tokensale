@@ -27,12 +27,12 @@ contract TokenStake {
   event Staked(address _staker, uint256 _value);
   event Released(address _beneficiary, uint256 _value);
 
-  function TokenStake (StandardToken _token) {
+  function TokenStake (StandardToken _token) public {
     token = _token;
   }
 
   // requires approval of token transfer before calling this function
-  function stakeFor(address _staker, uint256 _value) returns (bool) {
+  function stakeFor(address _staker, uint256 _value) public returns (bool) {
     if (token.transferFrom(msg.sender, address(this), _value)) {
       staked[_staker] = staked[_staker].add(_value);
       Staked(_staker, _value);
