@@ -663,7 +663,7 @@ contract('DipTge', (accounts) => {
                     hardCap1,
                     hardCap2,
                     // we set rate so that MAXIMUM_SUPPLY will be surpassed
-                    new BigNumber(100000000),
+                    new BigNumber(100000000000),
                     wallet);
 
                 await advanceToBlock(this.startPublicBlock);

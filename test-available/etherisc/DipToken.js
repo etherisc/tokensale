@@ -32,7 +32,7 @@ contract('DipTokenMock', (accounts) => {
         decimals.should.be.bignumber.equal(18);
 
         const maxSupply = await token.MAXIMUM_SUPPLY();
-        maxSupply.should.be.bignumber.equal(new BigNumber('1e8').mul(new BigNumber('1e18')));
+        maxSupply.should.be.bignumber.equal(new BigNumber('1e+11').mul(new BigNumber('1e+18')));
 
     });
 

@@ -83,7 +83,7 @@ vested tokens are distributed.
 1. The Vesting contract VestedTokens.sol extends the TokenTimelock.sol contract, which in turn extends the TokenStake.sol contract.
 1. The TokenStake contract locks tokens. The sequence of transactions is as follows:
     - The original owner of tokens approves the TokenStake contract to transfer tokens.
-    - The TokenStake contracts public "stakeFor" or "stake" function is called from the original owner. 
+    - The TokenStake contracts public `stakeFor` or `stake` function is called from the original owner. 
     - These functions return `false` if the transfer is not approved.
     - If `stake` is called, the tokens are staked for the original owner.
     - If `stakeFor` is called, the tokens are staked for someone else (any given address)
