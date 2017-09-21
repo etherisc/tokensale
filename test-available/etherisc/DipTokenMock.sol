@@ -18,4 +18,8 @@ contract DipTokenMock {
 		result = token.mint(_beneficiary, _amount);
 	}
 
+	function salvageTokens(DipToken _token, address _to) {
+		token.salvageTokens(_token, _to);
+	}
+
 }

@@ -650,7 +650,7 @@ contract('DipTge', (accounts) => {
     describe('misceallenous tests', () => {
 
 
-        it('should throw if token doesn`t mint', async () => {
+        it('should throw if token doesn\'t mint', async () => {
 
             try {
 
@@ -755,6 +755,27 @@ contract('DipTge', (accounts) => {
 
             const balance = await this.token.balanceOf(anonInvestor);
             balance.should.be.bignumber.equal(rate.mul(someValue));
+
+        });
+
+        it('should reject calling salvageTokens by non-owner', async () => {
+
+            await advanceToBlock(this.startPublicBlock);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: someValue,
+            }).should.be.fulfilled;
+
+            await this.crowdsale.unpauseToken().should.be.fulfilled;
+
+            await this.token.transfer(this.crowdsale.address, rate.mul(someValue), {
+                from: anonInvestor,
+            }).should.be.fulfilled;
+
+            await this.crowdsale.salvageTokens(this.token.address, anonInvestor, {
+                from: anonInvestor,
+            }).should.be.rejectedWith(EVMThrow);
 
         });
 
