@@ -35,15 +35,15 @@ contract('DipTge', (accounts) => {
 
     beforeEach(async () => {
 
-        this.startBlock = web3.eth.blockNumber + 5; // 10;
-        this.startOpenPpBlock = web3.eth.blockNumber + 10; // 20;
-        this.startPublicBlock = web3.eth.blockNumber + 15; // 30;
-        this.endBlock = web3.eth.blockNumber + 20; // 40;
+        this.startTime = web3.eth.blockNumber + 5; // 10;
+        this.startOpenPpTime = web3.eth.blockNumber + 10; // 20;
+        this.startPublicTime = web3.eth.blockNumber + 15; // 30;
+        this.endTime = web3.eth.blockNumber + 20; // 40;
         this.crowdsale = await DipTge.new(
-            this.startBlock,
-            this.startOpenPpBlock,
-            this.startPublicBlock,
-            this.endBlock,
+            this.startTime,
+            this.startOpenPpTime,
+            this.startPublicTime,
+            this.endTime,
             minCap,
             hardCap1,
             hardCap2,
@@ -61,15 +61,15 @@ contract('DipTge', (accounts) => {
 
         try {
 
-            this.startBlock = web3.eth.blockNumber + 5; // 10;
-            this.startOpenPpBlock = web3.eth.blockNumber + 10; // 20;
-            this.startPublicBlock = web3.eth.blockNumber + 15; // 30;
-            this.endBlock = web3.eth.blockNumber + 20; // 40;
+            this.startTime = web3.eth.blockNumber + 5; // 10;
+            this.startOpenPpTime = web3.eth.blockNumber + 10; // 20;
+            this.startPublicTime = web3.eth.blockNumber + 15; // 30;
+            this.endTime = web3.eth.blockNumber + 20; // 40;
             this.crowdsale = await DipTge.new(
-                this.startBlock,
-                this.startOpenPpBlock,
-                this.startPublicBlock,
-                this.endBlock,
+                this.startTime,
+                this.startOpenPpTime,
+                this.startPublicTime,
+                this.endTime,
                 minCap,
                 hardCap1,
                 hardCap2,
@@ -113,17 +113,17 @@ contract('DipTge', (accounts) => {
         result = await this.crowdsale.hardCap2();
         result.should.be.bignumber.equal(hardCap2);
 
-        result = await this.crowdsale.startBlock();
-        result.toNumber().should.be.equal(this.startBlock);
+        result = await this.crowdsale.startTime();
+        result.toNumber().should.be.equal(this.startTime);
 
-        result = await this.crowdsale.startOpenPpBlock();
-        result.toNumber().should.be.equal(this.startOpenPpBlock);
+        result = await this.crowdsale.startOpenPpTime();
+        result.toNumber().should.be.equal(this.startOpenPpTime);
 
-        result = await this.crowdsale.startPublicBlock();
-        result.toNumber().should.be.equal(this.startPublicBlock);
+        result = await this.crowdsale.startPublicTime();
+        result.toNumber().should.be.equal(this.startPublicTime);
 
-        result = await this.crowdsale.endBlock();
-        result.toNumber().should.be.equal(this.endBlock);
+        result = await this.crowdsale.endTime();
+        result.toNumber().should.be.equal(this.endTime);
 
         result = await this.crowdsale.rate();
         result.should.be.bignumber.equal(rate);
@@ -200,7 +200,7 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=allowance in priorityPass phase', async () => {
 
-            await advanceToBlock(this.startBlock);
+            await advanceToBlock(this.startTime);
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -219,7 +219,7 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=hardCap1 in open priorityPass phase', async () => {
 
-            await advanceToBlock(this.startOpenPpBlock);
+            await advanceToBlock(this.startOpenPpTime);
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -238,7 +238,7 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=hardCap2 in public phase', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -257,7 +257,7 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=0 after crowdsale end', async () => {
 
-            await advanceToBlock(this.endBlock + 1);
+            await advanceToBlock(this.endTime + 1);
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -304,7 +304,7 @@ contract('DipTge', (accounts) => {
                 [zeroEther, allowOther.mul(2)]
             );
 
-            await advanceToBlock(this.startBlock);
+            await advanceToBlock(this.startTime);
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -334,7 +334,7 @@ contract('DipTge', (accounts) => {
                 [zeroEther, allowOther.mul(3)]
             );
 
-            await advanceToBlock(this.startBlock);
+            await advanceToBlock(this.startTime);
 
         });
 
@@ -453,7 +453,7 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from priority pass members in opened phase', async () => {
 
-            await advanceToBlock(this.startOpenPpBlock);
+            await advanceToBlock(this.startOpenPpTime);
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -470,7 +470,7 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from other listed members in opened phase', async () => {
 
-            await advanceToBlock(this.startOpenPpBlock);
+            await advanceToBlock(this.startOpenPpTime);
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -487,7 +487,7 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from priority pass members in public phase', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -504,7 +504,7 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from other listed members in public phase', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -521,7 +521,7 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from anybody in public phase', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -591,7 +591,7 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from anybody', async () => {
 
-            await advanceToBlock(this.endBlock + 1);
+            await advanceToBlock(this.endTime + 1);
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -607,7 +607,7 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from whitelisted PP participant', async () => {
 
-            await advanceToBlock(this.endBlock + 1);
+            await advanceToBlock(this.endTime + 1);
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -623,7 +623,7 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from whitelisted other participant', async () => {
 
-            await advanceToBlock(this.endBlock + 1);
+            await advanceToBlock(this.endTime + 1);
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -655,10 +655,10 @@ contract('DipTge', (accounts) => {
             try {
 
                 this.crowdsale = await DipTge.new(
-                    this.startBlock,
-                    this.startOpenPpBlock,
-                    this.startPublicBlock,
-                    this.endBlock,
+                    this.startTime,
+                    this.startOpenPpTime,
+                    this.startPublicTime,
+                    this.endTime,
                     minCap,
                     hardCap1,
                     hardCap2,
@@ -666,7 +666,7 @@ contract('DipTge', (accounts) => {
                     new BigNumber(100000000000),
                     wallet);
 
-                await advanceToBlock(this.startPublicBlock);
+                await advanceToBlock(this.startPublicTime);
 
                 await this.crowdsale.buyTokens(anonInvestor, {
                     from: purchaser,
@@ -686,7 +686,7 @@ contract('DipTge', (accounts) => {
 
         it('should throw if beneficiary is 0x0', async () => {
 
-            await advanceToBlock(this.startBlock);
+            await advanceToBlock(this.startTime);
 
             await this.crowdsale.buyTokens(0, {
                 from: purchaser,
@@ -697,7 +697,7 @@ contract('DipTge', (accounts) => {
 
         it('should transfer remaining tokens to wallet', async () => {
 
-            await advanceToBlock(this.endBlock + 1);
+            await advanceToBlock(this.endTime + 1);
 
             await this.crowdsale.finalize().should.be.fulfilled;
 
@@ -712,7 +712,7 @@ contract('DipTge', (accounts) => {
 
         it('should end sale after hardCap2 is reached', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -737,7 +737,7 @@ contract('DipTge', (accounts) => {
 
         it('should salvage tokens which have been sent to contract by mistake', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -760,7 +760,7 @@ contract('DipTge', (accounts) => {
 
         it('should reject calling salvageTokens by non-owner', async () => {
 
-            await advanceToBlock(this.startPublicBlock);
+            await advanceToBlock(this.startPublicTime);
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,

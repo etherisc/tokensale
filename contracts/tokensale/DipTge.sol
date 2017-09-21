@@ -38,26 +38,26 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   /**
    * [DIP_TGE description]
-   * @param _startBlock start Block for TGE
-   * @param _endBlock   end Block for TGE
+   * @param _startTime  start Time for TGE
+   * @param _endTime    end Time for TGE
    * @param _rate       conversion rate ETH->DIP, how many DIP for 1 ETH?
    * @param _wallet     address of wallet to keep funds
    * @param _hardcap1   hardcap for priority pass 
    * @param _hardcap2   hardcap overall
    */
   function DipTge (
-    uint256 _startBlock,
-    uint256 _startOpenPpBlock,
-    uint256 _startPublicBlock,
-    uint256 _endBlock,
+    uint256 _startTime,
+    uint256 _startOpenPpTime,
+    uint256 _startPublicTime,
+    uint256 _endTime,
     uint256 _minCap,
     uint256 _hardcap1,
     uint256 _hardcap2,
     uint256 _rate,
     address _wallet
     ) public
-    Crowdsale(_startBlock, _endBlock, _rate, _wallet) 
-    DipWhitelistedCrowdsale(_startOpenPpBlock, _startPublicBlock, _minCap, _hardcap1, _hardcap2) 
+    Crowdsale(_startTime, _endTime, _rate, _wallet) 
+    DipWhitelistedCrowdsale(_startOpenPpTime, _startPublicTime, _minCap, _hardcap1, _hardcap2) 
     FinalizableCrowdsale() 
   {
 

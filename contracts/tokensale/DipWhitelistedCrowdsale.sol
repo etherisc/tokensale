@@ -17,8 +17,8 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
   enum state { pendingStart, priorityPass, openedPriorityPass, crowdsale, crowdsaleEnded }
 
-  uint256 public startOpenPpBlock;
-  uint256 public startPublicBlock;
+  uint256 public startOpenPpTime;
+  uint256 public startPublicTime;
   uint256 public minCap;
   uint256 public hardCap1;
   uint256 public hardCap2;
@@ -35,35 +35,35 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   // list of addresses that can purchase in priorityPass phase  
   mapping (address => ContributorData) public contributorList;
 
-  event DipTgeStarted(uint256 _blockNumber);
-  event OpenPpStarted(uint256 _blockNumber);
-  event PublicStarted(uint256 _blockNumber);
-  event MinCapReached(uint256 _blockNumber);
-  event HardCap1Reached(uint256 _blockNumber);
-  event HardCap2Reached(uint256 _blockNumber);
-  event DipTgeEnded(uint256 _blockNumber);
+  event DipTgeStarted(uint256 _time);
+  event OpenPpStarted(uint256 _time);
+  event PublicStarted(uint256 _time);
+  event MinCapReached(uint256 _time);
+  event HardCap1Reached(uint256 _time);
+  event HardCap2Reached(uint256 _time);
+  event DipTgeEnded(uint256 _time);
   event Whitelisted(address indexed _contributor, uint256 _ppAllowance, uint256 _otherAllowance);
 
 
   /**
    * Constructor
-   * @param _startOpenPpBlock starting block for open PriorityPass phase
-   * @param _startPublicBlock starting block for public phase
+   * @param _startOpenPpTime  starting Time for open PriorityPass phase
+   * @param _startPublicTime  starting Time for public phase
    * @param _minCap           minimum goal (only info)
    * @param _hardCap1         hardcap for priority phase
    * @param _hardCap2         hardcap overall
    */
   
   function DipWhitelistedCrowdsale (
-    uint256 _startOpenPpBlock,
-    uint256 _startPublicBlock, 
+    uint256 _startOpenPpTime,
+    uint256 _startPublicTime, 
     uint256 _minCap,
     uint256 _hardCap1, 
     uint256 _hardCap2
     ) public
   {
-    startOpenPpBlock = _startOpenPpBlock;
-    startPublicBlock = _startPublicBlock;
+    startOpenPpTime = _startOpenPpTime;
+    startPublicTime = _startPublicTime;
     minCap = _minCap;
     hardCap1 = _hardCap1;
     hardCap2 = _hardCap2;
@@ -134,43 +134,43 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     if (weiRaised >= hardCap2 && crowdsaleState != state.crowdsaleEnded) {
 
       crowdsaleState = state.crowdsaleEnded;
-      HardCap2Reached(block.number);
-      DipTgeEnded(block.number);
+      HardCap2Reached(now);
+      DipTgeEnded(now);
 
     } else if (
-      block.number >= startBlock &&
-      block.number < startOpenPpBlock && 
+      now >= startTime &&
+      now < startOpenPpTime && 
       crowdsaleState != state.priorityPass
       ) {
 
       crowdsaleState = state.priorityPass;
-      DipTgeStarted(block.number);
+      DipTgeStarted(now);
 
     } else if (
-      block.number >= startOpenPpBlock && 
-      block.number < startPublicBlock &&
+      now >= startOpenPpTime && 
+      now < startPublicTime &&
       crowdsaleState != state.openedPriorityPass
       ) {
 
       crowdsaleState = state.openedPriorityPass;
-      OpenPpStarted(block.number);
+      OpenPpStarted(now);
 
     } else if (
-      block.number >= startPublicBlock && 
-      block.number <= endBlock &&
+      now >= startPublicTime && 
+      now <= endTime &&
       crowdsaleState != state.crowdsale
       ) {                     
 
       crowdsaleState = state.crowdsale;
-      PublicStarted(block.number);
+      PublicStarted(now);
 
     } else if (
         crowdsaleState != state.crowdsaleEnded && 
-        block.number > endBlock
+        now > endTime
         ) {
 
         crowdsaleState = state.crowdsaleEnded;
-        DipTgeEnded(block.number);
+        DipTgeEnded(now);
         
     }
   }
@@ -199,7 +199,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       // update state
       weiRaised = weiRaised.add(weiAmount);
       if (weiRaised > minCap)
-        MinCapReached(block.number);
+        MinCapReached(now);
 
       if (!token.mint(_beneficiary, tokens)) revert();
       TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
