@@ -1,14 +1,17 @@
-const advanceToBlock = require('../helpers/advanceToBlock').advanceToBlock;
-const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
+const { increaseTimeTo, } = require('../helpers/increaseTime');
+const { advanceBlock, } = require('../helpers/advanceToBlock');
+const { latestTime, } = require('../helpers/latestTime');
+const { duration, } = require('../helpers/increaseTime');
+const { EVMThrow, } = require('../helpers/EVMThrow');
 
-const BigNumber = web3.BigNumber;
+const { BigNumber, } = web3;
 
 const should = require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-const FinalizableCrowdsale = artifacts.require('../helpers/FinalizableCrowdsaleImpl.sol');
+const FinalizableCrowdsaleMock = artifacts.require('FinalizableCrowdsaleMock.sol');
 const MintableToken = artifacts.require('MintableToken');
 
 contract('FinalizableCrowdsale', (accounts) => {
@@ -20,18 +23,46 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     beforeEach(async () => {
 
-        this.startBlock = web3.eth.blockNumber + 10;
-        this.endBlock = web3.eth.blockNumber + 20;
+        this.latestTime = latestTime();
+        this.startTime = this.latestTime + duration.weeks(4);
+        this.endTime = this.startTime + duration.weeks(1);
+        console.log(this.latestTime, this.startTime, this.endTime);
 
-        this.crowdsale = await FinalizableCrowdsale.new(
-            this.startBlock,
-            this.endBlock,
+        this.crowdsale = await FinalizableCrowdsaleMock.new(
+            this.startTime,
+            this.endTime,
             rate,
             wallet, {
                 from: owner,
-            });
+            }
+        );
 
-        this.token = MintableToken.at(await this.crowdsale.token());
+        const myEvents = this.crowdsale.allEvents({
+            fromBlock: 0,
+            toBlock: 'latest',
+        });
+
+        myEvents.get((error, logs) => {
+
+            // we have the logs, now print them
+            logs.forEach(log => console.log(log.args));
+
+        });
+
+
+        console.log(web3.eth.blockNumber, web3.eth.getBlock('latest').timestamp);
+
+        console.log(this.crowdsale.address);
+        let testTime = await this.crowdsale.startTime();
+        console.log('startTime', testTime.toNumber());
+        testTime = await this.crowdsale.endTime();
+        console.log('endTime', testTime.toNumber());
+        testTime = await this.crowdsale.creationTime();
+        console.log('creationTime', testTime.toNumber());
+
+        const tokenAddress = await this.crowdsale.token();
+        console.log('tokenAddress', tokenAddress);
+        this.token = MintableToken.at(tokenAddress);
 
     });
 
@@ -45,7 +76,8 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     it('cannot be finalized by third party after ending', async () => {
 
-        await advanceToBlock(this.endBlock);
+        await increaseTimeTo(this.endTime);
+        await advanceBlock();
         await this.crowdsale.finalize({
             from: thirdparty,
         }).should.be.rejectedWith(EVMThrow);
@@ -54,7 +86,8 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     it('can be finalized by owner after ending', async () => {
 
-        await advanceToBlock(this.endBlock);
+        await increaseTimeTo(this.endTime + duration.minutes(5));
+        await advanceBlock();
         await this.crowdsale.finalize({
             from: owner,
         }).should.be.fulfilled;
@@ -63,7 +96,8 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     it('cannot be finalized twice', async () => {
 
-        await advanceToBlock(this.endBlock + 1);
+        await increaseTimeTo(this.endTime + duration.minutes(5));
+        await advanceBlock();
         await this.crowdsale.finalize({
             from: owner,
         });
@@ -75,7 +109,8 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     it('logs finalized', async () => {
 
-        await advanceToBlock(this.endBlock);
+        await increaseTimeTo(this.endTime + duration.minutes(5));
+        await advanceBlock();
         const {
             logs,
         } = await this.crowdsale.finalize({
@@ -88,7 +123,8 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     it('finishes minting of token', async () => {
 
-        await advanceToBlock(this.endBlock);
+        await increaseTimeTo(this.endTime + duration.minutes(5));
+        await advanceBlock();
         await this.crowdsale.finalize({
             from: owner,
         });

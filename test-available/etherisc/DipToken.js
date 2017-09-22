@@ -1,9 +1,10 @@
-const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
+const { EVMThrow, } = require('../helpers/EVMThrow');
+
+const { BigNumber, } = web3;
 
 const DipTokenMock = artifacts.require('DipTokenMock');
 const DipToken = artifacts.require('DipToken');
 
-const BigNumber = web3.BigNumber;
 
 const should = require('chai')
     .use(require('chai-as-promised'))

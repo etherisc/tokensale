@@ -1,13 +1,10 @@
-const moment = require('moment');
-
-// 
 /**
- * Returns a moment.js instance representing the time of the last mined block
- * @return {[type]} [description]
+ * Returns last blocks timestamp
  */
 function latestTime() {
 
-    return moment.unix(web3.eth.getBlock('latest').timestamp);
+    // console.log(web3.eth.blockNumber, web3.eth.getBlock(web3.eth.blockNumber).timestamp, web3.eth.getBlock('latest').timestamp);
+    return web3.eth.getBlock(web3.eth.blockNumber).timestamp;
 
 }
 

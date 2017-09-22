@@ -1,9 +1,11 @@
-const assertJump = require('../helpers/assertJump').assertJump;
-const ether = require('../helpers/ether').ether;
-const advanceToBlock = require('../helpers/advanceToBlock').advanceToBlock;
-const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
+const { assertJump, } = require('../helpers/assertJump').assertJump;
+const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
+const { latestTime, } = require('../helpers/latestTime');
+const { ether, } = require('../helpers/ether');
+const { advanceBlock, } = require('../helpers/advanceToBlock');
+const { EVMThrow, } = require('../helpers/EVMThrow');
 
-const BigNumber = web3.BigNumber;
+const { BigNumber, } = web3;
 
 const should = require('chai')
     .use(require('chai-as-promised'))
@@ -15,7 +17,7 @@ const DipToken = artifacts.require('../../contracts/token/DipToken');
 
 contract('DipTge', (accounts) => {
 
-    const investor = accounts[1];
+    // const investor = accounts[1];
     const wallet = accounts[2];
     const purchaser = accounts[3];
     const anonInvestor = accounts[4];
@@ -35,10 +37,10 @@ contract('DipTge', (accounts) => {
 
     beforeEach(async () => {
 
-        this.startTime = web3.eth.blockNumber + 5; // 10;
-        this.startOpenPpTime = web3.eth.blockNumber + 10; // 20;
-        this.startPublicTime = web3.eth.blockNumber + 15; // 30;
-        this.endTime = web3.eth.blockNumber + 20; // 40;
+        this.startTime = latestTime() + duration.minutes(10);
+        this.startOpenPpTime = latestTime() + duration.minutes(20);
+        this.startPublicTime = latestTime() + duration.minutes(30);
+        this.endTime = latestTime() + duration.minutes(40);
         this.crowdsale = await DipTge.new(
             this.startTime,
             this.startOpenPpTime,
@@ -48,23 +50,21 @@ contract('DipTge', (accounts) => {
             hardCap1,
             hardCap2,
             rate,
-            wallet, {
-                gaslimit: 4700000,
-            });
+            wallet,
+        );
         this.token = DipToken.at(await this.crowdsale.token());
 
     });
-
 
 
     it('should throw if rate == 0', async () => {
 
         try {
 
-            this.startTime = web3.eth.blockNumber + 5; // 10;
-            this.startOpenPpTime = web3.eth.blockNumber + 10; // 20;
-            this.startPublicTime = web3.eth.blockNumber + 15; // 30;
-            this.endTime = web3.eth.blockNumber + 20; // 40;
+            this.startTime = latestTime() + duration.minutes(10);
+            this.startOpenPpTime = latestTime() + duration.minutes(20);
+            this.startPublicTime = latestTime() + duration.minutes(30);
+            this.endTime = latestTime() + duration.minutes(40);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -74,7 +74,8 @@ contract('DipTge', (accounts) => {
                 hardCap1,
                 hardCap2,
                 zeroBig,
-                wallet);
+                wallet,
+            );
 
         } catch (error) {
 
@@ -139,10 +140,9 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther], {
-                    gaslimit: 4700000,
-                });
+            await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther], {
+                gaslimit: 4700000,
+            });
 
         });
 
@@ -150,8 +150,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors(
-                    [ppInvestor, otherInvestor], [allowPP, 0, 0], [0, allowOther]);
+                await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0, 0], [0, allowOther]);
 
             } catch (error) {
 
@@ -168,8 +167,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors(
-                    [ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther, 0]);
+                await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther, 0]);
 
             } catch (error) {
 
@@ -200,7 +198,8 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=allowance in priorityPass phase', async () => {
 
-            await advanceToBlock(this.startTime);
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -219,7 +218,8 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=hardCap1 in open priorityPass phase', async () => {
 
-            await advanceToBlock(this.startOpenPpTime);
+            await increaseTimeTo(this.startOpenPpTime);
+            await advanceBlock();
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -238,7 +238,8 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=hardCap2 in public phase', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -257,7 +258,8 @@ contract('DipTge', (accounts) => {
 
         it('should yield maxContrib=0 after crowdsale end', async () => {
 
-            await advanceToBlock(this.endTime + 1);
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -283,7 +285,8 @@ contract('DipTge', (accounts) => {
                     [allowPP, zeroEther],
                     [zeroEther, allowOther], {
                         from: anonInvestor,
-                    });
+                    }
+                );
 
             } catch (error) {
 
@@ -304,7 +307,8 @@ contract('DipTge', (accounts) => {
                 [zeroEther, allowOther.mul(2)]
             );
 
-            await advanceToBlock(this.startTime);
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
             await this.crowdsale.setCrowdsaleState();
 
             const state = await this.crowdsale.crowdsaleState();
@@ -334,7 +338,8 @@ contract('DipTge', (accounts) => {
                 [zeroEther, allowOther.mul(3)]
             );
 
-            await advanceToBlock(this.startTime);
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
 
         });
 
@@ -453,7 +458,8 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from priority pass members in opened phase', async () => {
 
-            await advanceToBlock(this.startOpenPpTime);
+            await increaseTimeTo(this.startOpenPpTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -470,7 +476,8 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from other listed members in opened phase', async () => {
 
-            await advanceToBlock(this.startOpenPpTime);
+            await increaseTimeTo(this.startOpenPpTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -487,7 +494,8 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from priority pass members in public phase', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -504,7 +512,8 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from other listed members in public phase', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -521,7 +530,8 @@ contract('DipTge', (accounts) => {
 
         it('should accept higher payments from anybody in public phase', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -542,8 +552,7 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther]);
+            await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther]);
 
         });
 
@@ -591,7 +600,8 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from anybody', async () => {
 
-            await advanceToBlock(this.endTime + 1);
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -607,7 +617,8 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from whitelisted PP participant', async () => {
 
-            await advanceToBlock(this.endTime + 1);
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: ppInvestor,
@@ -623,7 +634,8 @@ contract('DipTge', (accounts) => {
 
         it('should reject payments after end from whitelisted other participant', async () => {
 
-            await advanceToBlock(this.endTime + 1);
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: otherInvestor,
@@ -636,14 +648,6 @@ contract('DipTge', (accounts) => {
             }).should.be.rejectedWith(EVMThrow);
 
         });
-
-
-        // should reject payments over allowance from whitelisted PP participant
-        // should reject payments over allowance from whitelisted other participant
-        // should reject payments after reaching hardCap1 from whitelisted PP participants
-        // should reject payments after reaching hardCap1 from whitelisted other participants
-        // should reject payments after reaching hardCap2 from whitelisted PP participants
-        // should reject payments after reaching hardCap2 from whitelisted other participants
 
     });
 
@@ -664,9 +668,11 @@ contract('DipTge', (accounts) => {
                     hardCap2,
                     // we set rate so that MAXIMUM_SUPPLY will be surpassed
                     new BigNumber(100000000000),
-                    wallet);
+                    wallet,
+                );
 
-                await advanceToBlock(this.startPublicTime);
+                await increaseTimeTo(this.startPublicTime);
+                await advanceBlock();
 
                 await this.crowdsale.buyTokens(anonInvestor, {
                     from: purchaser,
@@ -686,7 +692,8 @@ contract('DipTge', (accounts) => {
 
         it('should throw if beneficiary is 0x0', async () => {
 
-            await advanceToBlock(this.startTime);
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
 
             await this.crowdsale.buyTokens(0, {
                 from: purchaser,
@@ -697,7 +704,8 @@ contract('DipTge', (accounts) => {
 
         it('should transfer remaining tokens to wallet', async () => {
 
-            await advanceToBlock(this.endTime + 1);
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
 
             await this.crowdsale.finalize().should.be.fulfilled;
 
@@ -712,7 +720,8 @@ contract('DipTge', (accounts) => {
 
         it('should end sale after hardCap2 is reached', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -737,7 +746,8 @@ contract('DipTge', (accounts) => {
 
         it('should salvage tokens which have been sent to contract by mistake', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,
@@ -760,7 +770,8 @@ contract('DipTge', (accounts) => {
 
         it('should reject calling salvageTokens by non-owner', async () => {
 
-            await advanceToBlock(this.startPublicTime);
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: anonInvestor,

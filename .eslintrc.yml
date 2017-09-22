@@ -36,8 +36,9 @@ rules:
         - error
         - always
     max-len:
-        - error
-        - never
+        - 0
+        - 80
+        - 4
 
 globals:
     artifacts: true

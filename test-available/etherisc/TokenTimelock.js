@@ -4,18 +4,17 @@
  * @return {[type]}    [description]
  */
 
-const BigNumber = web3.BigNumber;
+const { BigNumber, } = web3;
 
 const should = require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(BigNumber))
     .should();
-const moment = require('moment');
 
 
-const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
-const increaseTime = require('../helpers/increaseTime').increaseTime;
-const latestTime = require('../helpers/latestTime').latestTime;
+const { EVMThrow, } = require('../helpers/EVMThrow');
+const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
+const { latestTime, } = require('../helpers/latestTime');
 
 const TokenTimelockMock = artifacts.require('TokenTimelockMock');
 const SoftPausableTokenMock = artifacts.require('SoftPausableTokenMock');
@@ -29,7 +28,7 @@ contract('TokenTimelock', (accounts) => {
 
     beforeEach(async () => {
 
-        this.lockTime = latestTime().add(50, 'days').unix();
+        this.lockTime = latestTime() + duration.days(50);
         this.token = await SoftPausableTokenMock.new(spender, 100);
         this.tokenTimelock = await TokenTimelockMock.new(this.token.address);
         this.token.transfer(staker, 50, {
@@ -93,7 +92,7 @@ contract('TokenTimelock', (accounts) => {
             from: staker,
         });
 
-        await increaseTime(moment.duration(60, 'days'));
+        await increaseTimeTo(this.lockTime + duration.days(60));
 
         const result = await this.tokenTimelock.releaseTimelockFor(beneficiary, this.lockTime, 15, {
             from: staker,
@@ -119,7 +118,7 @@ contract('TokenTimelock', (accounts) => {
             from: staker,
         });
 
-        await increaseTime(moment.duration(60, 'days'));
+        await increaseTimeTo(this.lockTime + duration.days(60));
 
         const result = await this.tokenTimelock.releaseTimelock(this.lockTime, 15, {
             from: staker,
@@ -189,7 +188,7 @@ contract('TokenTimelock', (accounts) => {
         }).should.be.fulfilled;
 
         await this.token.pause();
-        await increaseTime(moment.duration(60, 'days'));
+        await increaseTimeTo(this.lockTime + duration.days(60));
 
         await this.tokenTimelock.releaseTimelock(this.lockTime, 15, {
             from: staker,

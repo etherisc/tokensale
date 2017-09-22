@@ -9,8 +9,7 @@ function advanceBlock() {
             jsonrpc: '2.0',
             method: 'evm_mine',
             id: Date.now(),
-        }, (err, res) => (err ? reject(err) : resolve(res))
-        );
+        }, (err, res) => (err ? reject(err) : resolve(res)));
 
     });
 
@@ -36,4 +35,4 @@ async function advanceToBlock(number) {
 
 }
 
-module.exports = { advanceToBlock, };
+module.exports = { advanceToBlock, advanceBlock, };

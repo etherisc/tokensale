@@ -3,15 +3,15 @@
  * @param  {[type]} ms [description]
  * @return {[type]}    [description]
  */
+const { EVMThrow, } = require('../helpers/EVMThrow');
 
-const BigNumber = web3.BigNumber;
+const { BigNumber, } = web3;
 
 const should = require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-const EVMThrow = require('../helpers/EVMThrow').EVMThrow;
 
 const TokenStakeMock = artifacts.require('TokenStakeMock');
 const SoftPausableTokenMock = artifacts.require('SoftPausableTokenMock');
