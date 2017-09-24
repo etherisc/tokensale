@@ -15,6 +15,9 @@ const should = require('chai')
 const DipTge = artifacts.require('../../contracts/tokensale/DipTge');
 const DipToken = artifacts.require('../../contracts/token/DipToken');
 
+
+/*
+
 contract('DipTge', (accounts) => {
 
     // const investor = accounts[1];
@@ -799,3 +802,5 @@ contract('DipTge', (accounts) => {
     });
 
 });
+
+*/
