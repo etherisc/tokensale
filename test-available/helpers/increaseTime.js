@@ -15,8 +15,6 @@ function increaseTime(duration) {
 
     const idnow = Date.now();
 
-    //console.log('IncreaseTime', web3.eth.blockNumber, web3.eth.getBlock('latest').timestamp, web3.eth.getBlock(web3.eth.blockNumber).timestamp);
-
     return new Promise((resolve, reject) => {
 
         web3.currentProvider.sendAsync({
@@ -28,17 +26,16 @@ function increaseTime(duration) {
 
             if (err1) return reject(err1);
 
-            web3.currentProvider.sendAsync({
+            return web3.currentProvider.sendAsync({
                 jsonrpc: '2.0',
                 method: 'evm_mine',
                 id: idnow + 1,
 
-            }, (err2, res) => {
+            }, (err2, res) =>
 
-      //          console.log('After: ', web3.eth.blockNumber, web3.eth.getBlock('latest').timestamp, web3.eth.getBlock(web3.eth.blockNumber).timestamp);
-                (err2 ? reject(err2) : resolve(res));
+                (err2 ? reject(err2) : resolve(res))
 
-            });
+            );
 
         });
 
@@ -53,12 +50,12 @@ function increaseTime(duration) {
  *
  * @param target time in seconds
  */
-function increaseTimeTo(target) {
+async function increaseTimeTo(target) {
 
-    const now = latestTime();
+    const now = await latestTime();
     if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
     const diff = target - now;
-    return increaseTime(diff);
+    await increaseTime(diff);
 
 }
 

@@ -15,20 +15,20 @@ test:
     - helpers/FinalizableCrowdsaleMock.sol
     - helpers/increaseTime.js
     - helpers/latestTime.js
-#    - zeppelin/SafeMath.js
-#    - zeppelin/BasicToken.js
-#    - zeppelin/StandardToken.js
-#    - zeppelin/MintableToken.js
-#    - zeppelin/Pausable.js
-#    - zeppelin/PausableToken.js
+    - zeppelin/SafeMath.js
+    - zeppelin/BasicToken.js
+    - zeppelin/StandardToken.js
+    - zeppelin/MintableToken.js
+    - zeppelin/Pausable.js
+    - zeppelin/PausableToken.js
     - zeppelin/FinalizableCrowdsale.js  
     - zeppelin/Crowdsale.js
-#    - etherisc/TokenStake.js
-#    - etherisc/TokenStakeMock.sol
-#    - etherisc/TokenTimelockMock.sol
-#    - etherisc/TokenTimelock.js
-#    - etherisc/VestedTokens.js
-#    - etherisc/DipToken.js
-#    - etherisc/DipTokenMock.sol
-#    - etherisc/DipTge.js
-#    
+    - etherisc/TokenStake.js
+    - etherisc/TokenStakeMock.sol
+    - etherisc/TokenTimelockMock.sol
+    - etherisc/TokenTimelock.js
+    - etherisc/VestedTokens.js
+    - etherisc/DipToken.js
+    - etherisc/DipTokenMock.sol
+    - etherisc/DipTge.js
+    

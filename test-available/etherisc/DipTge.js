@@ -1,4 +1,4 @@
-const { assertJump, } = require('../helpers/assertJump').assertJump;
+const { assertJump, } = require('../helpers/assertJump');
 const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
 const { latestTime, } = require('../helpers/latestTime');
 const { ether, } = require('../helpers/ether');
@@ -37,10 +37,14 @@ contract('DipTge', (accounts) => {
 
     beforeEach(async () => {
 
-        this.startTime = latestTime() + duration.minutes(10);
-        this.startOpenPpTime = latestTime() + duration.minutes(20);
-        this.startPublicTime = latestTime() + duration.minutes(30);
-        this.endTime = latestTime() + duration.minutes(40);
+        this.latestTime = await latestTime();
+        await increaseTimeTo(this.latestTime + duration.hours(1));
+        this.latestTime = await latestTime();
+
+        this.startTime = this.latestTime + duration.days(1);
+        this.startOpenPpTime = this.startTime + duration.weeks(1);
+        this.startPublicTime = this.startOpenPpTime + duration.weeks(1);
+        this.endTime = this.startPublicTime + duration.weeks(1);
         this.crowdsale = await DipTge.new(
             this.startTime,
             this.startOpenPpTime,
@@ -52,7 +56,9 @@ contract('DipTge', (accounts) => {
             rate,
             wallet,
         );
-        this.token = DipToken.at(await this.crowdsale.token());
+
+        const tokenAddress = await this.crowdsale.token();
+        this.token = await DipToken.at(tokenAddress);
 
     });
 
@@ -61,10 +67,10 @@ contract('DipTge', (accounts) => {
 
         try {
 
-            this.startTime = latestTime() + duration.minutes(10);
-            this.startOpenPpTime = latestTime() + duration.minutes(20);
-            this.startPublicTime = latestTime() + duration.minutes(30);
-            this.endTime = latestTime() + duration.minutes(40);
+            this.startTime = await latestTime() + duration.days(4);
+            this.startOpenPpTime = this.startTime + duration.weeks(1);
+            this.startPublicTime = this.startOpenPpTime + duration.weeks(1);
+            this.endTime = this.startPublicTime + duration.weeks(1);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,

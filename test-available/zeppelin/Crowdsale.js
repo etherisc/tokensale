@@ -2,7 +2,7 @@ const {
     ether,
 } = require('../helpers/ether');
 const {
-    duration,
+    increaseTimeTo, duration,
 } = require('../helpers/increaseTime');
 const {
     advanceBlock,
@@ -10,9 +10,6 @@ const {
 const {
     latestTime,
 } = require('../helpers/latestTime');
-const {
-    increaseTimeTo,
-} = require('../helpers/increaseTime');
 const {
     EVMThrow,
 } = require('../helpers/EVMThrow');
@@ -26,8 +23,11 @@ const should = require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-const Crowdsale = artifacts.require('Crowdsale');
-const MintableToken = artifacts.require('MintableToken');
+const Crowdsale = artifacts.require('zeppelin-solidity/contracts/crowdsale/Crowdsale');
+const MintableToken = artifacts.require('zeppelin-solidity/contracts/token/MintableToken');
+
+// function logBN(message, x) { console.log(message, x.toNumber()); }
+
 
 contract('Crowdsale', (accounts) => {
 
@@ -39,234 +39,218 @@ contract('Crowdsale', (accounts) => {
 
     const expectedTokenAmount = rate.mul(someValue);
 
-    beforeEach(async() => {
+    beforeEach(async () => {
 
-        this.startTime = latestTime() + duration.weeks(4);
+        this.latestTime = await latestTime();
+        await increaseTimeTo(this.latestTime + duration.days(1));
+        this.latestTime = await latestTime();
+
+        this.startTime = this.latestTime + duration.weeks(4);
         this.endTime = this.startTime + duration.weeks(1);
 
-        console.log(web3.eth.blockNumber, latestTime(), this.startTime, this.endTime);
+        // console.log('latestTime = ', this.latestTime);
+        // console.log('startTime  = ', this.startTime);
+        // console.log('endTime    = ', this.endTime);
+        // console.log('rate       = ', rate.toNumber());
+        // console.log('wallet     = ', wallet);
 
         this.crowdsale = await Crowdsale.new(
             this.startTime,
             this.endTime,
             rate,
-            wallet,
+            wallet
         );
 
-        console.log(latestTime());
-        console.log(web3.eth.blockNumber);
-        let testTime = await this.crowdsale.startTime();
-        console.log('startTime:', testTime);
-        testTime = await this.crowdsale.endTime();
-        console.log('endTime:', testTime);
-        testTime = await this.crowdsale.creationTime();
-        console.log('creationTime:', testTime);
-
-        const myEvents = this.crowdsale.allEvents({
-            fromBlock: 0,
-            toBlock: 'latest',
-        });
-
-        myEvents.get((error, logs) => {
-
-            // we have the logs, now print them
-            logs.forEach(log => console.log(log.args));
-
-        });
+        // logBN('creationTime = ', await this.crowdsale.cTime());
+        // logBN('startTime    = ', await this.crowdsale.startTime());
+        // logBN('endTime      = ', await this.crowdsale.endTime());
+        // logBN('rate         = ', await this.crowdsale.rate());
+        // console.log('wallet       = ', await this.crowdsale.wallet());
+        // console.log('token        = ', await this.crowdsale.token());
 
         const tokenAddress = await this.crowdsale.token();
-
-        console.log(this.crowdsale.address, tokenAddress);
-
-    //    this.token = MintableToken.at(tokenAddress);
+        this.token = await MintableToken.at(tokenAddress);
 
     });
 
     it('should be token owner', async () => {
-
-        const tokenAddress = await this.crowdsale.token();
-        console.log(this.crowdsale.address, tokenAddress);
-        this.token = MintableToken.at(tokenAddress);
 
         const owner = await this.token.owner();
         owner.should.equal(this.crowdsale.address);
 
     });
 
-    /*
+    it('should be ended only after end', async () => {
 
-        it('should be ended only after end', async () => {
+        let ended = await this.crowdsale.hasEnded();
+        ended.should.equal(false);
+        await increaseTimeTo(this.endTime + duration.minutes(1));
 
-            let ended = await this.crowdsale.hasEnded();
-            ended.should.equal(false);
+        ended = await this.crowdsale.hasEnded();
+        ended.should.equal(true);
+
+    });
+
+    describe('accepting payments', () => {
+
+        it('should reject payments before start', async () => {
+
+            await this.crowdsale.send(someValue).should.be.rejectedWith(EVMThrow);
+            await this.crowdsale.buyTokens(investor, someValue, {
+                from: purchaser,
+            }).should.be.rejectedWith(EVMThrow);
+
+        });
+
+        it('should accept payments after start', async () => {
+
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
+            await this.crowdsale.send(someValue).should.be.fulfilled;
+            await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            }).should.be.fulfilled;
+
+        });
+
+        it('should reject payments after end', async () => {
+
             await increaseTimeTo(this.endTime + duration.minutes(1));
-            ended = await this.crowdsale.hasEnded();
-            ended.should.equal(true);
+            await advanceBlock();
+            await this.crowdsale.send(someValue).should.be.rejectedWith(EVMThrow);
+            await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            }).should.be.rejectedWith(EVMThrow);
 
         });
 
-        describe('accepting payments', () => {
+    });
 
-            it('should reject payments before start', async () => {
+    describe('high-level purchase', () => {
 
-                await this.crowdsale.send(someValue).should.be.rejectedWith(EVMThrow);
-                await this.crowdsale.buyTokens(investor, someValue, {
-                    from: purchaser,
-                }).should.be.rejectedWith(EVMThrow);
+        beforeEach(async () => {
 
-            });
-
-            it('should accept payments after start', async () => {
-
-                await increaseTimeTo(this.startTime);
-                await advanceBlock();
-                await this.crowdsale.send(someValue).should.be.fulfilled;
-                await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                }).should.be.fulfilled;
-
-            });
-
-            it('should reject payments after end', async () => {
-
-                await increaseTimeTo(this.endTime + duration.minutes(1));
-                await advanceBlock();
-                await this.crowdsale.send(someValue).should.be.rejectedWith(EVMThrow);
-                await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                }).should.be.rejectedWith(EVMThrow);
-
-            });
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
 
         });
 
-        describe('high-level purchase', () => {
+        it('should log purchase', async () => {
 
-            beforeEach(async () => {
-
-                await increaseTimeTo(this.startTime);
-                await advanceBlock();
-
+            const {
+                logs,
+            } = await this.crowdsale.sendTransaction({
+                value: someValue,
+                from: investor,
             });
 
-            it('should log purchase', async () => {
+            const event = logs.find(e => e.event === 'TokenPurchase');
 
-                const {
-                    logs,
-                } = await this.crowdsale.sendTransaction({
-                    value: someValue,
-                    from: investor,
-                });
-
-                const event = logs.find(e => e.event === 'TokenPurchase');
-
-                should.exist(event);
-                event.args.purchaser.should.equal(investor);
-                event.args.beneficiary.should.equal(investor);
-                event.args.value.should.be.bignumber.equal(someValue);
-                event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should increase totalSupply', async () => {
-
-                await this.crowdsale.send(someValue);
-                const totalSupply = await this.token.totalSupply();
-                totalSupply.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should assign tokens to sender', async () => {
-
-                await this.crowdsale.sendTransaction({
-                    value: someValue,
-                    from: investor,
-                });
-                const balance = await this.token.balanceOf(investor);
-                balance.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should forward funds to wallet', async () => {
-
-                const pre = web3.eth.getBalance(wallet);
-                await this.crowdsale.sendTransaction({
-                    value: someValue,
-                    from: investor,
-                });
-                const post = web3.eth.getBalance(wallet);
-                post.minus(pre).should.be.bignumber.equal(someValue);
-
-            });
+            should.exist(event);
+            event.args.purchaser.should.equal(investor);
+            event.args.beneficiary.should.equal(investor);
+            event.args.value.should.be.bignumber.equal(someValue);
+            event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
 
         });
 
-        describe('low-level purchase', () => {
+        it('should increase totalSupply', async () => {
 
-            beforeEach(async () => {
-
-                await increaseTimeTo(this.startTime);
-                await advanceBlock();
-
-            });
-
-            it('should log purchase', async () => {
-
-                const {
-                    logs,
-                } = await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                });
-
-                const event = logs.find(e => e.event === 'TokenPurchase');
-
-                should.exist(event);
-                event.args.purchaser.should.equal(purchaser);
-                event.args.beneficiary.should.equal(investor);
-                event.args.value.should.be.bignumber.equal(someValue);
-                event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should increase totalSupply', async () => {
-
-                await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                });
-                const totalSupply = await this.token.totalSupply();
-                totalSupply.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should assign tokens to beneficiary', async () => {
-
-                await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                });
-                const balance = await this.token.balanceOf(investor);
-                balance.should.be.bignumber.equal(expectedTokenAmount);
-
-            });
-
-            it('should forward funds to wallet', async () => {
-
-                const pre = web3.eth.getBalance(wallet);
-                await this.crowdsale.buyTokens(investor, {
-                    value: someValue,
-                    from: purchaser,
-                });
-                const post = web3.eth.getBalance(wallet);
-                post.minus(pre).should.be.bignumber.equal(someValue);
-
-            });
+            await this.crowdsale.send(someValue);
+            const totalSupply = await this.token.totalSupply();
+            totalSupply.should.be.bignumber.equal(expectedTokenAmount);
 
         });
 
-    */
+        it('should assign tokens to sender', async () => {
+
+            await this.crowdsale.sendTransaction({
+                value: someValue,
+                from: investor,
+            });
+            const balance = await this.token.balanceOf(investor);
+            balance.should.be.bignumber.equal(expectedTokenAmount);
+
+        });
+
+        it('should forward funds to wallet', async () => {
+
+            const pre = web3.eth.getBalance(wallet);
+            await this.crowdsale.sendTransaction({
+                value: someValue,
+                from: investor,
+            });
+            const post = web3.eth.getBalance(wallet);
+            post.minus(pre).should.be.bignumber.equal(someValue);
+
+        });
+
+    });
+
+    describe('low-level purchase', () => {
+
+        beforeEach(async () => {
+
+            await increaseTimeTo(this.startTime);
+            await advanceBlock();
+
+        });
+
+        it('should log purchase', async () => {
+
+            const {
+                logs,
+            } = await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            });
+
+            const event = logs.find(e => e.event === 'TokenPurchase');
+
+            should.exist(event);
+            event.args.purchaser.should.equal(purchaser);
+            event.args.beneficiary.should.equal(investor);
+            event.args.value.should.be.bignumber.equal(someValue);
+            event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+
+        });
+
+        it('should increase totalSupply', async () => {
+
+            await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            });
+            const totalSupply = await this.token.totalSupply();
+            totalSupply.should.be.bignumber.equal(expectedTokenAmount);
+
+        });
+
+        it('should assign tokens to beneficiary', async () => {
+
+            await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            });
+            const balance = await this.token.balanceOf(investor);
+            balance.should.be.bignumber.equal(expectedTokenAmount);
+
+        });
+
+        it('should forward funds to wallet', async () => {
+
+            const pre = web3.eth.getBalance(wallet);
+            await this.crowdsale.buyTokens(investor, {
+                value: someValue,
+                from: purchaser,
+            });
+            const post = web3.eth.getBalance(wallet);
+            post.minus(pre).should.be.bignumber.equal(someValue);
+
+        });
+
+    });
 
 });

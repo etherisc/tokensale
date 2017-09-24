@@ -28,7 +28,7 @@ contract('TokenTimelock', (accounts) => {
 
     beforeEach(async () => {
 
-        this.lockTime = latestTime() + duration.days(50);
+        this.lockTime = await latestTime() + duration.days(50);
         this.token = await SoftPausableTokenMock.new(spender, 100);
         this.tokenTimelock = await TokenTimelockMock.new(this.token.address);
         this.token.transfer(staker, 50, {

@@ -37,7 +37,7 @@ contract('VestedTokens', (accounts) => {
 
     it('should grant tokens for beneficiary', async () => {
 
-        const startTime = latestTime() + duration.days(5);
+        const startTime = await latestTime() + duration.days(5);
         const cliff = duration.weeks(1);
         const vestingPeriod = duration.weeks(5);
         let lockTime = startTime;
@@ -85,7 +85,7 @@ contract('VestedTokens', (accounts) => {
 
     it('should throw if amount not divisible by periods', async () => {
 
-        const startTime = latestTime() + duration.days(5);
+        const startTime = await latestTime() + duration.days(5);
         const cliff = duration.weeks(1);
         const vestingPeriod = duration.weeks(6);
 

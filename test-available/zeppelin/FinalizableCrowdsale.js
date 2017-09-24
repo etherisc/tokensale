@@ -23,10 +23,9 @@ contract('FinalizableCrowdsale', (accounts) => {
 
     beforeEach(async () => {
 
-        this.latestTime = latestTime();
-        this.startTime = this.latestTime + duration.weeks(4);
+        this.latestTime = await latestTime();
+        this.startTime = this.latestTime + duration.years(4);
         this.endTime = this.startTime + duration.weeks(1);
-        console.log(this.latestTime, this.startTime, this.endTime);
 
         this.crowdsale = await FinalizableCrowdsaleMock.new(
             this.startTime,
@@ -37,31 +36,7 @@ contract('FinalizableCrowdsale', (accounts) => {
             }
         );
 
-        const myEvents = this.crowdsale.allEvents({
-            fromBlock: 0,
-            toBlock: 'latest',
-        });
-
-        myEvents.get((error, logs) => {
-
-            // we have the logs, now print them
-            logs.forEach(log => console.log(log.args));
-
-        });
-
-
-        console.log(web3.eth.blockNumber, web3.eth.getBlock('latest').timestamp);
-
-        console.log(this.crowdsale.address);
-        let testTime = await this.crowdsale.startTime();
-        console.log('startTime', testTime.toNumber());
-        testTime = await this.crowdsale.endTime();
-        console.log('endTime', testTime.toNumber());
-        testTime = await this.crowdsale.creationTime();
-        console.log('creationTime', testTime.toNumber());
-
         const tokenAddress = await this.crowdsale.token();
-        console.log('tokenAddress', tokenAddress);
         this.token = MintableToken.at(tokenAddress);
 
     });
