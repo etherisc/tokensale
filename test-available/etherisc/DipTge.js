@@ -80,7 +80,7 @@ contract('DipTge', (accounts) => {
                 hardCap1,
                 hardCap2,
                 zeroBig,
-                wallet,
+                wallet
             );
 
         } catch (error) {
