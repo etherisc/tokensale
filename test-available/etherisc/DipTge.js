@@ -54,7 +54,7 @@ contract('DipTge', (accounts) => {
             hardCap1,
             hardCap2,
             rate,
-            wallet,
+            wallet
         );
 
         const tokenAddress = await this.crowdsale.token();
