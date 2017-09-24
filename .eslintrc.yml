@@ -31,7 +31,7 @@ rules:
           objects: always
           imports: never
           exports: never
-          functions: ignore
+          functions: never
     padded-blocks:
         - error
         - always

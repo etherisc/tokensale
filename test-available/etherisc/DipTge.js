@@ -674,7 +674,7 @@ contract('DipTge', (accounts) => {
                     hardCap2,
                     // we set rate so that MAXIMUM_SUPPLY will be surpassed
                     new BigNumber(100000000000),
-                    wallet,
+                    wallet
                 );
 
                 await increaseTimeTo(this.startPublicTime);
