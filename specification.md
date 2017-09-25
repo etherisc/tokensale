@@ -14,10 +14,10 @@ This is the final and authoritative description of the DIP Token and TGE.
 1. The Token Contract implements ERC20 Specification according to [cite].
 
 ### Specification of general TGE parameters
-1. TGE starts at block `startBlock` (inclusive).
-1. TGE ends no later then `endBlock` (inclusive).
+1. TGE starts at block `startTime` (inclusive).
+1. TGE ends no later then `endTime` (inclusive).
 1. A maximum of `hardcap2` wei is raised.
-1. A maximum of `hardcap1` is raised in the priorityPass phase (`block.number >= startBlock && block.number < startPublicBlock`). 
+1. A maximum of `hardcap1` is raised in the priorityPass phase (`now >= startTime && now < startPublicTime`). 
 (if there is no public sale, `hardcap1 == hardcap2`)
 1. All ether values are stored in `uint256` as wei.
 1. All DIP token values are stored in `uint256` as 10E-18 fractions of tokens. 
@@ -41,19 +41,19 @@ The three arrays must have the same length, otherwise the function will throw.
 
 ### TGE phases
 1. The phases of the TGE are delimited by the following parameters, denoted as `uint256`:
-    - `startBlock`
-    - `startOpenPpBlock`
-    - `startPublicBlock`
-    - `endBlock`
+    - `startTime`
+    - `startOpenPpTime`
+    - `startPublicTime`
+    - `endTime`
 1. Accordingly, the TGE has 5 phases: 
-    - `pendingStart`:             after deployment, before `startBlock`
-    - `priorityPass`:             including and after `startBlock`, before `startOpenPpBlock`
-    - `openedPriorityPass`:       including and after `startOpenPpBlock`, before `startPublicBlock`
-    - `crowdsale`:                including and after `startPublicBlock`, before and including `endBlock`
-    - `crowdsaleEnded`:           after `endBlock`
+    - `pendingStart`:             after deployment, before `startTime`
+    - `priorityPass`:             including and after `startTime`, before `startOpenPpTime`
+    - `openedPriorityPass`:       including and after `startOpenPpTime`, before `startPublicTime`
+    - `crowdsale`:                including and after `startPublicTime`, before and including `endTime`
+    - `crowdsaleEnded`:           after `endTime`
 1. The state of the contract is reflected in the `state` variable, which is an `enum` with possible values  
 `{ pendingStart, priorityPass, openedPriorityPass, crowdsale, crowdsaleEnded }`.
-1. If `startPublicBlock > endBlock`, there is no public sale.
+1. If `startPublicTime > endTime`, there is no public sale.
 1. At every transaction, the state is checked and set according to the above conditions.
 1. If `state = state.crowdsaleEnded` is set, a finalization function is called, which mints and distributes the remaining tokens.
 
@@ -64,18 +64,18 @@ in case the `msg.value` is greater then the possible investment.
 1. Participants can invest in one or more transactions.
 1. Before the start of the TGE (in phase `state.pendingStart`), no investment is possible and the default function will throw.
 1. After end of TGE (in phase `state.crowdsaleEnded`), no investment is possible and the default function will throw.
-1. PriorityPass members and selected individuals can invest after `startBlock` (inclusive)
+1. PriorityPass members and selected individuals can invest after `startTime` (inclusive)
 1. PriorityPass members can invest less or equal to their `priorityPassAllowance` (in wei).
 1. Selected individuals can invest less or equal to their `otherAllowance` (in wei).
-1. PriorityPass members and selected individuals can invest unlimited amounts after `startOpenPpBlock` (inclusive).  
+1. PriorityPass members and selected individuals can invest unlimited amounts after `startOpenPpTime` (inclusive).  
 "unlimited" means "any amount that is greater zero and less or equal to `hardcap2 - weiRaised`"
-1. Unregistered individuals can invest unlimited amounts after `startPublicBlock` (inclusive).
+1. Unregistered individuals can invest unlimited amounts after `startPublicTime` (inclusive).
 1. INVARIANT: After each transaction, the following conditions hold:
-    - `block.number < startBlock                                             && state == state.pendingStart`
-    - `block.number >= startBlock        && block.number < startOpenPpBlock  && state == state.priorityPass`
-    - `block.number >= startOpenPpBlock  && block.number < startPublicBlock  && state == state.openedPriorityPass`
-    - `block.number >= startPublicBlock  && block.number <= endBlock         && state == state.crowdsale`
-    - `block.number > endBlock                                               && state == state.crowdsaleEnded`
+    - `now < startTime                                             && state == state.pendingStart`
+    - `now >= startTime        && now < startOpenPpTime  && state == state.priorityPass`
+    - `now >= startOpenPpTime  && now < startPublicTime  && state == state.openedPriorityPass`
+    - `now >= startPublicTime  && now <= endTime         && state == state.crowdsale`
+    - `now > endTime                                               && state == state.crowdsaleEnded`
 
 ### Vested tokens
 1. The finalization function mints the remaining tokens and transfers it to a special multiSig address, from which
