@@ -13,7 +13,7 @@ import "zeppelin-solidity/contracts/token/StandardToken.sol";
 /**
  * TokenStake Contract.
  * This contract has to be extended to be useful, as
- * all of its functions are internal.
+ * the release functions are internal.
  * We expect the owner of this contract to check if the used token
  * is not an "attacking" token.
  */
@@ -42,7 +42,7 @@ contract TokenStake {
     }
   }
 
-  function stake(uint256 _value) internal returns (bool) {
+  function stake(uint256 _value) public returns (bool) {
     return stakeFor(msg.sender, _value);
   }
 
