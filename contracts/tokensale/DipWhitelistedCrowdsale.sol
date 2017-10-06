@@ -165,6 +165,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function buyTokens(address _beneficiary) public payable {
     require(_beneficiary != 0x0);
+    setCrowdsaleState();
     require(validPurchase());
 
     uint256 weiAmount = msg.value;
@@ -195,16 +196,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
     if (refund != 0) _beneficiary.transfer(refund);
 
-  }
-
-
-  /**
-   * Returns true if a purchase is valid, i.e. there is *some* allowed amount remaining for the contributor
-   * @return bool
-   */
-  function validPurchase() internal returns (bool) {
-    setCrowdsaleState();
-    return super.validPurchase();
   }
 
 }
