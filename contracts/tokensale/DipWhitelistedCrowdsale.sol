@@ -96,7 +96,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       maxContrib = 
         contributorList[_contributor].allowance.sub( 
             contributorList[_contributor].contributionAmount);
-      if (maxContrib > hardCap1 - weiRaised){
+      if (maxContrib > hardCap1.sub(weiRaised)){
         maxContrib = hardCap1.sub(weiRaised);
       }
     } else if (crowdsaleState == state.openedPriorityPass) {
