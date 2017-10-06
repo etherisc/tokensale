@@ -59,6 +59,11 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     DipWhitelistedCrowdsale(_startOpenPpTime, _startPublicTime, _hardcap1, _hardcap2) 
     FinalizableCrowdsale() 
   {
+    require(
+      _startTime <= startOpenPpTime &&
+      _startOpenPpTime <= startPublicTime &&
+      _startPublicTime <= endTime
+    );
 
     DipToken(token).pause();
 

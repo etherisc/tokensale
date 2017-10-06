@@ -25,8 +25,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   state public crowdsaleState = state.pendingStart;
 
   struct ContributorData {
-    uint256 priorityPassAllowance;
-    uint256 otherAllowance;
+    uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
   }
@@ -39,7 +38,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event PublicStarted(uint256 _time);
   event HardCap2Reached(uint256 _time);
   event DipTgeEnded(uint256 _time);
-  event Whitelisted(address indexed _contributor, uint256 _ppAllowance, uint256 _otherAllowance);
+  event Whitelisted(address indexed _contributor, uint256 _allowance);
 
 
   /**
@@ -69,21 +68,18 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function editContributors (
     address[] _contributorAddresses, 
-    uint256[] _contributorPPAllowances, 
-    uint256[] _contributorOtherAllowance
+    uint256[] _contributorAllowance
     ) public 
     onlyOwner 
     {
     
     require(
-      _contributorAddresses.length == _contributorPPAllowances.length && 
-      _contributorAddresses.length == _contributorOtherAllowance.length
+      _contributorAddresses.length == _contributorAllowance.length
       ); // Check if input data is consistent
 
     for(uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)){
-      contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];
-      contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];
-      Whitelisted(_contributorAddresses[cnt], _contributorPPAllowances[cnt], _contributorOtherAllowance[cnt]);
+      contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
+      Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt]);
     }
   }
 
@@ -94,29 +90,23 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function calculateMaxContribution(address _contributor) public constant returns (uint256) {
 
-    uint256 maxContrib;
-    if (crowdsaleState == state.pendingStart) {
-      maxContrib = 0;
-    } else if (crowdsaleState == state.priorityPass) {
+    uint256 maxContrib = 0;
+
+    if (crowdsaleState == state.priorityPass) {
       maxContrib = 
-        (contributorList[_contributor].priorityPassAllowance.add(
-          contributorList[_contributor].otherAllowance)).sub( 
+        contributorList[_contributor].allowance.sub( 
             contributorList[_contributor].contributionAmount);
       if (maxContrib > hardCap1 - weiRaised){
         maxContrib = hardCap1.sub(weiRaised);
       }
     } else if (crowdsaleState == state.openedPriorityPass) {
-      if (contributorList[_contributor].priorityPassAllowance.add( 
-            contributorList[_contributor].otherAllowance) > 0) {
+      if (contributorList[_contributor].allowance > 0) {
         maxContrib = hardCap1.sub(weiRaised);
-      } else {
-        maxContrib = 0;
       }
     } else if (crowdsaleState == state.crowdsale) {
       maxContrib = hardCap2.sub(weiRaised);
-    } else {
-      maxContrib = 0;
-    } 
+    }
+
     return maxContrib;
   }
 
@@ -186,21 +176,22 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       weiAmount = maxContrib;
     }
 
-    if (weiAmount > 0) {
-      // calculate token amount to be created
-      uint256 tokens = weiAmount.mul(rate);
+    // stop here if transaction does not yield tokens
+    require(weiAmount > 0);
 
-      // update state
-      weiRaised = weiRaised.add(weiAmount);
+    // calculate token amount to be created
+    uint256 tokens = weiAmount.mul(rate);
 
-      require(token.mint(_beneficiary, tokens));
-      TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
+    // update state
+    weiRaised = weiRaised.add(weiAmount);
 
-      contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
-      contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(tokens);
+    require(token.mint(_beneficiary, tokens));
+    TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
-      wallet.transfer(weiAmount);
-    }
+    contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
+    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(tokens);
+
+    wallet.transfer(weiAmount);
 
     if (refund != 0) _beneficiary.transfer(refund);
 

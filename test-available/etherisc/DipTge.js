@@ -22,15 +22,13 @@ contract('DipTge', (accounts) => {
     const wallet = accounts[2];
     const purchaser = accounts[3];
     const anonInvestor = accounts[4];
-    const ppInvestor = accounts[5];
-    const otherInvestor = accounts[6];
+    const allowedInvestor = accounts[5];
 
     const rate = new BigNumber(1000);
     const hardCap1 = ether(1100);
     const hardCap2 = ether(1200);
     const someValue = ether(42);
-    const allowPP = ether(51);
-    const allowOther = ether(52);
+    const allowance = ether(51);
     const zeroEther = ether(0);
     const zeroBig = new BigNumber(0);
 
@@ -143,7 +141,7 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther], {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], {
                 gaslimit: 4700000,
             });
 
@@ -153,7 +151,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0, 0], [0, allowOther]);
+                await this.crowdsale.editContributors([allowedInvestor], [allowance, 0]);
 
             } catch (error) {
 
@@ -166,32 +164,13 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should throw if second array has wrong length', async () => {
-
-            try {
-
-                await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther, 0]);
-
-            } catch (error) {
-
-                assertJump(error);
-                return;
-
-            }
-
-            assert.fail('should have thrown before');
-
-        });
 
         it('should yield maxContrib=0 before start', async () => {
 
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(0);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(zeroEther);
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
             maxContrib.should.be.bignumber.equal(zeroEther);
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
@@ -208,11 +187,8 @@ contract('DipTge', (accounts) => {
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(1);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(allowPP);
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
-            maxContrib.should.be.bignumber.equal(allowOther);
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
+            maxContrib.should.be.bignumber.equal(allowance);
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
             maxContrib.should.be.bignumber.equal(zeroEther);
@@ -228,10 +204,7 @@ contract('DipTge', (accounts) => {
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(2);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(hardCap1);
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
             maxContrib.should.be.bignumber.equal(hardCap1);
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
@@ -248,10 +221,7 @@ contract('DipTge', (accounts) => {
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(3);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(hardCap2);
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
             maxContrib.should.be.bignumber.equal(hardCap2);
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
@@ -268,10 +238,7 @@ contract('DipTge', (accounts) => {
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(4);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(zeroEther);
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
             maxContrib.should.be.bignumber.equal(zeroEther);
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
@@ -284,9 +251,8 @@ contract('DipTge', (accounts) => {
             try {
 
                 await this.crowdsale.editContributors(
-                    [ppInvestor, otherInvestor],
-                    [allowPP, zeroEther],
-                    [zeroEther, allowOther], {
+                    [allowedInvestor],
+                    [allowance], {
                         from: anonInvestor,
                     }
                 );
@@ -305,9 +271,8 @@ contract('DipTge', (accounts) => {
         it('should update participants by owner', async () => {
 
             await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor],
-                [allowPP.mul(2), zeroEther],
-                [zeroEther, allowOther.mul(2)]
+                [allowedInvestor],
+                [allowance.mul(2)]
             );
 
             await increaseTimeTo(this.startTime);
@@ -317,11 +282,8 @@ contract('DipTge', (accounts) => {
             const state = await this.crowdsale.crowdsaleState();
             state.toNumber().should.be.equal(1);
 
-            maxContrib = await this.crowdsale.calculateMaxContribution(ppInvestor);
-            maxContrib.should.be.bignumber.equal(allowPP.mul(2));
-
-            maxContrib = await this.crowdsale.calculateMaxContribution(otherInvestor);
-            maxContrib.should.be.bignumber.equal(allowOther.mul(2));
+            maxContrib = await this.crowdsale.calculateMaxContribution(allowedInvestor);
+            maxContrib.should.be.bignumber.equal(allowance.mul(2));
 
             maxContrib = await this.crowdsale.calculateMaxContribution(anonInvestor);
             maxContrib.should.be.bignumber.equal(zeroEther);
@@ -336,9 +298,8 @@ contract('DipTge', (accounts) => {
         beforeEach(async () => {
 
             await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor],
-                [allowPP.mul(3), zeroEther],
-                [zeroEther, allowOther.mul(3)]
+                [allowedInvestor],
+                [allowance.mul(3)]
             );
 
             await increaseTimeTo(this.startTime);
@@ -350,108 +311,51 @@ contract('DipTge', (accounts) => {
         it('should accept payments from priority pass members', async () => {
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
-                value: allowPP,
+                from: allowedInvestor,
+                value: allowance,
             }).should.be.fulfilled;
 
-            await this.crowdsale.buyTokens(ppInvestor, {
+            await this.crowdsale.buyTokens(allowedInvestor, {
                 from: purchaser,
-                value: allowPP,
+                value: allowance,
             }).should.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(ppInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowPP.mul(2)));
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(allowance.mul(2)));
 
             const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowPP.mul(2));
-
-        });
-
-        it('should accept payments from other listed members', async () => {
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: allowOther,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.buyTokens(otherInvestor, {
-                from: purchaser,
-                value: allowOther,
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(otherInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowOther.mul(2)));
-
-            const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowOther.mul(2));
+            weiRaised.should.be.bignumber.equal(allowance.mul(2));
 
         });
 
         it('should partially accept payments from priority pass members', async () => {
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
-                value: allowPP.mul(4),
+                from: allowedInvestor,
+                value: allowance.mul(4),
             }).should.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(ppInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowPP.mul(3)));
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(allowance.mul(3)));
 
             const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowPP.mul(3));
-
-        });
-
-        it('should partially accept payments from other listed members', async () => {
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: allowOther.mul(4),
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(otherInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowOther.mul(3)));
-
-            const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowOther.mul(3));
+            weiRaised.should.be.bignumber.equal(allowance.mul(3));
 
         });
 
         it('should limit to hardCap1 in priority Phase for priority pass members', async () => {
 
             await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor],
-                [hardCap1.add(1), zeroEther],
-                [zeroEther, hardCap1.add(2)]
+                [allowedInvestor],
+                [hardCap1.add(1)]
             );
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
+                from: allowedInvestor,
                 value: hardCap1.add(11),
             }).should.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(ppInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap1));
-
-            const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(hardCap1);
-
-        });
-
-        it('should limit to hardCap1 in priority Phase for other listed members', async () => {
-
-            await this.crowdsale.editContributors(
-                [ppInvestor, otherInvestor],
-                [hardCap1.add(1), zeroEther],
-                [zeroEther, hardCap1.add(2)]
-            );
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: hardCap1.add(12),
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(otherInvestor);
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
             tokenBalance.should.be.bignumber.equal(rate.mul(hardCap1));
 
             const weiRaised = await this.crowdsale.weiRaised();
@@ -465,33 +369,15 @@ contract('DipTge', (accounts) => {
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
-                value: allowPP.mul(4),
+                from: allowedInvestor,
+                value: allowance.mul(4),
             }).should.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(ppInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowPP.mul(4)));
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(allowance.mul(4)));
 
             const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowPP.mul(4));
-
-        });
-
-        it('should accept higher payments from other listed members in opened phase', async () => {
-
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: allowOther.mul(4),
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(otherInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowOther.mul(4)));
-
-            const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowOther.mul(4));
+            weiRaised.should.be.bignumber.equal(allowance.mul(4));
 
         });
 
@@ -501,33 +387,15 @@ contract('DipTge', (accounts) => {
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
-                value: allowPP.mul(4),
+                from: allowedInvestor,
+                value: allowance.mul(4),
             }).should.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(ppInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowPP.mul(4)));
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(allowance.mul(4)));
 
             const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowPP.mul(4));
-
-        });
-
-        it('should accept higher payments from other listed members in public phase', async () => {
-
-            await increaseTimeTo(this.startPublicTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: allowOther.mul(4),
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(otherInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowOther.mul(4)));
-
-            const weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(allowOther.mul(4));
+            weiRaised.should.be.bignumber.equal(allowance.mul(4));
 
         });
 
@@ -555,7 +423,7 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([ppInvestor, otherInvestor], [allowPP, 0], [0, allowOther]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance]);
 
         });
 
@@ -573,28 +441,14 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should reject payments before start from whitelisted PP participant', async () => {
+        it('should reject payments before start from whitelisted participant', async () => {
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
+                from: allowedInvestor,
                 value: someValue,
             }).should.be.rejectedWith(EVMThrow);
 
-            await this.crowdsale.buyTokens(ppInvestor, {
-                from: purchaser,
-                value: someValue,
-            }).should.be.rejectedWith(EVMThrow);
-
-        });
-
-        it('should reject payments before start from whitelisted other participant', async () => {
-
-            await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: someValue,
-            }).should.be.rejectedWith(EVMThrow);
-
-            await this.crowdsale.buyTokens(otherInvestor, {
+            await this.crowdsale.buyTokens(allowedInvestor, {
                 from: purchaser,
                 value: someValue,
             }).should.be.rejectedWith(EVMThrow);
@@ -618,35 +472,38 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should reject payments after end from whitelisted PP participant', async () => {
+        it('should reject payments after end from whitelisted participant', async () => {
 
             await increaseTimeTo(this.endTime + duration.minutes(5));
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
-                from: ppInvestor,
+                from: allowedInvestor,
                 value: someValue,
             }).should.be.rejectedWith(EVMThrow);
 
-            await this.crowdsale.buyTokens(ppInvestor, {
+            await this.crowdsale.buyTokens(allowedInvestor, {
                 from: purchaser,
                 value: someValue,
             }).should.be.rejectedWith(EVMThrow);
 
         });
 
-        it('should reject payments after end from whitelisted other participant', async () => {
+        it('should reject payments after hardCap2 is reached', async () => {
 
-            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await increaseTimeTo(this.startPublicTime);
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
-                from: otherInvestor,
-                value: someValue,
-            }).should.be.rejectedWith(EVMThrow);
+                from: anonInvestor,
+                value: hardCap2,
+            }).should.be.fulfilled;
 
-            await this.crowdsale.buyTokens(otherInvestor, {
-                from: purchaser,
+            const weiRaised = await this.crowdsale.weiRaised();
+            weiRaised.should.be.bignumber.equal(hardCap2);
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
                 value: someValue,
             }).should.be.rejectedWith(EVMThrow);
 
@@ -655,7 +512,6 @@ contract('DipTge', (accounts) => {
     });
 
     describe('misceallenous tests', () => {
-
 
         it('should throw if token doesn\'t mint', async () => {
 
@@ -720,32 +576,6 @@ contract('DipTge', (accounts) => {
 
             const tokenowner = await this.token.owner();
             tokenowner.should.be.equal(owner);
-
-        });
-
-        it('should end sale after hardCap2 is reached', async () => {
-
-            await increaseTimeTo(this.startPublicTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: anonInvestor,
-                value: hardCap2,
-            }).should.be.fulfilled;
-
-            let weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(hardCap2);
-
-            await this.crowdsale.sendTransaction({
-                from: anonInvestor,
-                value: someValue,
-            }).should.be.fulfilled;
-
-            weiRaised = await this.crowdsale.weiRaised();
-            weiRaised.should.be.bignumber.equal(hardCap2);
-
-            const state = await this.crowdsale.crowdsaleState();
-            state.toNumber().should.be.equal(4);
 
         });
 
