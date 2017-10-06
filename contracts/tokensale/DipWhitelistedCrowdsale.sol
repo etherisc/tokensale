@@ -202,7 +202,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * Returns true if a purchase is valid, i.e. there is *some* allowed amount remaining for the contributor
    * @return bool
    */
-  function validPurchase() internal constant returns (bool) {
+  function validPurchase() internal returns (bool) {
     setCrowdsaleState();
     return super.validPurchase();
   }
