@@ -5,7 +5,7 @@
  * @copyright 2017 Etherisc GmbH
  */
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 import "../../contracts/tokensale/TokenTimelock.sol";
 

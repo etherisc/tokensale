@@ -18,7 +18,7 @@ module.exports = {
             gas: 4700000,
         },
         kovan: {
-            network_id: 123, // custom private network
+            network_id: 42, // custom private network
             host: 'localhost',
             port: 8545,
             from: '0xc3878b8566f5626fb8d6ad43b647e3405668f20b',

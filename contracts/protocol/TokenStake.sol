@@ -5,7 +5,7 @@
  * @copyright 2017 Etherisc GmbH
  */
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/token/StandardToken.sol";
@@ -46,7 +46,7 @@ contract TokenStake {
     return stakeFor(msg.sender, _value);
   }
 
-  function releaseFor(address _beneficiary, uint _value) internal returns (bool) {
+  function releaseFor(address _beneficiary, uint256 _value) internal returns (bool) {
     staked[msg.sender].sub(_value); // will throw if _value > staked[_staker]
     if (token.transfer(_beneficiary, _value)) {
       Released(_beneficiary, _value);
@@ -57,7 +57,7 @@ contract TokenStake {
     }
   }
 
-  function release(uint _value) internal returns (bool) {
+  function release(uint256 _value) internal returns (bool) {
     return releaseFor(msg.sender, _value);
   }
 

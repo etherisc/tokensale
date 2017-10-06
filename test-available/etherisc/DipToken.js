@@ -26,7 +26,7 @@ contract('DipTokenMock', (accounts) => {
     it('should be constructed with the correct parameters', async () => {
 
         const name = await token.name();
-        name.should.be.equal('DecentralizedInsurance');
+        name.should.be.equal('Decentralized Insurance Protocol');
 
         const symbol = await token.symbol();
         symbol.should.be.equal('DIP');
@@ -35,7 +35,7 @@ contract('DipTokenMock', (accounts) => {
         decimals.should.be.bignumber.equal(18);
 
         const maxSupply = await token.MAXIMUM_SUPPLY();
-        maxSupply.should.be.bignumber.equal(new BigNumber('1e+11').mul(new BigNumber('1e+18')));
+        maxSupply.should.be.bignumber.equal(new BigNumber('1e+9').mul(new BigNumber('1e+18')));
 
     });
 

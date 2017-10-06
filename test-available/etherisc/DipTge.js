@@ -18,6 +18,7 @@ const DipToken = artifacts.require('../../contracts/token/DipToken');
 contract('DipTge', (accounts) => {
 
     // const investor = accounts[1];
+    const owner = accounts[0];
     const wallet = accounts[2];
     const purchaser = accounts[3];
     const anonInvestor = accounts[4];
@@ -25,7 +26,6 @@ contract('DipTge', (accounts) => {
     const otherInvestor = accounts[6];
 
     const rate = new BigNumber(1000);
-    const minCap = ether(1000);
     const hardCap1 = ether(1100);
     const hardCap2 = ether(1200);
     const someValue = ether(42);
@@ -50,7 +50,6 @@ contract('DipTge', (accounts) => {
             this.startOpenPpTime,
             this.startPublicTime,
             this.endTime,
-            minCap,
             hardCap1,
             hardCap2,
             rate,
@@ -76,7 +75,6 @@ contract('DipTge', (accounts) => {
                 this.startOpenPpTime,
                 this.startPublicTime,
                 this.endTime,
-                minCap,
                 hardCap1,
                 hardCap2,
                 zeroBig,
@@ -111,8 +109,7 @@ contract('DipTge', (accounts) => {
 
     it('should have correct parameters at start', async () => {
 
-        let result = await this.crowdsale.minCap();
-        result.should.be.bignumber.equal(minCap);
+        let result;
 
         result = await this.crowdsale.hardCap1();
         result.should.be.bignumber.equal(hardCap1);
@@ -669,7 +666,6 @@ contract('DipTge', (accounts) => {
                     this.startOpenPpTime,
                     this.startPublicTime,
                     this.endTime,
-                    minCap,
                     hardCap1,
                     hardCap2,
                     // we set rate so that MAXIMUM_SUPPLY will be surpassed
@@ -708,7 +704,7 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should transfer remaining tokens to wallet', async () => {
+        it('should perform finalizing actions', async () => {
 
             await increaseTimeTo(this.endTime + duration.minutes(5));
             await advanceBlock();
@@ -721,6 +717,9 @@ contract('DipTge', (accounts) => {
 
             const balance = await this.token.balanceOf(wallet);
             balance.should.be.bignumber.equal(maxSupply);
+
+            const tokenowner = await this.token.owner();
+            tokenowner.should.be.equal(owner);
 
         });
 
@@ -750,7 +749,7 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should salvage tokens which have been sent to contract by mistake', async () => {
+        it('should salvage tokens which have been sent to tge contract by mistake', async () => {
 
             await increaseTimeTo(this.startPublicTime);
             await advanceBlock();
@@ -767,6 +766,37 @@ contract('DipTge', (accounts) => {
             }).should.be.fulfilled;
 
             await this.crowdsale.salvageTokens(this.token.address, anonInvestor)
+                .should.be.fulfilled;
+
+            const balance = await this.token.balanceOf(anonInvestor);
+            balance.should.be.bignumber.equal(rate.mul(someValue));
+
+        });
+
+        it('should salvage tokens which have been sent to token contract by mistake', async () => {
+
+            await increaseTimeTo(this.startPublicTime);
+            await advanceBlock();
+
+            await this.crowdsale.sendTransaction({
+                from: anonInvestor,
+                value: someValue,
+            }).should.be.fulfilled;
+
+            await increaseTimeTo(this.endTime + duration.minutes(5));
+            await advanceBlock();
+            await this.crowdsale.setCrowdsaleState();
+
+            await this.crowdsale.finalize().should.be.fulfilled;
+
+            await this.token.unpause().should.be.fulfilled;
+
+            await this.token.transfer(this.token.address, rate.mul(someValue), {
+                from: anonInvestor,
+            }).should.be.fulfilled;
+
+
+            await this.token.salvageTokens(this.token.address, anonInvestor)
                 .should.be.fulfilled;
 
             const balance = await this.token.balanceOf(anonInvestor);

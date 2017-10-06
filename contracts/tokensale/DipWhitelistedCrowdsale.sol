@@ -5,7 +5,7 @@
  * @copyright 2017 Etherisc GmbH
  */
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/crowdsale/Crowdsale.sol';
@@ -19,7 +19,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
   uint256 public startOpenPpTime;
   uint256 public startPublicTime;
-  uint256 public minCap;
   uint256 public hardCap1;
   uint256 public hardCap2;
 
@@ -38,8 +37,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event DipTgeStarted(uint256 _time);
   event OpenPpStarted(uint256 _time);
   event PublicStarted(uint256 _time);
-  event MinCapReached(uint256 _time);
-  event HardCap1Reached(uint256 _time);
   event HardCap2Reached(uint256 _time);
   event DipTgeEnded(uint256 _time);
   event Whitelisted(address indexed _contributor, uint256 _ppAllowance, uint256 _otherAllowance);
@@ -49,7 +46,6 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * Constructor
    * @param _startOpenPpTime  starting Time for open PriorityPass phase
    * @param _startPublicTime  starting Time for public phase
-   * @param _minCap           minimum goal (only info)
    * @param _hardCap1         hardcap for priority phase
    * @param _hardCap2         hardcap overall
    */
@@ -57,14 +53,12 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   function DipWhitelistedCrowdsale (
     uint256 _startOpenPpTime,
     uint256 _startPublicTime, 
-    uint256 _minCap,
     uint256 _hardCap1, 
     uint256 _hardCap2
     ) public
   {
     startOpenPpTime = _startOpenPpTime;
     startPublicTime = _startPublicTime;
-    minCap = _minCap;
     hardCap1 = _hardCap1;
     hardCap2 = _hardCap2;
   }
@@ -86,7 +80,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       _contributorAddresses.length == _contributorOtherAllowance.length
       ); // Check if input data is consistent
 
-    for(uint cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)){
+    for(uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)){
       contributorList[_contributorAddresses[cnt]].priorityPassAllowance = _contributorPPAllowances[cnt];
       contributorList[_contributorAddresses[cnt]].otherAllowance = _contributorOtherAllowance[cnt];
       Whitelisted(_contributorAddresses[cnt], _contributorPPAllowances[cnt], _contributorOtherAllowance[cnt]);
@@ -198,10 +192,8 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
       // update state
       weiRaised = weiRaised.add(weiAmount);
-      if (weiRaised > minCap)
-        MinCapReached(now);
 
-      if (!token.mint(_beneficiary, tokens)) revert();
+      require(token.mint(_beneficiary, tokens));
       TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
       contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
@@ -210,7 +202,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       wallet.transfer(weiAmount);
     }
 
-    if (refund != 0) msg.sender.transfer(refund);
+    if (refund != 0) _beneficiary.transfer(refund);
 
   }
 

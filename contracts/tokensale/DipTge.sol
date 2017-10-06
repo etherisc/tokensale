@@ -21,7 +21,7 @@
  * - Ownable.sol
  */
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
@@ -50,14 +50,13 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     uint256 _startOpenPpTime,
     uint256 _startPublicTime,
     uint256 _endTime,
-    uint256 _minCap,
     uint256 _hardcap1,
     uint256 _hardcap2,
     uint256 _rate,
     address _wallet
     ) public
     Crowdsale(_startTime, _endTime, _rate, _wallet) 
-    DipWhitelistedCrowdsale(_startOpenPpTime, _startPublicTime, _minCap, _hardcap1, _hardcap2) 
+    DipWhitelistedCrowdsale(_startOpenPpTime, _startPublicTime, _hardcap1, _hardcap2) 
     FinalizableCrowdsale() 
   {
 
@@ -86,6 +85,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     uint256 maxSupply = DipToken(token).MAXIMUM_SUPPLY(); 
     token.mint(wallet, maxSupply.sub(token.totalSupply())); // Alternativly, hardcode remaining token distribution.
     token.finishMinting();
+    token.transferOwnership(owner);
   }
 
   /**
