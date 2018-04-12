@@ -12,7 +12,7 @@ module.exports = {
         ropsten: {
             network_id: 3, // Official Ethereum test network
             host: 'localhost',
-            port: 7447,
+            port: 8545,
             from: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7',
             from2: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7', // to unlock second account in parity
             gas: 4700000,
@@ -20,7 +20,7 @@ module.exports = {
         kovan: {
             network_id: 42, // custom private network
             host: 'localhost',
-            port: 7447,
+            port: 8545,
             from: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7',
             from2: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7', // to unlock second account in parity
             gas: 6000000,

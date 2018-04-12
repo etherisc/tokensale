@@ -1,7 +1,7 @@
 migrations:
     - 1_initial_migration.js
     - 2_deploy_tge.js
-    - 3_add_whitelisted.js
+    # - 3_add_whitelisted.js
 
 test:
     - helpers/assertJump.js
