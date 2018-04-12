@@ -30,7 +30,8 @@ module.exports = deployer =>
             crowdsale.wallet
         );
 
-        const tokenAddress = await this.crowdsale.token();
+        const tge = await DipTge.deployed();
+        const tokenAddress = await tge.token();
 
         console.log(`Token address: ${tokenAddress}`);
     });
