@@ -1,4 +1,4 @@
-const assertJump = require('../helpers/assertJump').assertJump;
+const assertRevert = require('../helpers/assertRevert').assertRevert;
 
 const PausableMock = artifacts.require('../helpers/PausableMock.sol');
 
@@ -29,7 +29,7 @@ contract('Pausable', (accounts) => { // eslint-disable-line no-unused-variables
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }
@@ -48,7 +48,7 @@ contract('Pausable', (accounts) => { // eslint-disable-line no-unused-variables
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }

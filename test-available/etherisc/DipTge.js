@@ -1,4 +1,4 @@
-const { assertJump, } = require('../helpers/assertJump');
+const { assertRevert, } = require('../helpers/assertRevert');
 const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
 const { latestTime, } = require('../helpers/latestTime');
 const { ether, } = require('../helpers/ether');
@@ -81,7 +81,7 @@ contract('DipTge', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }
@@ -155,7 +155,7 @@ contract('DipTge', (accounts) => {
 
             } catch (error) {
 
-                assertJump(error);
+                assertRevert(error);
                 return;
 
             }
@@ -259,7 +259,7 @@ contract('DipTge', (accounts) => {
 
             } catch (error) {
 
-                assertJump(error);
+                assertRevert(error);
                 return;
 
             }
@@ -539,7 +539,7 @@ contract('DipTge', (accounts) => {
 
             } catch (error) {
 
-                assertJump(error);
+                assertRevert(error);
                 return;
 
             }

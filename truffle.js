@@ -1,5 +1,4 @@
 module.exports = {
-
     networks: {
         mainnet: {
             network_id: 1, // Ethereum public network
@@ -23,14 +22,19 @@ module.exports = {
             port: 8545,
             from: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7',
             from2: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7', // to unlock second account in parity
-            gas: 6000000,
+            gas: 4700000,
         },
         development: {
             // host: 'docker.for.mac.localhost',
             host: 'localhost',
             port: 9545,
             network_id: '*',
-            // gas: 6000000,
+        },
+    },
+    solc: {
+        optimizer: {
+            enabled: true,
+            runs: 200,
         },
     },
     solc: {
