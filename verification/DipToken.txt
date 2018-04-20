@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-// File: node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol
+// File: zeppelin-solidity/contracts/ownership/Ownable.sol
 
 /**
  * @title Ownable
@@ -44,7 +44,7 @@ contract Ownable {
 
 }
 
-// File: node_modules/zeppelin-solidity/contracts/math/SafeMath.sol
+// File: zeppelin-solidity/contracts/math/SafeMath.sol
 
 /**
  * @title SafeMath
@@ -76,7 +76,7 @@ library SafeMath {
   }
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/ERC20Basic.sol
+// File: zeppelin-solidity/contracts/token/ERC20Basic.sol
 
 /**
  * @title ERC20Basic
@@ -90,7 +90,7 @@ contract ERC20Basic {
   event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/BasicToken.sol
+// File: zeppelin-solidity/contracts/token/BasicToken.sol
 
 /**
  * @title Basic token
@@ -127,7 +127,7 @@ contract BasicToken is ERC20Basic {
 
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/ERC20.sol
+// File: zeppelin-solidity/contracts/token/ERC20.sol
 
 /**
  * @title ERC20 interface
@@ -140,7 +140,7 @@ contract ERC20 is ERC20Basic {
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/StandardToken.sol
+// File: zeppelin-solidity/contracts/token/StandardToken.sol
 
 /**
  * @title Standard ERC20 token
@@ -228,7 +228,7 @@ contract StandardToken is ERC20, BasicToken {
 
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/MintableToken.sol
+// File: zeppelin-solidity/contracts/token/MintableToken.sol
 
 /**
  * @title Mintable token
@@ -274,7 +274,7 @@ contract MintableToken is StandardToken, Ownable {
   }
 }
 
-// File: node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol
+// File: zeppelin-solidity/contracts/lifecycle/Pausable.sol
 
 /**
  * @title Pausable
@@ -320,7 +320,7 @@ contract Pausable is Ownable {
   }
 }
 
-// File: node_modules/zeppelin-solidity/contracts/token/PausableToken.sol
+// File: zeppelin-solidity/contracts/token/PausableToken.sol
 
 /**
  * @title Pausable token
