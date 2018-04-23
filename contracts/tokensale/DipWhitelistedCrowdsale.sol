@@ -28,6 +28,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
+    uint256 bonus;
   }
 
   // list of addresses that can purchase in priorityPass phase  
@@ -67,18 +68,29 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * 
    */
   function editContributors (
-    address[] _contributorAddresses, 
-    uint256[] _contributorAllowance
-    ) public 
-    onlyOwner 
+    address[] _contributorAddresses,
+    uint256[] _contributorAllowance,
+    uint256[] _contributorBonuses
+    ) public
+    onlyOwner
     {
     
     require(
-      _contributorAddresses.length == _contributorAllowance.length
+      _contributorAddresses.length == _contributorAllowance.length &&
+      _contributorAddresses.length == _contributorBonuses.length
       ); // Check if input data is consistent
 
     for(uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)){
       contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
+
+      require(
+        _contributorBonuses[cnt] == 0 ||
+        _contributorBonuses[cnt] == 4 ||
+        _contributorBonuses[cnt] == 10
+      );
+
+      contributorList[_contributorAddresses[cnt]].bonus = _contributorBonuses[cnt];
+
       Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt]);
     }
   }
@@ -108,6 +120,24 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     }
 
     return maxContrib;
+  }
+
+  /**
+   * Calculate amount of tokens
+   * @param _contributor the address of the contributor
+   * @param _weiAmount contribution amount
+   * @return _tokens amount of tokens
+   */
+  function calculateTokens(address _contributor, uint256 _weiAmount) public constant returns (uint256 _tokens) {
+    uint256 bonus = contributorList[_contributor].bonus;
+
+    require(bonus == 0 || bonus == 4 || bonus == 10);
+
+    if (bonus > 0) {
+      _tokens = _weiAmount.add(_weiAmount.div(bonus)).mul(rate);
+    } else {
+      _tokens = _weiAmount.mul(rate);
+    }
   }
 
   /**
@@ -181,7 +211,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     require(weiAmount > 0);
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = calculateTokens(_beneficiary, weiAmount);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);

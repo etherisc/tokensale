@@ -32,6 +32,10 @@ contract('DipTge', (accounts) => {
     const zeroEther = ether(0);
     const zeroBig = new BigNumber(0);
 
+    const bonus0 = 0;
+    const bonus4 = 4; // 25%
+    const bonus10 = 10; // 10%
+
 
     beforeEach(async () => {
 
@@ -135,13 +139,58 @@ contract('DipTge', (accounts) => {
 
     });
 
+    describe('bonus calculations', () => {
+        it('tokens calculation with 0 bonus should be correct', async () => {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0]);
+
+            const contribution = ether(1);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+
+            tokens.should.be.bignumber.equal(rate.mul(contribution));
+        });
+
+        it('tokens calculation with 4 bonus should be correct', async () => {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus4]);
+
+            const contribution = ether(1);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus4)).mul(rate));
+        });
+
+        it('tokens calculation with 10 bonus should be correct', async () => {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus10]);
+
+            const contribution = ether(1);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+        });
+
+        it('should throw if bonus is invalid', async () => {
+            try {
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [5]);
+
+                await this.crowdsale.calculateTokens(allowedInvestor, ether(1));
+            } catch (error) {
+                assertRevert(error);
+                return;
+            }
+
+            assert.fail('should have thrown before');
+        });
+    });
+
     describe('whitelisting process', () => {
 
         let maxContrib;
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0], {
                 gaslimit: 4700000,
             });
 
@@ -151,7 +200,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors([allowedInvestor], [allowance, 0]);
+                await this.crowdsale.editContributors([allowedInvestor], [allowance, 0], [bonus0, bonus0]);
 
             } catch (error) {
 
@@ -164,6 +213,39 @@ contract('DipTge', (accounts) => {
 
         });
 
+        it('should throw if second array has wrong length', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0, bonus0]);
+
+            } catch (error) {
+
+                assertRevert(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if second array has invalid value', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0, 5]);
+
+            } catch (error) {
+
+                assertRevert(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
 
         it('should yield maxContrib=0 before start', async () => {
 
@@ -252,7 +334,9 @@ contract('DipTge', (accounts) => {
 
                 await this.crowdsale.editContributors(
                     [allowedInvestor],
-                    [allowance], {
+                    [allowance],
+                    [bonus0],
+                    {
                         from: anonInvestor,
                     }
                 );
@@ -272,7 +356,8 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.editContributors(
                 [allowedInvestor],
-                [allowance.mul(2)]
+                [allowance.mul(2)],
+                [bonus0]
             );
 
             await increaseTimeTo(this.startTime);
@@ -299,7 +384,8 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.editContributors(
                 [allowedInvestor],
-                [allowance.mul(3)]
+                [allowance.mul(3)],
+                [bonus0]
             );
 
             await increaseTimeTo(this.startTime);
@@ -347,7 +433,8 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.editContributors(
                 [allowedInvestor],
-                [hardCap1.add(1)]
+                [hardCap1.add(1)],
+                [bonus0]
             );
 
             await this.crowdsale.sendTransaction({
@@ -417,13 +504,75 @@ contract('DipTge', (accounts) => {
 
         });
 
+        it('tokens should be issued correctly for bonus 0', async () => {
+            const contribution = ether(1);
+
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0]);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            tokens.should.be.bignumber.equal(rate.mul(contribution));
+
+            await this.crowdsale.sendTransaction({
+                from: allowedInvestor,
+                value: contribution,
+            }).should.be.fulfilled;
+
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(rate.mul(contribution));
+
+            const contributor = await this.crowdsale.contributorList(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(tokens);
+            tokenBalance.should.be.bignumber.equal(contributor[2]);
+        });
+
+        it('tokens should be issued correctly for bonus 4', async () => {
+            const contribution = ether(1);
+
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus4]);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus4)).mul(rate));
+
+            await this.crowdsale.sendTransaction({
+                from: allowedInvestor,
+                value: contribution,
+            }).should.be.fulfilled;
+
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(bonus4)).mul(rate));
+
+            const contributor = await this.crowdsale.contributorList(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(tokens);
+            tokenBalance.should.be.bignumber.equal(contributor[2]);
+        });
+
+        it('tokens should be issued correctly for bonus 10', async () => {
+            const contribution = ether(1);
+
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus10]);
+
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+
+            await this.crowdsale.sendTransaction({
+                from: allowedInvestor,
+                value: contribution,
+            }).should.be.fulfilled;
+
+            const tokenBalance = await this.token.balanceOf(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+
+            const contributor = await this.crowdsale.contributorList(allowedInvestor);
+            tokenBalance.should.be.bignumber.equal(tokens);
+            tokenBalance.should.be.bignumber.equal(contributor[2]);
+        });
     });
 
     describe('rejecting payments', () => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [bonus0]);
 
         });
 
