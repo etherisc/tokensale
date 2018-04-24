@@ -91,7 +91,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
       contributorList[_contributorAddresses[cnt]].bonus = _contributorBonuses[cnt];
 
-      Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt]);
+      Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _contributorBonuses[cnt]);
     }
   }
 
