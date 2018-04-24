@@ -12,7 +12,3 @@ npm run compile
 
 echo "Start testing"
 time npm run test
-
-cat node_modules/zeppelin-solidity/package.json
-
-ls node_modules/zeppelin-solidity/contracts/token
