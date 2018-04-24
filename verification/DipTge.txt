@@ -514,7 +514,7 @@ pragma solidity ^0.4.15;
 
 
 contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
-  
+
   using SafeMath for uint256;
 
   enum state { pendingStart, priorityPass, openedPriorityPass, crowdsale, crowdsaleEnded }
@@ -533,7 +533,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     uint256 bonus;
   }
 
-  // list of addresses that can purchase in priorityPass phase  
+  // list of addresses that can purchase in priorityPass phase
   mapping (address => ContributorData) public contributorList;
 
   event DipTgeStarted(uint256 _time);
@@ -541,7 +541,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event PublicStarted(uint256 _time);
   event HardCap2Reached(uint256 _time);
   event DipTgeEnded(uint256 _time);
-  event Whitelisted(address indexed _contributor, uint256 _allowance);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, uint256 _bonus);
 
 
   /**
@@ -551,11 +551,11 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
    * @param _hardCap1         hardcap for priority phase
    * @param _hardCap2         hardcap overall
    */
-  
+
   function DipWhitelistedCrowdsale (
     uint256 _startOpenPpTime,
-    uint256 _startPublicTime, 
-    uint256 _hardCap1, 
+    uint256 _startPublicTime,
+    uint256 _hardCap1,
     uint256 _hardCap2
     ) public
   {
@@ -567,7 +567,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
   /**
    * Push contributor data to the contract before the crowdsale so that they are eligible for priorit pass
-   * 
+   *
    */
   function editContributors (
     address[] _contributorAddresses,
@@ -576,7 +576,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     ) public
     onlyOwner
     {
-    
+
     require(
       _contributorAddresses.length == _contributorAllowance.length &&
       _contributorAddresses.length == _contributorBonuses.length
@@ -593,7 +593,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
       contributorList[_contributorAddresses[cnt]].bonus = _contributorBonuses[cnt];
 
-      Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt]);
+      Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _contributorBonuses[cnt]);
     }
   }
 
@@ -607,8 +607,8 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     uint256 maxContrib = 0;
 
     if (crowdsaleState == state.priorityPass) {
-      maxContrib = 
-        contributorList[_contributor].allowance.sub( 
+      maxContrib =
+        contributorList[_contributor].allowance.sub(
             contributorList[_contributor].contributionAmount);
       if (maxContrib > hardCap1.sub(weiRaised)){
         maxContrib = hardCap1.sub(weiRaised);
@@ -655,7 +655,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
 
     } else if (
       now >= startTime &&
-      now < startOpenPpTime && 
+      now < startOpenPpTime &&
       crowdsaleState != state.priorityPass
       ) {
 
@@ -663,7 +663,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       DipTgeStarted(now);
 
     } else if (
-      now >= startOpenPpTime && 
+      now >= startOpenPpTime &&
       now < startPublicTime &&
       crowdsaleState != state.openedPriorityPass
       ) {
@@ -672,22 +672,22 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
       OpenPpStarted(now);
 
     } else if (
-      now >= startPublicTime && 
+      now >= startPublicTime &&
       now <= endTime &&
       crowdsaleState != state.crowdsale
-      ) {                     
+      ) {
 
       crowdsaleState = state.crowdsale;
       PublicStarted(now);
 
     } else if (
-        crowdsaleState != state.crowdsaleEnded && 
+        crowdsaleState != state.crowdsaleEnded &&
         now > endTime
         ) {
 
         crowdsaleState = state.crowdsaleEnded;
         DipTgeEnded(now);
-        
+
     }
   }
 

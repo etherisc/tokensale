@@ -39,7 +39,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
   event PublicStarted(uint256 _time);
   event HardCap2Reached(uint256 _time);
   event DipTgeEnded(uint256 _time);
-  event Whitelisted(address indexed _contributor, uint256 _allowance);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, uint256 _bonus);
 
 
   /**
