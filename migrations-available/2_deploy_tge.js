@@ -12,7 +12,7 @@ module.exports = deployer =>
             rate: 1000000,
             hardCap1: toWei(1000),
             hardCap2: toWei(2000),
-            startTime: moment().add(1, 'day').unix(),
+            startTime: moment().add(1, 'minute').unix(),
             startOpenPpTime: moment().add(1, 'week').unix(),
             startPublicTime: moment().add(2, 'weeks').unix(),
             endTime: moment().add(3, 'weeks').unix(),

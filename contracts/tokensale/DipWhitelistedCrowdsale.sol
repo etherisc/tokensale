@@ -28,7 +28,7 @@ contract DipWhitelistedCrowdsale is Crowdsale, Ownable {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
-    uint256 bonus;
+    uint256 bonus; // 0 - 0, 10 - 10%, 4 - 25%
   }
 
   // list of addresses that can purchase in priorityPass phase  
