@@ -13,7 +13,7 @@ contract RscConversion is Ownable {
     ERC20 RSC; // RSC token contract
     DipTgeInterface DipTge; // DIP tokensale contract
     address wallet; // Wallet to collect RSC tokens
-    uint256 DipTotalSupply = 10**9 * 10**18;
+    uint256 DipMaximumSupply = 10**9 * 10**18;
     uint256 RscTotalSupply = 319810895 * 10**3; // TODO: Verify this number.
 
     event Conversion(address _rsc, uint256 _rscAmount, uint256 _dipAmount);
@@ -28,7 +28,7 @@ contract RscConversion is Ownable {
     }
 
     function calculateDipAmount(uint256 _rscAmount) public constant returns (uint256 _dipAmount) {
-        _dipAmount = _rscAmount.mul(DipTotalSupply).div(10).div(RscTotalSupply);
+        _dipAmount = _rscAmount.mul(DipMaximumSupply).div(10).div(RscTotalSupply);
     }
 
     function convert(uint256 _rscAmount) public {
