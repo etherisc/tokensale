@@ -22,7 +22,7 @@ test:
     - zeppelin/MintableToken.js
     - zeppelin/Pausable.js
     - zeppelin/PausableToken.js
-    - zeppelin/FinalizableCrowdsale.js  
+#    - zeppelin/FinalizableCrowdsale.js
     - zeppelin/Crowdsale.js
     - etherisc/TokenStake.js
     - etherisc/TokenStakeMock.sol

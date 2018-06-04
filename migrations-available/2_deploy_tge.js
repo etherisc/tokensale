@@ -2,36 +2,41 @@ const moment = require('moment');
 const toWei = require('../util/toWei');
 
 
-const DipTge = artifacts.require('../contracts/tokensale/DipTge');
+const DipTge = artifacts.require('../contracts/tokensale/DipTge.sol');
+
 
 module.exports = deployer =>
     deployer.then(async () => {
 
         const crowdsale = {
-            wallet: '0x14be1f9cd06d3f349eb6d8cf7de951684473259f',
-            rate: 1000000,
-            hardCap1: toWei(1000),
-            hardCap2: toWei(2000),
             startTime: moment().add(1, 'minute').unix(),
             startOpenPpTime: moment().add(1, 'week').unix(),
-            startPublicTime: moment().add(2, 'weeks').unix(),
             endTime: moment().add(3, 'weeks').unix(),
+            lockInTime1: moment().add(1, 'year').unix(),
+            lockInTime2: moment().add(2, 'year').unix(),
+            hardCap: toWei(2000),
+            rate: 1000000,
+            wallet: '0x14be1f9cd06d3f349eb6d8cf7de951684473259f',
+            rscToken: '0x14be1f9cd06d3f349eb6d8cf7de951684473259f',
         };
 
         await deployer.deploy(
             DipTge,
             crowdsale.startTime,
             crowdsale.startOpenPpTime,
-            crowdsale.startPublicTime,
             crowdsale.endTime,
-            crowdsale.hardCap1,
-            crowdsale.hardCap2,
+            crowdsale.lockInTime1,
+            crowdsale.lockInTime2,
+            crowdsale.hardCap,
             crowdsale.rate,
-            crowdsale.wallet
+            crowdsale.wallet,
+            crowdsale.rscToken
         );
 
         const tge = await DipTge.deployed();
         const tokenAddress = await tge.token();
+        const rscConversion = await tge.rscConversion();
 
-        console.log(`Token address: ${tokenAddress}`);
+        console.log(`DIP Token address: ${tokenAddress}`);
+        console.log(`RSC conversion address: ${rscConversion}`);
     });

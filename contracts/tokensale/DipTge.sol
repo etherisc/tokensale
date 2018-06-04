@@ -5,92 +5,299 @@
  * @copyright 2017 Etherisc GmbH
  */
 
-/* Based on OpenZeppelin 1.2.0 
- * 
- * Used Zeppelin Contracts: 
- * - BasicToken.sol
- * - ERC20.sol
- * - ERC20Basic.sol
- * - MintableToken.sol
- * - PausableToken.sol
- * - Crowdsale.sol
- * - FinalizableCrowdsale.sol
- * - Pausable.sol
- * - Math.sol
- * - SafeMath.sol
- * - Ownable.sol
- */
+pragma solidity 0.4.24;
 
-pragma solidity ^0.4.15;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "../token/DipToken.sol";
 import "./DipWhitelistedCrowdsale.sol";
+import "./RscConversion.sol";
 
 
 contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
-
   using SafeMath for uint256;
 
-  uint256 rate;
+  enum state { pendingStart, priorityPass, crowdsale, crowdsaleEnded }
 
-  /**
-   * [DIP_TGE description]
-   * @param _startTime  start Time for TGE
-   * @param _endTime    end Time for TGE
-   * @param _rate       conversion rate ETH->DIP, how many DIP for 1 ETH?
-   * @param _wallet     address of wallet to keep funds
-   * @param _hardcap1   hardcap for priority pass 
-   * @param _hardcap2   hardcap overall
-   */
-  function DipTge (
+  address public rscConversion;
+  uint256 public startOpenPpTime;
+  uint256 public hardCap;
+  uint256 public lockInTime1; // token lock-in period for team, ECA, US accredited investors
+  uint256 public lockInTime2; // token lock-in period for founders
+  state public crowdsaleState = state.pendingStart;
+
+  event DipTgeStarted(uint256 _time);
+  event CrowdsaleStarted(uint256 _time);
+  event HardCapReached(uint256 _time);
+  event DipTgeEnded(uint256 _time);
+  event TokenAllocated(address _beneficiary, uint256 _amount);
+
+  constructor(
     uint256 _startTime,
     uint256 _startOpenPpTime,
-    uint256 _startPublicTime,
     uint256 _endTime,
-    uint256 _hardcap1,
-    uint256 _hardcap2,
+    uint256 _lockInTime1,
+    uint256 _lockInTime2,
+    uint256 _hardCap,
     uint256 _rate,
-    address _wallet
-    ) public
-    Crowdsale(_startTime, _endTime, _rate, _wallet) 
-    DipWhitelistedCrowdsale(_startOpenPpTime, _startPublicTime, _hardcap1, _hardcap2) 
-    FinalizableCrowdsale() 
+    address _wallet,
+    address _rscToken
+  )
+    Crowdsale(_startTime, _endTime, _rate, _wallet)
+    public
   {
-    require(
-      _startTime <= startOpenPpTime &&
-      _startOpenPpTime <= startPublicTime &&
-      _startPublicTime <= endTime
-    );
+    // Check arguments
+    require(_startTime >= now);
+    require(_startOpenPpTime >= _startTime);
+    require(_endTime >= _startOpenPpTime);
+    require(_lockInTime1 >= _endTime);
+    require(_lockInTime2 > _lockInTime1);
+    require(_hardCap > 0);
+    require(_rate > 0);
+    require(_wallet != 0x0);
+    require(_rscToken != 0x0);
+
+    // Set contract fields
+    startOpenPpTime = _startOpenPpTime;
+    hardCap = _hardCap;
+    lockInTime1 = _lockInTime1;
+    lockInTime2 = _lockInTime2;
+
+    rscConversion = createRscConversionContract(_rscToken, _wallet);
 
     DipToken(token).pause();
-
   }
 
-  function unpauseToken() public onlyOwner {
+  function setRate(uint256 _rate) onlyOwner public {
+    require(crowdsaleState == state.pendingStart);
 
+    rate = _rate;
+  }
+
+  function unpauseToken() onlyOwner external {
     DipToken(token).unpause();
+  }
 
+  /**
+   * Calculate the maximum remaining contribution allowed for an address
+   * @param  _contributor the address of the contributor
+   * @return maxContribution maximum allowed amount in wei
+   */
+  function calculateMaxContribution(address _contributor) public constant returns (uint256 _maxContribution) {
+    uint256 maxContrib = 0;
+
+    if (crowdsaleState == state.priorityPass) {
+      maxContrib = contributorList[_contributor].allowance.sub(contributorList[_contributor].contributionAmount);
+
+      if (maxContrib > hardCap.sub(weiRaised)) {
+        maxContrib = hardCap.sub(weiRaised);
+      }
+    } else if (crowdsaleState == state.crowdsale) {
+      if (contributorList[_contributor].allowance > 0) {
+        maxContrib = hardCap.sub(weiRaised);
+      }
+    }
+
+    return maxContrib;
+  }
+
+  /**
+   * Calculate amount of tokens
+   * @param _contributor the address of the contributor
+   * @param _weiAmount contribution amount
+   * @return _tokens amount of tokens
+   */
+  function calculateTokens(address _contributor, uint256 _weiAmount) public constant returns (uint256 _tokens) {
+    uint256 bonus = getContributorBonus(_contributor);
+
+    assert(bonus == 0 || bonus == 4 || bonus == 10);
+
+    if (bonus > 0) {
+      _tokens = _weiAmount.add(_weiAmount.div(bonus)).mul(rate);
+    } else {
+      _tokens = _weiAmount.mul(rate);
+    }
+  }
+
+  /**
+   * Set the current state of the crowdsale.
+   */
+  function setCrowdsaleState() public {
+    if (weiRaised >= hardCap && crowdsaleState != state.crowdsaleEnded) {
+
+      crowdsaleState = state.crowdsaleEnded;
+      emit HardCapReached(now);
+      emit DipTgeEnded(now);
+
+    } else if (
+      now >= startTime &&
+      now < startOpenPpTime &&
+      crowdsaleState != state.priorityPass
+    ) {
+
+      crowdsaleState = state.priorityPass;
+      emit DipTgeStarted(now);
+
+    } else if (
+      now >= startOpenPpTime &&
+      now <= endTime &&
+      crowdsaleState != state.crowdsale
+    ) {
+
+      crowdsaleState = state.crowdsale;
+      emit CrowdsaleStarted(now);
+
+    } else if (
+      crowdsaleState != state.crowdsaleEnded &&
+      now > endTime
+    ) {
+
+      crowdsaleState = state.crowdsaleEnded;
+      emit DipTgeEnded(now);
+    }
+  }
+
+  /**
+   * The token buying function.
+   * @param  _beneficiary  receiver of tokens.
+   */
+  function buyTokens(address _beneficiary) public payable {
+    require(_beneficiary != 0x0);
+    require(validPurchase());
+    require(contributorList[_beneficiary].allowance > 0);
+    require(
+      contributorList[_beneficiary].contributorType != 7 &&
+      contributorList[_beneficiary].contributorType != 8
+    );
+
+    setCrowdsaleState();
+
+    uint256 weiAmount = msg.value;
+    uint256 maxContrib = calculateMaxContribution(_beneficiary);
+    uint256 refund;
+
+    if (weiAmount > maxContrib) {
+      refund = weiAmount.sub(maxContrib);
+      weiAmount = maxContrib;
+    }
+
+    // stop here if transaction does not yield tokens
+    require(weiAmount > 0);
+
+    // calculate token amount to be created
+    uint256 tokens = calculateTokens(_beneficiary, weiAmount);
+
+    assert(tokens > 0);
+
+    // update state
+    weiRaised = weiRaised.add(weiAmount);
+
+    require(token.mint(_beneficiary, tokens));
+    emit TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
+
+    contributorList[_beneficiary].contributionAmount = contributorList[_beneficiary].contributionAmount.add(weiAmount);
+    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(tokens);
+
+    wallet.transfer(weiAmount);
+
+    if (refund != 0) _beneficiary.transfer(refund);
+  }
+
+  function tokenIsLocked(address _contributor) public constant returns (bool) {
+    if (contributorList[_contributor].contributorType < 4) {
+      return false;
+    }
+
+    if (now < lockInTime2) {
+      if (now < lockInTime1 && contributorList[_contributor].contributorType >= 4) {
+        return true;
+      }
+
+      if (contributorList[_contributor].contributorType == 8) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function conversionIsAllowed(address _contributor) public constant returns (bool) {
+    if (
+      contributorList[_contributor].contributorType == 3 ||
+      contributorList[_contributor].contributorType == 4
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function airdrop() public {
+    require(
+      contributorList[msg.sender].contributorType == 7 ||
+      contributorList[msg.sender].contributorType == 8
+    );
+    require(contributorList[msg.sender].tokensIssued == 0);
+    require(contributorList[msg.sender].allowance > 0);
+
+    allocate(msg.sender, contributorList[msg.sender].allowance.mul(rate));
+  }
+
+  function airdropFor(address _beneficiary) public {
+    require(
+      contributorList[_beneficiary].contributorType == 7 ||
+      contributorList[_beneficiary].contributorType == 8
+    );
+    require(contributorList[_beneficiary].tokensIssued == 0);
+    require(contributorList[_beneficiary].allowance > 0);
+
+    allocate(_beneficiary, contributorList[_beneficiary].allowance.mul(rate));
+  }
+
+  function allocateForExchange(address _beneficiary, uint256 _amount) public {
+    require(msg.sender == rscConversion);
+
+    allocate(_beneficiary, _amount);
+  }
+
+  function allocate(address _beneficiary, uint256 _amount) internal {
+    require(_beneficiary != 0x0);
+    require(_amount > 0);
+
+    setCrowdsaleState();
+
+    require(crowdsaleState == state.crowdsaleEnded);
+
+    require(token.mint(_beneficiary, _amount));
+    emit TokenAllocated(_beneficiary, _amount);
+
+    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(_amount);
   }
 
   /**
    * Creates an new ERC20 Token contract for the DIP Token.
+   * Overrides Crowdsale function
    * @return the created token
    */
   function createTokenContract() internal returns (MintableToken) {
     return new DipToken();
   }
 
+  function createRscConversionContract(address _rscToken, address _wallet) internal returns (address) {
+    return new RscConversion(_rscToken, _wallet);
+  }
+
   /**
    * Finalize sale and perform cleanup actions.
    */
   function finalization() internal {
-    uint256 maxSupply = DipToken(token).MAXIMUM_SUPPLY(); 
+    uint256 maxSupply = DipToken(token).MAXIMUM_SUPPLY();
     token.mint(wallet, maxSupply.sub(token.totalSupply())); // Alternativly, hardcode remaining token distribution.
     token.finishMinting();
     token.transferOwnership(owner);
+    RscConversion(rscConversion).transferOwnership(owner);
   }
 
   /**
@@ -98,8 +305,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * @param  _token address of token contract of the respective tokens
    * @param  _to where to send the tokens
    */
-  function salvageTokens(ERC20Basic _token, address _to) public onlyOwner {
+  function salvageTokens(ERC20Basic _token, address _to) onlyOwner external {
     _token.transfer(_to, _token.balanceOf(this));
   }
-
 }

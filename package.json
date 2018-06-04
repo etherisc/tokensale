@@ -2,7 +2,7 @@
   "name": "etherisc-tge",
   "version": "0.1.0",
   "engines": {
-    "node": ">=7.6.0 <=7.10.1"
+    "node": ">=9.0.0"
   },
   "config": {
     "solidity-compiler": "^0.4.11"
@@ -22,26 +22,27 @@
     "ganache": "./bin/ganache.js",
     "lint-js": "./node_modules/.bin/eslint **/*.js",
     "lint-sol": "solium --dir ./",
-    "prepare-verification": "./bin/prepare-verification.sh"
+    "prepare-verification": "./bin/prepare-verification.sh",
+    "coverage": "solidity-coverage"
   },
   "dependencies": {
-    "async": "^2.5.0",
-    "bignumber.js": "^6.0.0",
+    "async": "^2.6.1",
+    "bignumber.js": "^7.2.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.1",
-    "chalk": "^2.1.0",
-    "eslint": "^4.4.1",
-    "eslint-config-airbnb-base": "^11.3.2",
-    "eslint-plugin-import": "^2.7.0",
-    "fs-jetpack": "^1.2.0",
+    "chai-bignumber": "^2.0.2",
+    "chalk": "^2.4.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "fs-jetpack": "^1.3.0",
     "ganache-cli": "^6.1.0",
-    "js-yaml": "^3.9.1",
-    "moment": "^2.18.1",
-    "rimraf": "^2.6.1",
-    "solidity-coverage": "^0.2.2",
-    "solium": "^0.5.5",
-    "truffle": "^4.1.7",
+    "js-yaml": "^3.12.0",
+    "moment": "^2.22.2",
+    "rimraf": "^2.6.2",
+    "solidity-coverage": "^0.5.4",
+    "solium": "^1.1.7",
+    "truffle": "^4.1.11",
     "truffle-flattener": "^1.2.5",
     "web3": "^0.20.6",
     "zeppelin-solidity": "1.3.0"
