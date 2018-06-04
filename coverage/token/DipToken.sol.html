@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">85.71% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>6/7</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>2/2</span>
+        <span class='fraction'>4/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">83.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/1</span>
+        <span class='fraction'>5/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">88.89% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>8/9</span>
       </div>
     </div>
   </div>
@@ -78,7 +78,36 @@
 33
 34
 35
-36</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -103,14 +132,43 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">168×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53×</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -120,18 +178,31 @@
  * @copyright 2017 Etherisc GmbH
  */
 &nbsp;
-pragma solidity ^0.4.11;
+pragma solidity 0.4.24;
 &nbsp;
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/PausableToken.sol";
+import "../tokensale/DipTgeInterface.sol";
 &nbsp;
 &nbsp;
 contract DipToken is PausableToken, MintableToken {
 &nbsp;
-  string public name = "DecentralizedInsurance";
-  string public symbol = "DIP";
-  uint256 public decimals = 18;
-  uint256 public MAXIMUM_SUPPLY = 10**8 * 10**18; // 100 Million 100'000'000
+  string public constant name = "Decentralized Insurance Protocol";
+  string public constant symbol = "DIP";
+  uint256 public constant decimals = 18;
+  uint256 public constant MAXIMUM_SUPPLY = 10**9 * 10**18; // 1 Billion 1'000'000'000
+&nbsp;
+&nbsp;
+  DipTgeInterface DipTokensale;
+&nbsp;
+  constructor() public {
+    DipTokensale = DipTgeInterface(owner);
+  }
+&nbsp;
+  modifier shouldNotBeLockedIn(address _contributor) {
+    require(DipTokensale.tokenIsLocked(_contributor) == false);
+      _;
+  }
 &nbsp;
   /**
    * @dev Function to mint tokens
@@ -139,14 +210,30 @@ contract DipToken is PausableToken, MintableToken {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount) returns (bool) {
-    if (totalSupply.add(_amount) &gt; MAXIMUM_SUPPLY) 
+  function mint(address _to, uint256 _amount) public returns (bool) {
+    if (totalSupply.add(_amount) &gt; MAXIMUM_SUPPLY) {
       return false;
+    }
+&nbsp;
     return super.mint(_to, _amount);
   }
 &nbsp;
-  
+  /**
+   * Owner can transfer back tokens which have been sent to this contract by mistake.
+   * @param  _token address of token contract of the respective tokens
+   * @param  _to where to send the tokens
+   */
+  function salvageTokens(ERC20Basic _token, address _to) onlyOwner public {
+    _token.transfer(_to, _token.balanceOf(this));
+  }
 &nbsp;
+<span class="fstat-no" title="function not covered" >  function transferFrom(address _from, address _to, uint256 _value) shouldNotBeLockedIn(_from) public returns (bool) </span>{
+<span class="cstat-no" title="statement not covered" >      return super.transferFrom(_from, _to, _value);</span>
+  }
+&nbsp;
+  function transfer(address to, uint256 value) shouldNotBeLockedIn(msg.sender) public returns (bool) {
+      return super.transfer(to, value);
+  }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -154,7 +241,7 @@ contract DipToken is PausableToken, MintableToken {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Sep 16 2017 13:25:49 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jun 04 2018 08:21:47 GMT+0300 (+03)
 </div>
 </div>
 <script src="../prettify.js"></script>

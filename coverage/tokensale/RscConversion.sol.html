@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Code coverage report for tokensale/VestedTokens.sol</title>
+    <title>Code coverage report for tokensale/RscConversion.sol</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -16,28 +16,28 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../index.html">all files</a> / <a href="index.html">tokensale/</a> VestedTokens.sol
+      <a href="../index.html">all files</a> / <a href="index.html">tokensale/</a> RscConversion.sol
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>12/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">58.33% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>2/2</span>
+        <span class='fraction'>7/12</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>2/2</span>
+        <span class='fraction'>3/3</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>13/13</span>
       </div>
     </div>
   </div>
@@ -88,9 +88,7 @@
 43
 44
 45
-46
-47
-48</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+46</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -111,78 +109,74 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">166×</span>
+<span class="cline-any cline-yes">166×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">166×</span>
+<span class="cline-any cline-yes">166×</span>
+<span class="cline-any cline-yes">166×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @title Generic Token Time Lock
- * @dev The Decentralized Insurance Platform Token.
- * @author Christoph Mussenbrock
- * @copyright 2017 Etherisc GmbH
- */
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">pragma solidity 0.4.24;
 &nbsp;
-pragma solidity ^0.4.15;
 &nbsp;
+import "zeppelin-solidity/contracts/token/ERC20.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
-import "../tokensale/TokenTimelock.sol";
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import "./DipTgeInterface.sol";
 &nbsp;
 &nbsp;
-contract VestedTokens is TokenTimelock {
-  using SafeMath for uint256;
+contract RscConversion is Ownable {
+    using SafeMath for uint256;
 &nbsp;
-  // uint256 UpperBound = 25; // could be implemented to limit the numberOfPeriods
+    ERC20 RSC; // RSC token contract
+    DipTgeInterface DipTge; // DIP tokensale contract
+    address wallet; // Wallet to collect RSC tokens
+    uint256 DipTotalSupply = 10**9 * 10**18;
+    uint256 RscTotalSupply = 319810895 * 10**3; // TODO: Verify this number.
 &nbsp;
-  event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
+    event Conversion(address _rsc, uint256 _rscAmount, uint256 _dipAmount);
 &nbsp;
-  function VestedTokens(StandardToken _token) public TokenTimelock(_token) {
-    // nothing to do; Constructor is only used to pass constructor argument
-  }
+    constructor(address _rscToken, address _wallet) public {
+      <span class="missing-if-branch" title="else path not taken" >E</span>require(_rscToken != 0x0);
+      <span class="missing-if-branch" title="else path not taken" >E</span>require(_wallet != 0x0);
 &nbsp;
-  // precondition: granter has approved this contract to the amount to be granted
-  function grant(
-    address _beneficiary, 
-    uint256 _amount, 
-    uint256 _startTime, 
-    uint256 _cliff, 
-    uint256 _vestingPeriod
-    ) public 
-    {
-&nbsp;
-    uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
-    uint256 part = _amount.div(numberOfPeriods);
-    require(_amount == (part.mul(numberOfPeriods)));
-&nbsp;
-    for (uint256 period = 1; period &lt;= numberOfPeriods; period++) {
-      setTimelockFor(_beneficiary, _startTime.add(period.mul(_cliff)), part);
+      DipTge = DipTgeInterface(msg.sender);
+      RSC = ERC20(_rscToken);
+      wallet = _wallet;
     }
 &nbsp;
-    GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
+    function calculateDipAmount(uint256 _rscAmount) public constant returns (uint256 _dipAmount) {
+        _dipAmount = _rscAmount.mul(DipTotalSupply).div(10).div(RscTotalSupply);
+    }
 &nbsp;
-  }
+    function convert(uint256 _rscAmount) public {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_rscAmount &gt; 0);
+        require(DipTge.conversionIsAllowed(msg.sender) == true);
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(DipTge.getContributorAllowance(msg.sender) &gt; 0);
+        <span class="missing-if-branch" title="else path not taken" >E</span>require (RSC.transferFrom(msg.sender, wallet, _rscAmount));
 &nbsp;
+        uint256 dipAmount = calculateDipAmount(_rscAmount);
+        DipTge.allocateForExchange(msg.sender, dipAmount);
+&nbsp;
+        emit Conversion(msg.sender, _rscAmount, dipAmount);
+    }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
