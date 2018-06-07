@@ -20,10 +20,12 @@
     "prod-mode": "npm run clean && ./bin/preprocess.js prod",
     "select-resources": "./bin/select-resources.js",
     "ganache": "./bin/ganache.js",
+    "ganache-silent": "./bin/ganache.js 2>&1 > ./ganache-output.log",
     "lint-js": "./node_modules/.bin/eslint **/*.js",
     "lint-sol": "solium --dir ./",
     "prepare-verification": "./bin/prepare-verification.sh",
-    "coverage": "solidity-coverage"
+    "coverage": "solidity-coverage",
+    "ganache-test": "npm-run-all --parallel --race ganache-silent test"
   },
   "dependencies": {
     "async": "^2.6.1",
@@ -39,6 +41,7 @@
     "ganache-cli": "^6.1.0",
     "js-yaml": "^3.12.0",
     "moment": "^2.22.2",
+    "npm-run-all": "^4.1.3",
     "rimraf": "^2.6.2",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.7",
