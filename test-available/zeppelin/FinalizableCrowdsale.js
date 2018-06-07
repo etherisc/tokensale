@@ -2,7 +2,7 @@ const { increaseTimeTo, } = require('../helpers/increaseTime');
 const { advanceBlock, } = require('../helpers/advanceToBlock');
 const { latestTime, } = require('../helpers/latestTime');
 const { duration, } = require('../helpers/increaseTime');
-const { EVMThrow, } = require('../helpers/EVMThrow');
+const revert = require('../helpers/Revert');
 
 const { BigNumber, } = web3;
 
@@ -21,8 +21,16 @@ contract('FinalizableCrowdsale', (accounts) => {
     const thirdparty = accounts[3];
     const rate = new BigNumber(1000);
 
-    beforeEach(async () => {
 
+    before(async () => {
+
+        // Advance to the next block to correctly read time in
+        // the solidity "now" function interpreted by Ganache
+        await advanceBlock();
+
+    });
+
+    beforeEach(async () => {
         this.latestTime = await latestTime();
         this.startTime = this.latestTime + duration.years(4);
         this.endTime = this.startTime + duration.weeks(1);
@@ -45,7 +53,7 @@ contract('FinalizableCrowdsale', (accounts) => {
 
         await this.crowdsale.finalize({
             from: owner,
-        }).should.be.rejectedWith(EVMThrow);
+        }).should.be.rejectedWith(revert);
 
     });
 
@@ -55,7 +63,7 @@ contract('FinalizableCrowdsale', (accounts) => {
         await advanceBlock();
         await this.crowdsale.finalize({
             from: thirdparty,
-        }).should.be.rejectedWith(EVMThrow);
+        }).should.be.rejectedWith(revert);
 
     });
 
@@ -78,7 +86,7 @@ contract('FinalizableCrowdsale', (accounts) => {
         });
         await this.crowdsale.finalize({
             from: owner,
-        }).should.be.rejectedWith(EVMThrow);
+        }).should.be.rejectedWith(revert);
 
     });
 
