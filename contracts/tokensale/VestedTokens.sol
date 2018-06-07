@@ -18,18 +18,18 @@ contract VestedTokens is TokenTimelock {
 
   event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
 
-  function VestedTokens(StandardToken _token) public TokenTimelock(_token) {
+  constructor(StandardToken _token) public TokenTimelock(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
   // precondition: granter has approved this contract to the amount to be granted
   function grant(
-    address _beneficiary, 
-    uint256 _amount, 
-    uint256 _startTime, 
-    uint256 _cliff, 
+    address _beneficiary,
+    uint256 _amount,
+    uint256 _startTime,
+    uint256 _cliff,
     uint256 _vestingPeriod
-    ) public 
+    ) public
     {
 
     uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
@@ -40,8 +40,7 @@ contract VestedTokens is TokenTimelock {
       setTimelockFor(_beneficiary, _startTime.add(period.mul(_cliff)), part);
     }
 
-    GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
-
+    emit GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
   }
 
 }

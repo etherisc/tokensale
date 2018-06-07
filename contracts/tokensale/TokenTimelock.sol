@@ -14,7 +14,7 @@ import "../protocol/TokenStake.sol";
 
 
 contract TokenTimelock is TokenStake, Ownable {
-  
+
   using SafeMath for uint256;
 
   mapping (address => mapping(uint256 => uint256)) public releaseTime;
@@ -23,7 +23,7 @@ contract TokenTimelock is TokenStake, Ownable {
   event TimeUnlocked(address _beneficiary, uint256 _releaseTime, uint256 _value);
 
 
-  function TokenTimelock(StandardToken _token) public TokenStake(_token) {
+  constructor(StandardToken _token) public TokenStake(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
@@ -37,7 +37,7 @@ contract TokenTimelock is TokenStake, Ownable {
   function setTimelockFor(address _staker, uint256 _releaseTime, uint256 _value) public {
     require(stakeFor(_staker, _value));
     releaseTime[_staker][_releaseTime] = releaseTime[_staker][_releaseTime].add(_value);
-    TimeLocked(_staker, _releaseTime, _value);
+    emit TimeLocked(_staker, _releaseTime, _value);
   }
 
   /**
@@ -60,7 +60,7 @@ contract TokenTimelock is TokenStake, Ownable {
     require(now >= _releaseTime);
     releaseTime[msg.sender][_releaseTime] = releaseTime[msg.sender][_releaseTime].sub(_value); // will throw if result < 0
     if (releaseFor(_beneficiary, _value)) {
-      TimeUnlocked(_beneficiary, _releaseTime, _value);
+      emit TimeUnlocked(_beneficiary, _releaseTime, _value);
       return true;
     } else {
       releaseTime[msg.sender][_releaseTime] = releaseTime[msg.sender][_releaseTime].add(_value);
@@ -76,6 +76,6 @@ contract TokenTimelock is TokenStake, Ownable {
    */
   function releaseTimelock(uint256 _releaseTime, uint256 _value) public returns (bool) {
     return releaseTimelockFor(msg.sender, _releaseTime, _value);
-  } 
+  }
 
 }

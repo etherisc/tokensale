@@ -27,7 +27,7 @@ contract TokenStake {
   event Staked(address _staker, uint256 _value);
   event Released(address _beneficiary, uint256 _value);
 
-  function TokenStake (StandardToken _token) public {
+  constructor(StandardToken _token) public {
     token = _token;
   }
 
@@ -35,7 +35,7 @@ contract TokenStake {
   function stakeFor(address _staker, uint256 _value) public returns (bool) {
     if (token.transferFrom(msg.sender, address(this), _value)) {
       staked[_staker] = staked[_staker].add(_value);
-      Staked(_staker, _value);
+      emit Staked(_staker, _value);
       return true;
     } else {
       return false;
@@ -49,7 +49,7 @@ contract TokenStake {
   function releaseFor(address _beneficiary, uint256 _value) internal returns (bool) {
     staked[msg.sender].sub(_value); // will throw if _value > staked[_staker]
     if (token.transfer(_beneficiary, _value)) {
-      Released(_beneficiary, _value);
+      emit Released(_beneficiary, _value);
       return true;
     } else {
       staked[msg.sender].add(_value);
