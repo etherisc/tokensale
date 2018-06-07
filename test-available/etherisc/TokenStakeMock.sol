@@ -1,5 +1,5 @@
 
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/token/StandardToken.sol";
@@ -9,12 +9,12 @@ import "../../contracts/protocol/TokenStake.sol";
  * Just making the internal functions public
  */
 contract TokenStakeMock is TokenStake {
-  
+
   using SafeMath for uint256;
 
   bool public lastResult;
 
-  function TokenStakeMock(StandardToken _token) TokenStake(_token) {
+  constructor(StandardToken _token) TokenStake(_token) public {
 
   }
 

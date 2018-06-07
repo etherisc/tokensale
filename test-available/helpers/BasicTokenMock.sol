@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 
 import 'zeppelin-solidity/contracts/token/BasicToken.sol';
@@ -7,7 +7,7 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 // mock class using BasicToken
 contract BasicTokenMock is BasicToken {
 
-  function BasicTokenMock(address initialAccount, uint initialBalance) {
+  constructor(address initialAccount, uint initialBalance) public  {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
   }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 
 import '../helpers/SoftPausableToken.sol';
@@ -7,7 +7,7 @@ import '../helpers/SoftPausableToken.sol';
 // mock class using StandardToken
 contract SoftPausableTokenMock is SoftPausableToken {
 
-  function SoftPausableTokenMock(address initialAccount, uint initialBalance) {
+  constructor(address initialAccount, uint initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
     paused = false;

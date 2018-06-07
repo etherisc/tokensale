@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 
 import '../../contracts/token/DipToken.sol';
@@ -10,15 +10,15 @@ contract DipTokenMock {
 	DipToken public token;
 	bool public result;
 
-	function DipTokenMock() {
+	constructor() public {
 		token = new DipToken();
 	}
 
-	function mint(address _beneficiary, uint256 _amount) {
+	function mint(address _beneficiary, uint256 _amount) public {
 		result = token.mint(_beneficiary, _amount);
 	}
 
-	function salvageTokens(DipToken _token, address _to) {
+	function salvageTokens(DipToken _token, address _to) public {
 		token.salvageTokens(_token, _to);
 	}
 
