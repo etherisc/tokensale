@@ -16,27 +16,27 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 contract DipWhitelistedCrowdsale is Ownable {
   using SafeMath for uint256;
 
-  /*
-   * Contributor's type:
-   * 1: Regular
-   * 2: ECA (bonus 10%)
-   * 3: RSC holder
-   * 4: RSC holder & accredited investor from USA (1 year lock-in)
-   * 5: ECA & lock-in option (25%, 1 year lock-in)
-   * 6: Accredited investor form USA (1 year lock-in)
-   * 7: Team member (1 year lock-in, allocation)
-   * 8: Founder (2 years lock-in, allocation)
-   */
+  enum contributor {
+    REGULAR,
+    ECA, // bonus 10%
+    RSC, // convert RSC token
+    RSC_USA, // convert RSC token, 1 year lock-in
+    ECA_LOCK, // 25% bonus, 1 year lock-in
+    USA, // 1 year lock-in
+    TEAM, // 1 year lock-in, airdrop
+    FOUNDER // 2 years lock-in, airdrop
+  }
+
   struct ContributorData {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
-    uint256 contributorType;
+    contributor contributorType;
   }
 
   mapping (address => ContributorData) public contributorList;
 
-  event Whitelisted(address indexed _contributor, uint256 _allowance, uint256 _type);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, contributor _type);
 
   /**
    * Push contributor data to the contract before the crowdsale
@@ -44,7 +44,7 @@ contract DipWhitelistedCrowdsale is Ownable {
   function editContributors (
     address[] _contributorAddresses,
     uint256[] _contributorAllowance,
-    uint256[] _contributorTypes
+    contributor[] _contributorTypes
   ) onlyOwner public {
     // Check if input data is consistent
     require(
@@ -53,8 +53,6 @@ contract DipWhitelistedCrowdsale is Ownable {
     );
 
     for (uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)) {
-      require(_contributorTypes[cnt] > 0 && _contributorTypes[cnt] <= 8);
-
       contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
       contributorList[_contributorAddresses[cnt]].contributorType = _contributorTypes[cnt];
 
@@ -67,11 +65,11 @@ contract DipWhitelistedCrowdsale is Ownable {
   }
 
   function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
-    if (contributorList[_contributor].contributorType == 2) {
+    if (contributorList[_contributor].contributorType == contributor.ECA) {
       return 10; // bonus 10%
     }
 
-    if (contributorList[_contributor].contributorType == 5) {
+    if (contributorList[_contributor].contributorType == contributor.ECA_LOCK) {
       return 4; // bonus 25%
     }
 

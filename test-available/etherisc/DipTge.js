@@ -1,4 +1,5 @@
 const { assertRevert, } = require('../helpers/assertRevert');
+const { assertJump, } = require('../helpers/assertJump');
 const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
 const { latestTime, } = require('../helpers/latestTime');
 const { ether, } = require('../helpers/ether');
@@ -34,14 +35,14 @@ contract('DipTge', (accounts) => {
     const zeroBig = new BigNumber(0);
 
     // Contributor types
-    const REGULAR = 1;
-    const ECA = 2;
-    const RSC = 3;
-    const RSC_USA = 4;
-    const ECA_LOCK = 5;
-    const USA = 6;
-    const TEAM = 7;
-    const FOUNDER = 8;
+    const REGULAR = 0;
+    const ECA = 1;
+    const RSC = 2;
+    const RSC_USA = 3;
+    const ECA_LOCK = 4;
+    const USA = 5;
+    const TEAM = 6;
+    const FOUNDER = 7;
 
     const bonus10 = 10;
     const bonus25 = 4;
@@ -165,19 +166,6 @@ contract('DipTge', (accounts) => {
 
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
         });
-
-        it('should throw if bonus is invalid', async () => {
-            try {
-                await this.crowdsale.editContributors([allowedInvestor], [allowance], [10]);
-
-                await this.crowdsale.calculateTokens(allowedInvestor, ether(1));
-            } catch (error) {
-                assertRevert(error);
-                return;
-            }
-
-            assert.fail('should have thrown before');
-        });
     });
 
     describe('whitelisting process', () => {
@@ -233,8 +221,7 @@ contract('DipTge', (accounts) => {
                 await this.crowdsale.editContributors([allowedInvestor], [allowance], [10]);
 
             } catch (error) {
-
-                assertRevert(error);
+                assertJump(error);
                 return;
 
             }
@@ -774,7 +761,7 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('Regular contributor (1)', () => {
+    describe('Regular contributor', () => {
 
         beforeEach(async () => {
             this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
@@ -926,7 +913,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-    describe('ECA contributor (2)', () => {
+    describe('ECA contributor', () => {
 
         beforeEach(async () => {
             this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
@@ -1083,7 +1070,7 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('RSC contributor (3)', () => {
+    describe('RSC contributor', () => {
 
         beforeEach(async () => {
 
@@ -1243,7 +1230,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-    describe('RSC_USA contributor (4)', () => {
+    describe('RSC_USA contributor', () => {
 
         beforeEach(async () => {
 
@@ -1417,8 +1404,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-
-    describe('ECA_LOCK contributor (5)', () => {
+    describe('ECA_LOCK contributor', () => {
 
         beforeEach(async () => {
             this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
@@ -1588,7 +1574,7 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('USA contributor (6)', () => {
+    describe('USA contributor', () => {
 
         beforeEach(async () => {
 
@@ -1758,7 +1744,7 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('Team member (7)', () => {
+    describe('Team member', () => {
 
         beforeEach(async () => {
 
@@ -1948,7 +1934,7 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('Founder (8)', () => {
+    describe('Founder', () => {
 
         beforeEach(async () => {
 

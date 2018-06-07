@@ -168,8 +168,8 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(validPurchase());
     require(contributorList[_beneficiary].allowance > 0);
     require(
-      contributorList[_beneficiary].contributorType != 7 &&
-      contributorList[_beneficiary].contributorType != 8
+      contributorList[_beneficiary].contributorType != contributor.TEAM &&
+      contributorList[_beneficiary].contributorType != contributor.FOUNDER
     );
 
     setCrowdsaleState();
@@ -206,16 +206,16 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   }
 
   function tokenIsLocked(address _contributor) public constant returns (bool) {
-    if (contributorList[_contributor].contributorType < 4) {
+    if (contributorList[_contributor].contributorType < contributor.RSC_USA) {
       return false;
     }
 
     if (now < lockInTime2) {
-      if (now < lockInTime1 && contributorList[_contributor].contributorType >= 4) {
+      if (now < lockInTime1 && contributorList[_contributor].contributorType >= contributor.RSC_USA) {
         return true;
       }
 
-      if (contributorList[_contributor].contributorType == 8) {
+      if (contributorList[_contributor].contributorType == contributor.FOUNDER) {
         return true;
       }
     }
@@ -225,8 +225,8 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   function conversionIsAllowed(address _contributor) public constant returns (bool) {
     if (
-      contributorList[_contributor].contributorType == 3 ||
-      contributorList[_contributor].contributorType == 4
+      contributorList[_contributor].contributorType == contributor.RSC ||
+      contributorList[_contributor].contributorType == contributor.RSC_USA
     ) {
       return true;
     }
@@ -235,20 +235,13 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   }
 
   function airdrop() public {
-    require(
-      contributorList[msg.sender].contributorType == 7 ||
-      contributorList[msg.sender].contributorType == 8
-    );
-    require(contributorList[msg.sender].tokensIssued == 0);
-    require(contributorList[msg.sender].allowance > 0);
-
-    allocate(msg.sender, contributorList[msg.sender].allowance.mul(rate));
+    airdropFor(msg.sender);
   }
 
   function airdropFor(address _beneficiary) public {
     require(
-      contributorList[_beneficiary].contributorType == 7 ||
-      contributorList[_beneficiary].contributorType == 8
+      contributorList[_beneficiary].contributorType == contributor.TEAM ||
+      contributorList[_beneficiary].contributorType == contributor.FOUNDER
     );
     require(contributorList[_beneficiary].tokensIssued == 0);
     require(contributorList[_beneficiary].allowance > 0);
