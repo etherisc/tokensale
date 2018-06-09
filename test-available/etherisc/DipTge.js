@@ -16,7 +16,6 @@ const should = require('chai')
 const DipTge = artifacts.require('../../contracts/tokensale/DipTge.sol');
 const DipToken = artifacts.require('../../contracts/token/DipToken.sol');
 const StandardTokenMock = artifacts.require('../helpers/StandardTokenMock.sol');
-const RscConversion = artifacts.require('../../contracts/tokensale/RscConversion.sol');
 
 
 contract('DipTge', (accounts) => {
@@ -33,17 +32,7 @@ contract('DipTge', (accounts) => {
     const allowance = ether(51);
     const zeroEther = ether(0);
     const zeroBig = new BigNumber(0);
-/*
-    // Contributor types
-    const REGULAR = 0;
-    const ECA_10 = 1;
-    const RSC = 2;
-    const RSC_USA = 3;
-    const ECA_25 = 4;
-    const USA = 5;
-    const TEAM = 6;
-    const FOUNDER = 7;
-*/
+
     const CAN_BUY = 0;
     const CAN_CONVERT_RSC = 1;
     const GETS_AIRDROP = 2;
@@ -924,8 +913,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_ZERO]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
         });
 
         it('should not buy token before tge start', async () => {
@@ -1008,11 +995,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.not.be.fulfilled;
         });
@@ -1082,8 +1069,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
         });
 
         it('should not buy token before tge start', async () => {
@@ -1168,11 +1153,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.not.be.fulfilled;
         });
@@ -1259,9 +1244,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_ZERO]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
-
         });
 
         it('should not buy token before tge start', async () => {
@@ -1313,11 +1295,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
@@ -1342,11 +1324,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
@@ -1394,9 +1376,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
-
         });
 
         it('should not buy token before tge start', async () => {
@@ -1448,11 +1427,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
@@ -1477,11 +1456,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
@@ -1542,8 +1521,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
         });
 
         it('should not buy token before tge start', async () => {
@@ -1628,11 +1605,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.not.be.fulfilled;
         });
@@ -1719,9 +1696,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
-
         });
 
         it('should not be able to buy token', async () => {
@@ -1763,11 +1737,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.not.be.fulfilled;
         });
@@ -1915,9 +1889,6 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_2YR]
             );
 
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
-
         });
 
         it('should not be able to buy token', async () => {
@@ -1959,11 +1930,11 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
+            await this.rscToken.approve(this.crowdsale.address, 1000, {
                 from: allowedInvestor,
             }).should.be.fulfilled;
 
-            await this.rscConversion.convert(1000, {
+            await this.crowdsale.convertRSC(1000, {
                 from: allowedInvestor,
             }).should.not.be.fulfilled;
         });

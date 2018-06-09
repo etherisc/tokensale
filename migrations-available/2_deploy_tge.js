@@ -35,8 +35,6 @@ module.exports = deployer =>
 
         const tge = await DipTge.deployed();
         const tokenAddress = await tge.token();
-        const rscConversion = await tge.rscConversion();
 
         console.log(`DIP Token address: ${tokenAddress}`);
-        console.log(`RSC conversion address: ${rscConversion}`);
     });

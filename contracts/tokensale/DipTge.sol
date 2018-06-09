@@ -13,15 +13,15 @@ import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "../token/DipToken.sol";
 import "./DipWhitelistedCrowdsale.sol";
-import "./RscConversion.sol";
 
 
 contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
+
   using SafeMath for uint256;
 
   enum state { pendingStart, priorityPass, crowdsale, crowdsaleEnded }
 
-  address public rscConversion;
+  ERC20 RSC_token; // RSC token contract
   uint256 public startOpenPpTime;
   uint256 public hardCap;
   uint256 public lockInTime1; // token lock-in period for team, ECA, US accredited investors
@@ -33,6 +33,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   event HardCapReached(uint256 _time);
   event DipTgeEnded(uint256 _time);
   event TokenAllocated(address _beneficiary, uint256 _amount);
+  event RSC_Conversion(address _rsc, uint256 _rscAmount, uint256 _dipAmount);
 
   constructor(
     uint256 _startTime,
@@ -64,8 +65,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     hardCap = _hardCap;
     lockInTime1 = _lockInTime1;
     lockInTime2 = _lockInTime2;
-
-    rscConversion = createRscConversionContract(_rscToken, _wallet);
+    RSC_token = ERC20(_rscToken);
 
     DipToken(token).pause();
   }
@@ -229,12 +229,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     allocate(_beneficiary, contributorList[_beneficiary].allowance.mul(rate));
   }
 
-  function allocateForExchange(address _beneficiary, uint256 _amount) public {
-    require(msg.sender == rscConversion);
-
-    allocate(_beneficiary, _amount);
-  }
-
   function allocate(address _beneficiary, uint256 _amount) internal {
     require(_beneficiary != 0x0);
     require(_amount > 0);
@@ -258,9 +252,26 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     return new DipToken();
   }
 
-  function createRscConversionContract(address _rscToken, address _wallet) internal returns (address) {
-    return new RscConversion(_rscToken, _wallet);
+
+  /**
+   * Convert RSC Tokens in DIP Tokens.
+   * Conversion factor is defined as 1 DIP = 3.2 RSC
+   * @return the created token
+   */
+  function convertRSC(uint256 _rscAmount) public {
+    require(_rscAmount > 0);
+    require(conversionIsAllowed(msg.sender));
+    require(getContributorAllowance(msg.sender) >= _rscAmount);
+    require(RSC_token.transferFrom(msg.sender, wallet, _rscAmount));
+
+    uint256 dipAmount = _rscAmount.mul(10).div(32);
+    allocate(msg.sender, dipAmount);
+
+    // TODO: Add bonus if eligible for bonus
+
+    emit RSC_Conversion(msg.sender, _rscAmount, dipAmount);
   }
+
 
   /**
    * Finalize sale and perform cleanup actions.
@@ -270,7 +281,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     token.mint(wallet, maxSupply.sub(token.totalSupply())); // Alternativly, hardcode remaining token distribution.
     token.finishMinting();
     token.transferOwnership(owner);
-    RscConversion(rscConversion).transferOwnership(owner);
   }
 
   /**
