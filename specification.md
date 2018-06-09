@@ -16,44 +16,53 @@ This is the final and authoritative description of the DIP Token and TGE.
 ### Specification of general TGE parameters
 1. TGE starts at block `startTime` (inclusive).
 1. TGE ends no later then `endTime` (inclusive).
-1. A maximum of `hardcap2` wei is raised.
-1. A maximum of `hardcap1` is raised in the priorityPass phase (`now >= startTime && now < startPublicTime`). 
-(if there is no public sale, `hardcap1 == hardcap2`)
+1. A maximum of `hardcap` wei is raised.
 1. All ether values are stored in `uint256` as wei.
 1. All DIP token values are stored in `uint256` as 1E-18 fractions of tokens. 
 1. Conversion from ETH to DIP is done via a parameter `uint256 rate`. 
 Conversion is calculated as follows: # of DIP tokens = Amount in ETH * `rate`. Therefore, 1E-18 DIP = 1 wei * `rate`.
 
-### PriorityPass Members and selected individuals
-1. PriorityPass members and selected individuals are registered and stored in a mapping `contributorList`.
+### Participants
+1. Contributors are registered and stored in a mapping `contributorList`.
 1. Elements of this mapping are `struct`s with fields, all of which default to zero:
-    - `uint256 priorityPassAllowance`;
-    - `uint256 otherAllowance`;
+    - `uint256 allowance`;
     - `uint256 contributionAmount`;
     - `uint256 tokensIssued`;
+    - `enum contributorType`;
+1. ContributorType is an `enum` with possible values: `{ REGULAR, ECA_10, RSC, RSC_USA, ECA_25, USA, TEAM, FOUNDER }`.
 1. The `owner` of the TGE contract can fill and modify this list at any time by calling a function with 3 parameters.
-The first parameter is an array of `address`es, the second an array of `priorityPassAllowance`s, the third parameter is an array of `otherAllowance`s.
+The first parameter is an array of `address`es, the second an array of `allowance`s, the third parameter is an array of `contributorType`s.
 For each `address` in the first parameter, the list is modified according to the second and third parameter.
 The three arrays must have the same length, otherwise the function will throw.
-1. A "PriorityPass Member" is an address with `priorityPassAllowance > 0`.
-1. A "Selected Individual" is an address with `otherAllowance > 0`. 
+1. A "Whitelisted contributor" is an address with `allowance > 0`.
 1. During the TGE, the `contributionAmount` and `tokensIssued` are updated according to the investment made.
+
+### Bonus
+1. `ECA_10` contributors get 10% bonus
+1. `ECA_25` contributors get 25% bonus
+
+## Token lock up
+1. DIP tokens of `ECA_10`, `ECA_25`, `RSC_USA`, `USA`, `TEAM` are locked up for 1 year
+1. DIP tokens of `FOUNDER` are locked up for 2 years
+
+## RSC conversion
+1. `RSC`, `RSC_USA` contributors can convert RSC tokens into DIP
+
+## Airdrop
+1. `TEAM`, `FOUNDER` contributors get airdrop using `airdrop` or `airdropFor` functions.
 
 ### TGE phases
 1. The phases of the TGE are delimited by the following parameters, denoted as `uint256`:
     - `startTime`
     - `startOpenPpTime`
-    - `startPublicTime`
     - `endTime`
 1. Accordingly, the TGE has 5 phases: 
     - `pendingStart`:             after deployment, before `startTime`
     - `priorityPass`:             including and after `startTime`, before `startOpenPpTime`
-    - `openedPriorityPass`:       including and after `startOpenPpTime`, before `startPublicTime`
     - `crowdsale`:                including and after `startPublicTime`, before and including `endTime`
     - `crowdsaleEnded`:           after `endTime`
 1. The state of the contract is reflected in the `state` variable, which is an `enum` with possible values  
-`{ pendingStart, priorityPass, openedPriorityPass, crowdsale, crowdsaleEnded }`.
-1. If `startPublicTime > endTime`, there is no public sale.
+`{ pendingStart, priorityPass, crowdsale, crowdsaleEnded }`.
 1. At every transaction, the state is checked and set according to the above conditions.
 1. If `state = state.crowdsaleEnded` is set, a finalization function is called, which mints and distributes the remaining tokens.
 
@@ -61,12 +70,13 @@ The three arrays must have the same length, otherwise the function will throw.
 1. In what follows, "invest/investment" means that the default function or the function `buyTokens` is called, the possible investment is calculated, 
 the respective number of tokens is minted, and a possible surplus of funds is returned,
 in case the `msg.value` is greater then the possible investment. "Participants" means distinct addresses.
+1 `TEAM`, `FOUNDER` contributors are not allowed to call default function or the function `buyTokens`.
 1. Participants can invest in one or more transactions. The contract keeps track of the amount invested so far in a field `contributionAmount` per participant.
 1. Before the start of the TGE (in phase `state.pendingStart`), no investment is possible and the default function will throw.
 1. After end of TGE (in phase `state.crowdsaleEnded`), no investment is possible and the default function will throw.
-1. During the `priorityPass` phase, PriorityPass Members and selected individuals can invest less or equal to the sum of their `priorityPassAllowance` and `otherAllowance` (in wei).
-1. During the `openedPriorityPass` phase, PriorityPass members and selected individuals can invest unlimited amounts.
-"unlimited" means "any amount that is greater zero and less or equal to `hardcap2 - weiRaised`"
+1. During the `priorityPass` phase, Whitelisted contributors can invest less or equal to the sum of their `allowance` (in wei).
+1. During the `crowdsale` phase, Whitelisted contributors can invest unlimited amounts.
+"unlimited" means "any amount that is greater zero and less or equal to `hardcap - weiRaised`"
 1. During the `crowdsale` phase, everybody can invest unlimited amounts.
 1. INVARIANTS: After each transaction, the following condition hold for all addresses `A`:
 ```
@@ -80,26 +90,20 @@ in case the `msg.value` is greater then the possible investment. "Participants" 
   
   now >= startTime && now < startOpenPpTime  
   && state == state.priorityPass 
-  && weiRaised <= hardCap1 
+  && weiRaised <= hardCap 
   && contributionAmount[A] <= priorityPassAllowance[A] + otherAllowance[A]
-
-) && ( 
-
-  now >= startOpenPpTime  && now < startPublicTime
-  && state == state.openedPriorityPass 
-  && weiRaised <= hardCap2
 
 ) && (
   
-  now >= startPublicTime  && now <= endTime
+  now >= startOpenPpTime  && now <= endTime
   && state == state.crowdsale 
-  && weiRaised <= hardCap2
+  && weiRaised <= hardCap
 
 ) && (
 
   now > endTime
   && state == state.crowdsaleEnded 
-  && weiRaised <= hardCap2
+  && weiRaised <= hardCap
 
 ) && (
 

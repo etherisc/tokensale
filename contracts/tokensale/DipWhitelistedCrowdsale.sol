@@ -18,10 +18,10 @@ contract DipWhitelistedCrowdsale is Ownable {
 
   enum contributor {
     REGULAR,
-    ECA, // bonus 10%
+    ECA_10, // bonus 10%
     RSC, // convert RSC token
     RSC_USA, // convert RSC token, 1 year lock-in
-    ECA_LOCK, // 25% bonus, 1 year lock-in
+    ECA_25, // 25% bonus, 1 year lock-in
     USA, // 1 year lock-in
     TEAM, // 1 year lock-in, airdrop
     FOUNDER // 2 years lock-in, airdrop
@@ -65,11 +65,11 @@ contract DipWhitelistedCrowdsale is Ownable {
   }
 
   function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
-    if (contributorList[_contributor].contributorType == contributor.ECA) {
+    if (contributorList[_contributor].contributorType == contributor.ECA_10) {
       return 10; // bonus 10%
     }
 
-    if (contributorList[_contributor].contributorType == contributor.ECA_LOCK) {
+    if (contributorList[_contributor].contributorType == contributor.ECA_25) {
       return 4; // bonus 25%
     }
 

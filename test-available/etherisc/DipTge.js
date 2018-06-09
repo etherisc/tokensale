@@ -36,10 +36,10 @@ contract('DipTge', (accounts) => {
 
     // Contributor types
     const REGULAR = 0;
-    const ECA = 1;
+    const ECA_10 = 1;
     const RSC = 2;
     const RSC_USA = 3;
-    const ECA_LOCK = 4;
+    const ECA_25 = 4;
     const USA = 5;
     const TEAM = 6;
     const FOUNDER = 7;
@@ -148,7 +148,7 @@ contract('DipTge', (accounts) => {
         });
 
         it('tokens calculation with 4 bonus should be correct', async () => {
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_LOCK]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
 
             const contribution = ether(1);
 
@@ -158,7 +158,7 @@ contract('DipTge', (accounts) => {
         });
 
         it('tokens calculation with 10 bonus should be correct', async () => {
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
 
             const contribution = ether(1);
 
@@ -458,7 +458,7 @@ contract('DipTge', (accounts) => {
         it('tokens should be issued correctly for bonus 4', async () => {
             const contribution = ether(1);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_LOCK]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus25)).mul(rate));
@@ -479,7 +479,7 @@ contract('DipTge', (accounts) => {
         it('tokens should be issued correctly for bonus 10', async () => {
             const contribution = ether(1);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
@@ -913,7 +913,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-    describe('ECA contributor', () => {
+    describe('ECA_10 contributor', () => {
 
         beforeEach(async () => {
             this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
@@ -932,7 +932,7 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -1404,7 +1404,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-    describe('ECA_LOCK contributor', () => {
+    describe('ECA_25 contributor', () => {
 
         beforeEach(async () => {
             this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
@@ -1423,7 +1423,7 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_LOCK]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);

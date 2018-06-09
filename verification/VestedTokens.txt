@@ -214,7 +214,7 @@ contract TokenStake {
   event Staked(address _staker, uint256 _value);
   event Released(address _beneficiary, uint256 _value);
 
-  function TokenStake (StandardToken _token) public {
+  constructor(StandardToken _token) public {
     token = _token;
   }
 
@@ -222,7 +222,7 @@ contract TokenStake {
   function stakeFor(address _staker, uint256 _value) public returns (bool) {
     if (token.transferFrom(msg.sender, address(this), _value)) {
       staked[_staker] = staked[_staker].add(_value);
-      Staked(_staker, _value);
+      emit Staked(_staker, _value);
       return true;
     } else {
       return false;
@@ -236,7 +236,7 @@ contract TokenStake {
   function releaseFor(address _beneficiary, uint256 _value) internal returns (bool) {
     staked[msg.sender].sub(_value); // will throw if _value > staked[_staker]
     if (token.transfer(_beneficiary, _value)) {
-      Released(_beneficiary, _value);
+      emit Released(_beneficiary, _value);
       return true;
     } else {
       staked[msg.sender].add(_value);
@@ -311,7 +311,7 @@ pragma solidity ^0.4.15;
 
 
 contract TokenTimelock is TokenStake, Ownable {
-  
+
   using SafeMath for uint256;
 
   mapping (address => mapping(uint256 => uint256)) public releaseTime;
@@ -320,7 +320,7 @@ contract TokenTimelock is TokenStake, Ownable {
   event TimeUnlocked(address _beneficiary, uint256 _releaseTime, uint256 _value);
 
 
-  function TokenTimelock(StandardToken _token) public TokenStake(_token) {
+  constructor(StandardToken _token) public TokenStake(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
@@ -334,7 +334,7 @@ contract TokenTimelock is TokenStake, Ownable {
   function setTimelockFor(address _staker, uint256 _releaseTime, uint256 _value) public {
     require(stakeFor(_staker, _value));
     releaseTime[_staker][_releaseTime] = releaseTime[_staker][_releaseTime].add(_value);
-    TimeLocked(_staker, _releaseTime, _value);
+    emit TimeLocked(_staker, _releaseTime, _value);
   }
 
   /**
@@ -357,7 +357,7 @@ contract TokenTimelock is TokenStake, Ownable {
     require(now >= _releaseTime);
     releaseTime[msg.sender][_releaseTime] = releaseTime[msg.sender][_releaseTime].sub(_value); // will throw if result < 0
     if (releaseFor(_beneficiary, _value)) {
-      TimeUnlocked(_beneficiary, _releaseTime, _value);
+      emit TimeUnlocked(_beneficiary, _releaseTime, _value);
       return true;
     } else {
       releaseTime[msg.sender][_releaseTime] = releaseTime[msg.sender][_releaseTime].add(_value);
@@ -373,7 +373,7 @@ contract TokenTimelock is TokenStake, Ownable {
    */
   function releaseTimelock(uint256 _releaseTime, uint256 _value) public returns (bool) {
     return releaseTimelockFor(msg.sender, _releaseTime, _value);
-  } 
+  }
 
 }
 
@@ -398,18 +398,18 @@ contract VestedTokens is TokenTimelock {
 
   event GrantGiven(address _beneficiary, uint256 _amount, uint256 _startTime, uint256 _cliff, uint256 _vestingPeriod);
 
-  function VestedTokens(StandardToken _token) public TokenTimelock(_token) {
+  constructor(StandardToken _token) public TokenTimelock(_token) {
     // nothing to do; Constructor is only used to pass constructor argument
   }
 
   // precondition: granter has approved this contract to the amount to be granted
   function grant(
-    address _beneficiary, 
-    uint256 _amount, 
-    uint256 _startTime, 
-    uint256 _cliff, 
+    address _beneficiary,
+    uint256 _amount,
+    uint256 _startTime,
+    uint256 _cliff,
     uint256 _vestingPeriod
-    ) public 
+    ) public
     {
 
     uint256 numberOfPeriods = _vestingPeriod.div(_cliff);
@@ -420,8 +420,7 @@ contract VestedTokens is TokenTimelock {
       setTimelockFor(_beneficiary, _startTime.add(period.mul(_cliff)), part);
     }
 
-    GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
-
+    emit GrantGiven(_beneficiary, _amount, _startTime, _cliff, _vestingPeriod);
   }
 
 }
