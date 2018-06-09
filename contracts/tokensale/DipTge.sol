@@ -2,6 +2,7 @@
  * @title DIP Token Generating Event
  * @notice The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
+ *
  * @copyright 2017 Etherisc GmbH
  */
 
