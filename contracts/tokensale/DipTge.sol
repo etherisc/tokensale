@@ -166,11 +166,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   function buyTokens(address _beneficiary) public payable {
     require(_beneficiary != 0x0);
     require(validPurchase());
-    require(contributorList[_beneficiary].allowance > 0);
-    require(
-      contributorList[_beneficiary].contributorType != contributor.TEAM &&
-      contributorList[_beneficiary].contributorType != contributor.FOUNDER
-    );
+    require(contributorList[_beneficiary].distribution == Distribution.canBuy);
 
     setCrowdsaleState();
 
@@ -206,32 +202,19 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   }
 
   function tokenIsLocked(address _contributor) public constant returns (bool) {
-    if (contributorList[_contributor].contributorType < contributor.RSC_USA) {
-      return false;
-    }
 
-    if (now < lockInTime2) {
-      if (now < lockInTime1 && contributorList[_contributor].contributorType >= contributor.RSC_USA) {
-        return true;
-      }
-
-      if (contributorList[_contributor].contributorType == contributor.FOUNDER) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  function conversionIsAllowed(address _contributor) public constant returns (bool) {
-    if (
-      contributorList[_contributor].contributorType == contributor.RSC ||
-      contributorList[_contributor].contributorType == contributor.RSC_USA
-    ) {
+    if (now < lockInTime1 && contributorList[_contributor].lockupPeriod == 1) {
+      return true;
+    } else if (now < lockInTime2 && contributorList[_contributor].lockupPeriod == 2) {
       return true;
     }
 
     return false;
+
+  }
+
+  function conversionIsAllowed(address _contributor) public constant returns (bool) {
+    return contributorList[_contributor].distribution == Distribution.canConvertRSC;
   }
 
   function airdrop() public {
@@ -239,10 +222,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   }
 
   function airdropFor(address _beneficiary) public {
-    require(
-      contributorList[_beneficiary].contributorType == contributor.TEAM ||
-      contributorList[_beneficiary].contributorType == contributor.FOUNDER
-    );
+    require(contributorList[_beneficiary].distribution == Distribution.getsAirdrop);
     require(contributorList[_beneficiary].tokensIssued == 0);
     require(contributorList[_beneficiary].allowance > 0);
 

@@ -16,27 +16,20 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 contract DipWhitelistedCrowdsale is Ownable {
   using SafeMath for uint256;
 
-  enum contributor {
-    REGULAR,
-    ECA_10, // bonus 10%
-    RSC, // convert RSC token
-    RSC_USA, // convert RSC token, 1 year lock-in
-    ECA_25, // 25% bonus, 1 year lock-in
-    USA, // 1 year lock-in
-    TEAM, // 1 year lock-in, airdrop
-    FOUNDER // 2 years lock-in, airdrop
-  }
+  enum Distribution {canBuy, canConvertRSC, getsAirdrop}
 
   struct ContributorData {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
-    contributor contributorType;
+    Distribution distribution;
+    uint256 bonus;        // 0 == 0%, 4 == 25%, 10 == 10%
+    uint256 lockupPeriod; // 0, 1 or 2 (years)
   }
 
   mapping (address => ContributorData) public contributorList;
 
-  event Whitelisted(address indexed _contributor, uint256 _allowance, contributor _type);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, Distribution _distribution, uint256 _bonus, uint256 _lockupPeriod);
 
   /**
    * Push contributor data to the contract before the crowdsale
@@ -44,19 +37,34 @@ contract DipWhitelistedCrowdsale is Ownable {
   function editContributors (
     address[] _contributorAddresses,
     uint256[] _contributorAllowance,
-    contributor[] _contributorTypes
+    Distribution[] _distribution,
+    uint256[] _bonus,
+    uint256[] _lockupPeriod
   ) onlyOwner public {
     // Check if input data is consistent
     require(
       _contributorAddresses.length == _contributorAllowance.length &&
-      _contributorAddresses.length == _contributorTypes.length
+      _contributorAddresses.length == _distribution.length &&
+      _contributorAddresses.length == _bonus.length &&
+      _contributorAddresses.length == _lockupPeriod.length
     );
 
     for (uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)) {
-      contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
-      contributorList[_contributorAddresses[cnt]].contributorType = _contributorTypes[cnt];
+      require(_bonus[cnt] == 0 || _bonus[cnt] == 4 || _bonus[cnt] == 10);
+      require(_lockupPeriod[cnt] <= 2);
 
-      emit Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _contributorTypes[cnt]);
+      // TODO: add plausibility
+      /*
+      require(_lockupPeriod == 0 ? _bonus == 0 : true);
+      require(_distribution == Distribution.getsAirdrop ? _lockupPeriod == 1 || _lockupPeriod == 2 : true);
+      */
+
+      contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
+      contributorList[_contributorAddresses[cnt]].distribution = _distribution[cnt];
+      contributorList[_contributorAddresses[cnt]].bonus = _bonus[cnt];
+      contributorList[_contributorAddresses[cnt]].lockupPeriod = _lockupPeriod[cnt];
+
+      emit Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _distribution[cnt], _bonus[cnt], _lockupPeriod[cnt]);
     }
   }
 
@@ -64,15 +72,18 @@ contract DipWhitelistedCrowdsale is Ownable {
     _allowance = contributorList[_contributor].allowance;
   }
 
-  function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
-    if (contributorList[_contributor].contributorType == contributor.ECA_10) {
-      return 10; // bonus 10%
-    }
-
-    if (contributorList[_contributor].contributorType == contributor.ECA_25) {
-      return 4; // bonus 25%
-    }
-
-    return 0; // no bonus
+  function getContributorDistribution(address _contributor) public constant returns (Distribution _distribution) {
+    _distribution = contributorList[_contributor].distribution;
   }
+
+  function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
+    _bonus = contributorList[_contributor].bonus;
+  }
+
+  function getContributorLockupPeriod(address _contributor) public constant returns (uint256 _lockupPeriod) {
+    _lockupPeriod = contributorList[_contributor].lockupPeriod;
+  }
+
+
+
 }

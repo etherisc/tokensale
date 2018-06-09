@@ -33,7 +33,7 @@ contract RscConversion is Ownable {
 
     function convert(uint256 _rscAmount) public {
         require(_rscAmount > 0);
-        require(DipTge.conversionIsAllowed(msg.sender) == true);
+        require(DipTge.conversionIsAllowed(msg.sender));
         require(DipTge.getContributorAllowance(msg.sender) > 0);
         require (RSC.transferFrom(msg.sender, wallet, _rscAmount));
 

@@ -27,6 +27,7 @@ module.exports = {
         development: {
             // host: 'docker.for.mac.localhost',
             host: 'localhost',
+            gas: 6600000,
             port: 9545,
             network_id: '*',
         },

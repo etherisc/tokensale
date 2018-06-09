@@ -33,7 +33,7 @@ contract('DipTge', (accounts) => {
     const allowance = ether(51);
     const zeroEther = ether(0);
     const zeroBig = new BigNumber(0);
-
+/*
     // Contributor types
     const REGULAR = 0;
     const ECA_10 = 1;
@@ -43,9 +43,23 @@ contract('DipTge', (accounts) => {
     const USA = 5;
     const TEAM = 6;
     const FOUNDER = 7;
+*/
+    const CAN_BUY = 0;
+    const CAN_CONVERT_RSC = 1;
+    const GETS_AIRDROP = 2;
+    const INVALID_DISTRIBUTION = 10;
 
-    const bonus10 = 10;
-    const bonus25 = 4;
+    const BONUS_0 = 0;
+    const BONUS_10 = 10;
+    const BONUS_25 = 4;
+    const BONUS_INVALID = 20;
+
+
+    const LOCKUP_ZERO = 0;
+    const LOCKUP_1YR = 1;
+    const LOCKUP_2YR = 2;
+    const LOCKUP_INVALID = 30;
+
 
     beforeEach(async () => {
         this.latestTime = await latestTime();
@@ -138,7 +152,7 @@ contract('DipTge', (accounts) => {
 
     describe('bonus calculations', () => {
         it('tokens calculation with 0 bonus should be correct', async () => {
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_0], [LOCKUP_ZERO]);
 
             const contribution = ether(1);
 
@@ -148,23 +162,23 @@ contract('DipTge', (accounts) => {
         });
 
         it('tokens calculation with 4 bonus should be correct', async () => {
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_25], [LOCKUP_1YR]);
 
             const contribution = ether(1);
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
 
-            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus25)).mul(rate));
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_25)).mul(rate));
         });
 
         it('tokens calculation with 10 bonus should be correct', async () => {
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_10], [LOCKUP_1YR]);
 
             const contribution = ether(1);
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
 
-            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_10)).mul(rate));
         });
     });
 
@@ -174,7 +188,7 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR], {
+            await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_0], [LOCKUP_ZERO], {
                 gaslimit: 4700000,
             });
 
@@ -184,7 +198,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors([allowedInvestor], [allowance, 0], [REGULAR, REGULAR]);
+                await this.crowdsale.editContributors([allowedInvestor], [allowance, 0], [CAN_BUY], [BONUS_0], [LOCKUP_ZERO]);
 
             } catch (error) {
 
@@ -201,7 +215,7 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR, REGULAR]);
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY, CAN_BUY], [BONUS_0], [LOCKUP_ZERO]);
 
             } catch (error) {
 
@@ -218,10 +232,76 @@ contract('DipTge', (accounts) => {
 
             try {
 
-                await this.crowdsale.editContributors([allowedInvestor], [allowance], [10]);
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [INVALID_DISTRIBUTION], [BONUS_0], [LOCKUP_ZERO]);
 
             } catch (error) {
                 assertJump(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if third array has wrong length', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_0, BONUS_0], [LOCKUP_ZERO]);
+
+            } catch (error) {
+
+                assertRevert(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if third array has invalid value', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_INVALID], [LOCKUP_ZERO]);
+
+            } catch (error) {
+                assertRevert(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if fourth array has wrong length', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_0], [LOCKUP_ZERO, LOCKUP_ZERO]);
+
+            } catch (error) {
+
+                assertRevert(error);
+                return;
+
+            }
+
+            assert.fail('should have thrown before');
+
+        });
+
+        it('should throw if fourth array has invalid value', async () => {
+
+            try {
+
+                await this.crowdsale.editContributors([allowedInvestor], [allowance], [CAN_BUY], [BONUS_0], [LOCKUP_INVALID]);
+
+            } catch (error) {
+                assertRevert(error);
                 return;
 
             }
@@ -301,7 +381,9 @@ contract('DipTge', (accounts) => {
                 await this.crowdsale.editContributors(
                     [allowedInvestor],
                     [allowance],
-                    [REGULAR],
+                    [CAN_BUY],
+                    [BONUS_0],
+                    [LOCKUP_ZERO],
                     {
                         from: anonInvestor,
                     }
@@ -323,7 +405,9 @@ contract('DipTge', (accounts) => {
             await this.crowdsale.editContributors(
                 [allowedInvestor],
                 [allowance.mul(2)],
-                [REGULAR]
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
             );
 
             await increaseTimeTo(this.startTime);
@@ -351,7 +435,9 @@ contract('DipTge', (accounts) => {
             await this.crowdsale.editContributors(
                 [allowedInvestor],
                 [allowance.mul(3)],
-                [REGULAR]
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
             );
 
             await increaseTimeTo(this.startTime);
@@ -400,7 +486,9 @@ contract('DipTge', (accounts) => {
             await this.crowdsale.editContributors(
                 [allowedInvestor],
                 [hardCap.add(1)],
-                [REGULAR]
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
             );
 
             await this.crowdsale.sendTransaction({
@@ -437,7 +525,13 @@ contract('DipTge', (accounts) => {
         it('tokens should be issued correctly for bonus 0', async () => {
             const contribution = ether(1);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
             tokens.should.be.bignumber.equal(rate.mul(contribution));
@@ -458,10 +552,16 @@ contract('DipTge', (accounts) => {
         it('tokens should be issued correctly for bonus 4', async () => {
             const contribution = ether(1);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_25],
+                [LOCKUP_1YR]
+            );
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
-            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus25)).mul(rate));
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_25)).mul(rate));
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
@@ -469,7 +569,7 @@ contract('DipTge', (accounts) => {
             }).should.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(bonus25)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_25)).mul(rate));
 
             const contributor = await this.crowdsale.contributorList(allowedInvestor);
             tokenBalance.should.be.bignumber.equal(tokens);
@@ -479,10 +579,16 @@ contract('DipTge', (accounts) => {
         it('tokens should be issued correctly for bonus 10', async () => {
             const contribution = ether(1);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_10],
+                [LOCKUP_1YR]
+            );
 
             const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
-            tokens.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+            tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_10)).mul(rate));
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
@@ -490,7 +596,7 @@ contract('DipTge', (accounts) => {
             }).should.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(bonus10)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_10)).mul(rate));
 
             const contributor = await this.crowdsale.contributorList(allowedInvestor);
             tokenBalance.should.be.bignumber.equal(tokens);
@@ -502,7 +608,13 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
         });
 
@@ -627,7 +739,13 @@ contract('DipTge', (accounts) => {
                 await increaseTimeTo(this.startOpenPpTime);
                 await advanceBlock();
 
-                await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+                await this.crowdsale.editContributors(
+                    [allowedInvestor],
+                    [allowance],
+                    [CAN_BUY],
+                    [BONUS_0],
+                    [LOCKUP_ZERO]
+                );
 
                 await this.crowdsale.buyTokens(allowedInvestor, {
                     from: allowedInvestor,
@@ -681,7 +799,13 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
@@ -707,7 +831,13 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
@@ -740,7 +870,13 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
@@ -780,7 +916,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [REGULAR]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -932,7 +1074,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_10]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_10],
+                [LOCKUP_1YR]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -964,7 +1112,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(bonus10)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_10)).mul(rate));
 
         });
 
@@ -983,7 +1131,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(hardCap.add(hardCap.div(bonus10)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(hardCap.add(hardCap.div(BONUS_10)).mul(rate));
 
         });
 
@@ -1011,7 +1159,7 @@ contract('DipTge', (accounts) => {
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
 
-            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(bonus10)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_10)).mul(rate));
 
         });
 
@@ -1042,7 +1190,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
         });
 
-        it('token should not be locked', async () => {
+        it('token should be locked for 1 year', async () => {
 
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
@@ -1058,14 +1206,27 @@ contract('DipTge', (accounts) => {
 
             await this.token.transfer(anonInvestor, tokenBalance0, {
                 from: allowedInvestor,
+            }).should.not.be.fulfilled;
+
+            await increaseTimeTo(this.endTime + duration.days(150));
+            await advanceBlock();
+
+            await this.token.transfer(anonInvestor, tokenBalance0, {
+                from: allowedInvestor,
+            }).should.not.be.fulfilled;
+
+            await increaseTimeTo(this.endTime + duration.years(1));
+            await advanceBlock();
+
+            await this.token.transfer(anonInvestor, tokenBalance0, {
+                from: allowedInvestor,
             }).should.be.fulfilled;
 
             const tokenBalance1 = await this.token.balanceOf(allowedInvestor);
             tokenBalance1.should.be.bignumber.equal(zeroBig);
 
             const tokenBalance2 = await this.token.balanceOf(anonInvestor);
-            tokenBalance2.should.be.bignumber.equal(allowance.add(allowance.div(bonus10)).mul(rate));
-
+            tokenBalance2.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_10)).mul(rate));
         });
 
     });
@@ -1090,7 +1251,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [RSC]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_CONVERT_RSC],
+                [BONUS_0],
+                [LOCKUP_ZERO]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -1103,44 +1270,29 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
         });
 
-        it('should buy token within regular allowance during priority pass phase', async () => {
+        it('should not buy token within regular allowance during priority pass phase', async () => {
             await increaseTimeTo(this.startTime);
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowance));
         });
 
-        it('should buy token after priority pass phase within hardcap', async () => {
+        it('should not buy token after priority pass phase within hardcap', async () => {
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap));
 
         });
 
@@ -1151,24 +1303,8 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
-
-        });
-
-        it('should not get bonus', async () => {
-
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-
-            tokenBalance.sub(rate.mul(hardCap)).should.be.bignumber.equal(zeroBig);
 
         });
 
@@ -1230,7 +1366,7 @@ contract('DipTge', (accounts) => {
         });
     });
 
-    describe('RSC_USA contributor', () => {
+    describe('RSC_1yr_lockup contributor', () => {
 
         beforeEach(async () => {
 
@@ -1250,7 +1386,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [RSC_USA]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_CONVERT_RSC],
+                [BONUS_25],
+                [LOCKUP_1YR]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -1263,44 +1405,29 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
         });
 
-        it('should buy token within regular allowance during priority pass phase', async () => {
+        it('should not buy token within regular allowance during priority pass phase', async () => {
             await increaseTimeTo(this.startTime);
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
 
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowance));
         });
 
-        it('should buy token after priority pass phase within hardcap', async () => {
+        it('should not buy token after priority pass phase within hardcap', async () => {
             await increaseTimeTo(this.startOpenPpTime);
             await advanceBlock();
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap));
 
         });
 
@@ -1311,24 +1438,8 @@ contract('DipTge', (accounts) => {
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
-                value: allowance,
+                value: 1,
             }).should.not.be.fulfilled;
-
-        });
-
-        it('should not get bonus', async () => {
-
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-
-            tokenBalance.sub(rate.mul(hardCap)).should.be.bignumber.equal(zeroBig);
 
         });
 
@@ -1362,7 +1473,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
         });
 
-        it('token should not be locked for 1 year', async () => {
+        it('token should be locked for 1 year', async () => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
 
@@ -1423,7 +1534,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [ECA_25]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [CAN_BUY],
+                [BONUS_25],
+                [LOCKUP_1YR]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -1455,7 +1572,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(bonus25)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_25)).mul(rate));
 
         });
 
@@ -1474,7 +1591,7 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(hardCap.add(hardCap.div(bonus25)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(hardCap.add(hardCap.div(BONUS_25)).mul(rate));
 
         });
 
@@ -1502,7 +1619,7 @@ contract('DipTge', (accounts) => {
 
             const tokenBalance = await this.token.balanceOf(allowedInvestor);
 
-            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(bonus25)).mul(rate));
+            tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_25)).mul(rate));
 
         });
 
@@ -1569,177 +1686,7 @@ contract('DipTge', (accounts) => {
             tokenBalance1.should.be.bignumber.equal(zeroBig);
 
             const tokenBalance2 = await this.token.balanceOf(anonInvestor);
-            tokenBalance2.should.be.bignumber.equal(allowance.add(allowance.div(bonus25)).mul(rate));
-        });
-
-    });
-
-    describe('USA contributor', () => {
-
-        beforeEach(async () => {
-
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
-            this.crowdsale = await DipTge.new(
-                this.startTime,
-                this.startOpenPpTime,
-                this.endTime,
-                this.lockInTime1,
-                this.lockInTime2,
-                hardCap,
-                rate,
-                wallet,
-                this.rscToken.address
-            );
-
-            const tokenAddress = await this.crowdsale.token();
-            this.token = await DipToken.at(tokenAddress);
-
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [USA]);
-
-            const rscConversionAddress = await this.crowdsale.rscConversion();
-            this.rscConversion = await RscConversion.at(rscConversionAddress);
-
-        });
-
-        it('should not buy token before tge start', async () => {
-            const state = await this.crowdsale.crowdsaleState();
-            state.toNumber().should.be.equal(0);
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.not.be.fulfilled;
-        });
-
-        it('should buy token within regular allowance during priority pass phase', async () => {
-            await increaseTimeTo(this.startTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.not.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(allowance));
-        });
-
-        it('should buy token after priority pass phase within hardcap', async () => {
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.not.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-            tokenBalance.should.be.bignumber.equal(rate.mul(hardCap));
-
-        });
-
-        it('should not buy token after tge end', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should not get bonus', async () => {
-
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: hardCap,
-            }).should.be.fulfilled;
-
-            const tokenBalance = await this.token.balanceOf(allowedInvestor);
-
-            tokenBalance.sub(rate.mul(hardCap)).should.be.bignumber.equal(zeroBig);
-
-        });
-
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.rscConversion.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.rscConversion.convert(1000, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-        });
-
-        it('should not be able to get airdrop', async () => {
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.airdrop({
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await this.crowdsale.airdropFor(allowedInvestor, {
-                from: anonInvestor,
-            }).should.not.be.fulfilled;
-        });
-
-        it('token should be locked for 1 year', async () => {
-
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: allowance,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.unpauseToken().should.be.fulfilled;
-
-            const tokenBalance0 = await this.token.balanceOf(allowedInvestor);
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await increaseTimeTo(this.endTime + duration.days(150));
-            await advanceBlock();
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await increaseTimeTo(this.endTime + duration.years(1));
-            await advanceBlock();
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            const tokenBalance1 = await this.token.balanceOf(allowedInvestor);
-            tokenBalance1.should.be.bignumber.equal(zeroBig);
-
-            const tokenBalance2 = await this.token.balanceOf(anonInvestor);
-            tokenBalance2.should.be.bignumber.equal(rate.mul(allowance));
+            tokenBalance2.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_25)).mul(rate));
         });
 
     });
@@ -1764,7 +1711,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [TEAM]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [GETS_AIRDROP],
+                [BONUS_0],
+                [LOCKUP_1YR]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
@@ -1954,7 +1907,13 @@ contract('DipTge', (accounts) => {
             const tokenAddress = await this.crowdsale.token();
             this.token = await DipToken.at(tokenAddress);
 
-            await this.crowdsale.editContributors([allowedInvestor], [allowance], [FOUNDER]);
+            await this.crowdsale.editContributors(
+                [allowedInvestor],
+                [allowance],
+                [GETS_AIRDROP],
+                [BONUS_0],
+                [LOCKUP_2YR]
+            );
 
             const rscConversionAddress = await this.crowdsale.rscConversion();
             this.rscConversion = await RscConversion.at(rscConversionAddress);
