@@ -14,7 +14,7 @@ This is the final and authoritative description of the DIP Token and TGE.
 1. The Token Contract implements ERC20 Specification according to https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md.
 
 ### Specification of general TGE parameters
-1. TGE starts at block `startTime` (inclusive).
+1. TGE starts at `startTime` (inclusive).
 1. TGE ends no later then `endTime` (inclusive).
 1. A maximum of `hardcap` wei is raised.
 1. All ether values are stored in `uint256` as wei.
@@ -28,35 +28,45 @@ Conversion is calculated as follows: # of DIP tokens = Amount in ETH * `rate`. T
     - `uint256 allowance`;
     - `uint256 contributionAmount`;
     - `uint256 tokensIssued`;
-    - `enum contributorType`;
-1. ContributorType is an `enum` with possible values: `{ REGULAR, ECA_10, RSC, RSC_USA, ECA_25, USA, TEAM, FOUNDER }`.
-1. The `owner` of the TGE contract can fill and modify this list at any time by calling a function with 3 parameters.
-The first parameter is an array of `address`es, the second an array of `allowance`s, the third parameter is an array of `contributorType`s.
+    - `Distribution distribution`;
+    - `uint256 bonus`;
+    - `uint256 lockupPeriod`;
+1. `Distribution` is an `enum` with possible values: `{ canBuy, canConvertRSC, getsAirdrop }`.
+1. The mapping of contributor types to the values of the `contributorList` is as follows: 
+    1. Regular contributors: `distribution == canBuy`, `bonus == 0`, `lockupPeriod == 0`
+    1. Early contributors without lockup period: identical to Regular contributors
+    1. Early contributors with 1 year lockup period, 10% bonus: `distribution == canBuy`, `bonus == 10`, `lockupPeriod == 1`
+    1. Early contributors with 1 year lockup period, 25% bonus (those Early contributors who sign the first 
+    10M of ECAs): `distribution == canBuy`, `bonus == 10`, `lockupPeriod == 1`
+    1. RSC Holders without lockup period: `distribution == canConvertRSC`, `bonus == 0`, `lockupPeriod == 0`
+    1. RSC Holders with 1 year lockup period: `distribution == canConvertRSC`, `bonus == 4`, `lockupPeriod == 1`
+    1. Team Members: `distribution == getsAirdrop`, `bonus == 0`, `lockupPeriod == 1`
+    1. Founders: `distribution == getsAirdrop`, `bonus == 0`, `lockupPeriod == 2`
+1. The `owner` of the TGE contract can fill and modify this list at any time by calling a function with 5 parameters.
+The first parameter is an array of `address`es, the second an array of `allowance`s, the third parameter is an array 
+of `distribution`s, the fourth parameter is an array of bonuses (`uint256`), the fifth parameter is an array of 
+lockupPeriods (`uint256`).
 For each `address` in the first parameter, the list is modified according to the second and third parameter.
 The three arrays must have the same length, otherwise the function will throw.
 1. A "Whitelisted contributor" is an address with `allowance > 0`.
 1. During the TGE, the `contributionAmount` and `tokensIssued` are updated according to the investment made.
 
 ### Bonus
-1. `ECA_10` contributors get 10% bonus
-1. `ECA_25` contributors get 25% bonus
+1. Contributors which sign an ECA with 1 year lockup get 10% bonus.
+1. Contributors which sign an ECA with 1 year lockup and which are in the first 10M of signed ECAs, get 25% bonus.
+1. RSC Holders which sign an ECA with 1 year lockup get 25% bonus.
+The Decision on bonus is made during whitelisting, but off-chain.
 
 ## Token lock up
-1. DIP tokens of `ECA_10`, `ECA_25`, `RSC_USA`, `USA`, `TEAM` are locked up for 1 year
-1. DIP tokens of `FOUNDER` are locked up for 2 years
-
-## RSC conversion
-1. `RSC`, `RSC_USA` contributors can convert RSC tokens into DIP
-
-## Airdrop
-1. `TEAM`, `FOUNDER` contributors get airdrop using `airdrop` or `airdropFor` functions.
+1. For Contributors and RSC Holders with `lockupPeriod == 1`, tokens are locked up for 1 year
+1. Team members tokens are locked up for 1 year, Founders tokens are locked up for 2 years.
 
 ### TGE phases
 1. The phases of the TGE are delimited by the following parameters, denoted as `uint256`:
     - `startTime`
     - `startOpenPpTime`
     - `endTime`
-1. Accordingly, the TGE has 5 phases: 
+1. Accordingly, the TGE has 4 phases: 
     - `pendingStart`:             after deployment, before `startTime`
     - `priorityPass`:             including and after `startTime`, before `startOpenPpTime`
     - `crowdsale`:                including and after `startPublicTime`, before and including `endTime`
@@ -91,7 +101,7 @@ in case the `msg.value` is greater then the possible investment. "Participants" 
   now >= startTime && now < startOpenPpTime  
   && state == state.priorityPass 
   && weiRaised <= hardCap 
-  && contributionAmount[A] <= priorityPassAllowance[A] + otherAllowance[A]
+  && contributionAmount[A] <= allowance[A]
 
 ) && (
   
@@ -111,23 +121,6 @@ in case the `msg.value` is greater then the possible investment. "Participants" 
 
 )
 ```    
-### Vested tokens
-1. The finalization function mints the remaining tokens and transfers it to a special multiSig address, from which
-vested tokens are distributed. The vesting itself is not enforced. The following specification describes the vesting contract to be used.
-1. The Vesting contract VestedTokens.sol extends the TokenTimelock.sol contract, which in turn extends the TokenStake.sol contract.
-1. The TokenStake contract locks tokens. The sequence of transactions is as follows:
-    - The original owner of tokens approves the TokenStake contract to transfer tokens.
-    - The TokenStake contracts public `stakeFor` or `stake` function is called from the original owner. 
-    - These functions return `false` if the transfer is not approved.
-    - If `stake` is called, the tokens are staked for the original owner.
-    - If `stakeFor` is called, the tokens are staked for someone else (any given address)
-    - The TokenStake contract has two other internal functions `release` and `releaseFor` which are complementary to the `stake` and `stakeFor` functions.
-    - Because the functions are internal, tokens transfered to the contract via `stake` and `stakeFor` are "locked" ("staked").
-    - Contracts extending the TokenStake contract can provide public functions which make the `release` and `releaseFor` functions accessible, mostly by checking some condition.
-1. The TokenTimelock.sol contract extends the TokenStake.sol contract. It introduces a table where for any tuple (address, releaseTime) a certain amount of tokens can be released.
-1. Token are locked by calling `setTimelock` or `setTimelockFor`. 
-1. The VestedTokens.sol contract automates the setting of Timelocks for vested Tokens. For a certain beneficiary, tokens are vested by setting individual timelocks for a portion of granted tokens. The `vestingPeriod` is divided in `numberOfPeriods` individual periods of length `cliff`.  The granted amount of tokens has to be divisible by `numberOfPeriods`. For every individual period, a timelock is set in the underlying TokenTimelock.sol contract. Every grant triggers a GrantGiven Event to record the grants.
-
 
 ### Miscellaneous functions
 1. The DipToken.sol and DipTge.sol contracts both contain a `salvageTokens` function. 

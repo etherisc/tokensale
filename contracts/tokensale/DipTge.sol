@@ -67,7 +67,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     lockInTime1 = _lockInTime1;
     lockInTime2 = _lockInTime2;
     RSC_token = ERC20(_rscToken);
-
     DipToken(token).pause();
   }
 
@@ -75,6 +74,10 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(crowdsaleState == state.pendingStart);
 
     rate = _rate;
+  }
+
+  function getLockInTime2() public returns (uint256) {
+    return lockInTime2;
   }
 
   function unpauseToken() onlyOwner external {
@@ -106,19 +109,25 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   /**
    * Calculate amount of tokens
+   * This is used twice:
+   * 1) For calculation of token amount plus optional bonus from wei amount contributed
+   * In this case, rate is the defined exchange rate of ETH against DIP.
+   * 2) For calculation of token amount plus optional bonus from DIP token amount
+   * In the second case, rate == 1 because we have already calculated DIP tokens from RSC amount
+   * by applying a factor of 10/32.
    * @param _contributor the address of the contributor
-   * @param _weiAmount contribution amount
+   * @param _amount contribution amount
    * @return _tokens amount of tokens
    */
-  function calculateTokens(address _contributor, uint256 _weiAmount) public constant returns (uint256 _tokens) {
+  function calculateTokens(address _contributor, uint256 _amount, uint256 _rate) public constant returns (uint256 _tokens) {
     uint256 bonus = getContributorBonus(_contributor);
 
     assert(bonus == 0 || bonus == 4 || bonus == 10);
 
     if (bonus > 0) {
-      _tokens = _weiAmount.add(_weiAmount.div(bonus)).mul(rate);
+      _tokens = _amount.add(_amount.div(bonus)).mul(_rate);
     } else {
-      _tokens = _weiAmount.mul(rate);
+      _tokens = _amount.mul(_rate);
     }
   }
 
@@ -184,7 +193,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(weiAmount > 0);
 
     // calculate token amount to be created
-    uint256 tokens = calculateTokens(_beneficiary, weiAmount);
+    uint256 tokens = calculateTokens(_beneficiary, weiAmount, rate);
 
     assert(tokens > 0);
 
@@ -202,6 +211,9 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     if (refund != 0) _beneficiary.transfer(refund);
   }
 
+  /**
+   * Check if token is locked.
+   */
   function tokenIsLocked(address _contributor) public constant returns (bool) {
 
     if (now < lockInTime1 && contributorList[_contributor].lockupPeriod == 1) {
@@ -214,14 +226,29 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   }
 
+  /**
+   * Check if contributor is whitelisted for RSC conversion.
+   *
+   */
   function conversionIsAllowed(address _contributor) public constant returns (bool) {
     return contributorList[_contributor].distribution == Distribution.canConvertRSC;
   }
 
+
+  /**
+   * Distribute tokens to selected team members & founders.
+   * Unit of Allowance is ETH and is converted in number of tokens by multiplying with Rate.
+   * This can be called by any whitelisted beneficiary.
+   */
   function airdrop() public {
     airdropFor(msg.sender);
   }
 
+
+  /**
+   * Alternatively to airdrop(); tokens can be directly sent to beneficiaries by this function
+   * This can be called only once.
+   */
   function airdropFor(address _beneficiary) public {
     require(contributorList[_beneficiary].distribution == Distribution.getsAirdrop);
     require(contributorList[_beneficiary].tokensIssued == 0);
@@ -264,10 +291,9 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(getContributorAllowance(msg.sender) >= _rscAmount);
     require(RSC_token.transferFrom(msg.sender, wallet, _rscAmount));
 
-    uint256 dipAmount = _rscAmount.mul(10).div(32);
-    allocate(msg.sender, dipAmount);
+    uint256 dipAmount = calculateTokens(msg.sender, _rscAmount.mul(10).div(32), 1);
 
-    // TODO: Add bonus if eligible for bonus
+    allocate(msg.sender, dipAmount);
 
     emit RSC_Conversion(msg.sender, _rscAmount, dipAmount);
   }

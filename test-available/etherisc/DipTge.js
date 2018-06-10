@@ -145,7 +145,7 @@ contract('DipTge', (accounts) => {
 
             const contribution = ether(1);
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
 
             tokens.should.be.bignumber.equal(rate.mul(contribution));
         });
@@ -155,7 +155,7 @@ contract('DipTge', (accounts) => {
 
             const contribution = ether(1);
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
 
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_25)).mul(rate));
         });
@@ -165,7 +165,7 @@ contract('DipTge', (accounts) => {
 
             const contribution = ether(1);
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
 
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_10)).mul(rate));
         });
@@ -522,7 +522,7 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_ZERO]
             );
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
             tokens.should.be.bignumber.equal(rate.mul(contribution));
 
             await this.crowdsale.sendTransaction({
@@ -549,7 +549,7 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_25)).mul(rate));
 
             await this.crowdsale.sendTransaction({
@@ -576,7 +576,7 @@ contract('DipTge', (accounts) => {
                 [LOCKUP_1YR]
             );
 
-            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution);
+            const tokens = await this.crowdsale.calculateTokens(allowedInvestor, contribution, rate);
             tokens.should.be.bignumber.equal(contribution.add(contribution.div(BONUS_10)).mul(rate));
 
             await this.crowdsale.sendTransaction({

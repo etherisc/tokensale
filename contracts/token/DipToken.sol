@@ -18,7 +18,6 @@ contract DipToken is PausableToken, MintableToken {
   string public constant symbol = "DIP";
   uint256 public constant decimals = 18;
   uint256 public constant MAXIMUM_SUPPLY = 10**9 * 10**18; // 1 Billion 1'000'000'000
-  uint256 public standAloneTime; // after this time, we don't need to check for locked tokens.
 
   DipTgeInterface DipTokensale;
 
@@ -27,8 +26,10 @@ contract DipToken is PausableToken, MintableToken {
   }
 
   modifier shouldNotBeLockedIn(address _contributor) {
+    // after LockIntTime2, we don't need to check anymore, and
+    // the DipTokensale contract is no longer required.
     require(DipTokensale.tokenIsLocked(_contributor) == false);
-      _;
+    _;
   }
 
   /**
