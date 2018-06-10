@@ -257,7 +257,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   /**
    * Convert RSC Tokens in DIP Tokens.
    * Conversion factor is defined as 1 DIP = 3.2 RSC
-   * @return the created token
    */
   function convertRSC(uint256 _rscAmount) public {
     require(_rscAmount > 0);
