@@ -76,10 +76,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     rate = _rate;
   }
 
-  function getLockInTime2() public returns (uint256) {
-    return lockInTime2;
-  }
-
   function unpauseToken() onlyOwner external {
     DipToken(token).unpause();
   }
