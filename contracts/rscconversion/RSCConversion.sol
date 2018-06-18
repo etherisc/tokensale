@@ -72,12 +72,12 @@ contract RSCConversion is Ownable {
   function reclaimUnusedBonus() public onlyOwner {
     require(now >= lockInTime1);
     uint256 unusedBonus =
-      DIP.balanceOf(this)
-      .sub(TotalRSCSupply
-        .sub(RSC.balanceOf(this))
-        .mul(10)
-        .div(32)
-      );
+    DIP.balanceOf(this)
+    .sub(TotalRSCSupply
+    .sub(RSC.balanceOf(this))
+    .mul(10)
+      .div(32)
+    );
     DIP.transfer(owner, unusedBonus);
   }
 

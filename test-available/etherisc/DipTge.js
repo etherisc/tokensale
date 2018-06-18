@@ -33,10 +33,8 @@ contract('DipTge', (accounts) => {
     const zeroEther = ether(0);
     const zeroBig = new BigNumber(0);
 
-    const CAN_BUY = 0;
-    const CAN_CONVERT_RSC = 1;
-    const GETS_AIRDROP = 2;
-    const INVALID_DISTRIBUTION = 10;
+    const CAN_BUY = false;
+    const GETS_AIRDROP = true;
 
     const BONUS_0 = 0;
     const BONUS_10 = 10;
@@ -209,22 +207,6 @@ contract('DipTge', (accounts) => {
             } catch (error) {
 
                 assertRevert(error);
-                return;
-
-            }
-
-            assert.fail('should have thrown before');
-
-        });
-
-        it('should throw if second array has invalid value', async () => {
-
-            try {
-
-                await this.crowdsale.editContributors([allowedInvestor], [allowance], [INVALID_DISTRIBUTION], [BONUS_0], [LOCKUP_ZERO]);
-
-            } catch (error) {
-                assertJump(error);
                 return;
 
             }
@@ -990,20 +972,6 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-        });
-
         it('should not be able to get airdrop', async () => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
@@ -1148,20 +1116,6 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-        });
-
         it('should not be able to get airdrop', async () => {
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();
@@ -1216,283 +1170,6 @@ contract('DipTge', (accounts) => {
 
     });
 
-    describe('RSC contributor', () => {
-
-        beforeEach(async () => {
-
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
-            this.crowdsale = await DipTge.new(
-                this.startTime,
-                this.startOpenPpTime,
-                this.endTime,
-                this.lockInTime1,
-                this.lockInTime2,
-                hardCap,
-                rate,
-                wallet,
-                this.rscToken.address
-            );
-
-            const tokenAddress = await this.crowdsale.token();
-            this.token = await DipToken.at(tokenAddress);
-
-            await this.crowdsale.editContributors(
-                [allowedInvestor],
-                [allowance],
-                [CAN_CONVERT_RSC],
-                [BONUS_0],
-                [LOCKUP_ZERO]
-            );
-
-        });
-
-        it('should not buy token before tge start', async () => {
-            const state = await this.crowdsale.crowdsaleState();
-            state.toNumber().should.be.equal(0);
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-        });
-
-        it('should not buy token within regular allowance during priority pass phase', async () => {
-            await increaseTimeTo(this.startTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should not buy token after priority pass phase within hardcap', async () => {
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should not buy token after tge end', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            // todo: check balances!
-
-        });
-
-        it('should not be able to get airdrop', async () => {
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.airdrop({
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await this.crowdsale.airdropFor(allowedInvestor, {
-                from: anonInvestor,
-            }).should.not.be.fulfilled;
-        });
-
-        it('token should not be locked', async () => {
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.unpauseToken().should.be.fulfilled;
-
-            const tokenBalance0 = await this.token.balanceOf(allowedInvestor);
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            const tokenBalance1 = await this.token.balanceOf(allowedInvestor);
-            tokenBalance1.should.be.bignumber.equal(zeroBig);
-
-            const tokenBalance2 = await this.token.balanceOf(anonInvestor);
-            tokenBalance2.should.be.bignumber.equal(tokenBalance0);
-        });
-    });
-
-    describe('RSC_1yr_lockup contributor', () => {
-
-        beforeEach(async () => {
-
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
-            this.crowdsale = await DipTge.new(
-                this.startTime,
-                this.startOpenPpTime,
-                this.endTime,
-                this.lockInTime1,
-                this.lockInTime2,
-                hardCap,
-                rate,
-                wallet,
-                this.rscToken.address
-            );
-
-            const tokenAddress = await this.crowdsale.token();
-            this.token = await DipToken.at(tokenAddress);
-
-            await this.crowdsale.editContributors(
-                [allowedInvestor],
-                [allowance],
-                [CAN_CONVERT_RSC],
-                [BONUS_25],
-                [LOCKUP_1YR]
-            );
-
-        });
-
-        it('should not buy token before tge start', async () => {
-            const state = await this.crowdsale.crowdsaleState();
-            state.toNumber().should.be.equal(0);
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-        });
-
-        it('should not buy token within regular allowance during priority pass phase', async () => {
-            await increaseTimeTo(this.startTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should not buy token after priority pass phase within hardcap', async () => {
-            await increaseTimeTo(this.startOpenPpTime);
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should not buy token after tge end', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.sendTransaction({
-                from: allowedInvestor,
-                value: 1,
-            }).should.not.be.fulfilled;
-
-        });
-
-        it('should be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            // todo: check balances!
-
-        });
-
-        it('should not be able to get airdrop', async () => {
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.crowdsale.airdrop({
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await this.crowdsale.airdropFor(allowedInvestor, {
-                from: anonInvestor,
-            }).should.not.be.fulfilled;
-        });
-
-        it('token should be locked for 1 year', async () => {
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.unpauseToken().should.be.fulfilled;
-
-            const tokenBalance0 = await this.token.balanceOf(allowedInvestor);
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await increaseTimeTo(this.endTime + duration.days(150));
-            await advanceBlock();
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-
-            await increaseTimeTo(this.endTime + duration.years(1));
-            await advanceBlock();
-
-            await this.token.transfer(anonInvestor, tokenBalance0, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            const tokenBalance1 = await this.token.balanceOf(allowedInvestor);
-            tokenBalance1.should.be.bignumber.equal(zeroBig);
-
-            const tokenBalance2 = await this.token.balanceOf(anonInvestor);
-            tokenBalance2.should.be.bignumber.equal(tokenBalance0);
-        });
-    });
 
     describe('ECA_25 contributor', () => {
 
@@ -1598,20 +1275,6 @@ contract('DipTge', (accounts) => {
 
             tokenBalance.should.be.bignumber.equal(allowance.add(allowance.div(BONUS_25)).mul(rate));
 
-        });
-
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
         });
 
         it('should not be able to get airdrop', async () => {
@@ -1729,20 +1392,6 @@ contract('DipTge', (accounts) => {
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
                 value: allowance,
-            }).should.not.be.fulfilled;
-        });
-
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
             }).should.not.be.fulfilled;
         });
 
@@ -1925,20 +1574,6 @@ contract('DipTge', (accounts) => {
             }).should.not.be.fulfilled;
         });
 
-        it('should not be able to convert RSC token', async () => {
-
-            await increaseTimeTo(this.endTime + duration.minutes(1));
-            await advanceBlock();
-
-            await this.rscToken.approve(this.crowdsale.address, 1000, {
-                from: allowedInvestor,
-            }).should.be.fulfilled;
-
-            await this.crowdsale.convertRSC(1000, {
-                from: allowedInvestor,
-            }).should.not.be.fulfilled;
-        });
-
         it('should not be able to get airdrop before the end of TGE', async () => {
 
             await this.crowdsale.airdrop({
@@ -1989,7 +1624,7 @@ contract('DipTge', (accounts) => {
 
         });
 
-        it('should be able to get airdrop more that once', async () => {
+        it('should not be able to get airdrop more that once', async () => {
 
             await increaseTimeTo(this.endTime + duration.minutes(1));
             await advanceBlock();

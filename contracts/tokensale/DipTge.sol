@@ -22,7 +22,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   enum state { pendingStart, priorityPass, crowdsale, crowdsaleEnded }
 
-  ERC20 RSC_token; // RSC token contract
+  ERC20 public RSC_token; // RSC token contract
   uint256 public startOpenPpTime;
   uint256 public hardCap;
   uint256 public lockInTime1; // token lock-in period for team, ECA, US accredited investors
@@ -34,7 +34,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   event HardCapReached(uint256 _time);
   event DipTgeEnded(uint256 _time);
   event TokenAllocated(address _beneficiary, uint256 _amount);
-  event RSC_Conversion(address _rsc, uint256 _rscAmount, uint256 _dipAmount);
 
   constructor(
     uint256 _startTime,
@@ -51,7 +50,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     public
   {
     // Check arguments
-    require(_startTime >= now);
+    require(_startTime >= block.timestamp);
     require(_startOpenPpTime >= _startTime);
     require(_endTime >= _startOpenPpTime);
     require(_lockInTime1 >= _endTime);
@@ -116,7 +115,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * @return _tokens amount of tokens
    */
   function calculateTokens(address _contributor, uint256 _amount, uint256 _rate) public constant returns (uint256 _tokens) {
-    uint256 bonus = getContributorBonus(_contributor);
+    uint256 bonus = contributorList[_contributor].bonus;
 
     assert(bonus == 0 || bonus == 4 || bonus == 10);
 
@@ -134,34 +133,34 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     if (weiRaised >= hardCap && crowdsaleState != state.crowdsaleEnded) {
 
       crowdsaleState = state.crowdsaleEnded;
-      emit HardCapReached(now);
-      emit DipTgeEnded(now);
+      emit HardCapReached(block.timestamp);
+      emit DipTgeEnded(block.timestamp);
 
     } else if (
-      now >= startTime &&
-      now < startOpenPpTime &&
+      block.timestamp >= startTime &&
+      block.timestamp < startOpenPpTime &&
       crowdsaleState != state.priorityPass
     ) {
 
       crowdsaleState = state.priorityPass;
-      emit DipTgeStarted(now);
+      emit DipTgeStarted(block.timestamp);
 
     } else if (
-      now >= startOpenPpTime &&
-      now <= endTime &&
+      block.timestamp >= startOpenPpTime &&
+      block.timestamp <= endTime &&
       crowdsaleState != state.crowdsale
     ) {
 
       crowdsaleState = state.crowdsale;
-      emit CrowdsaleStarted(now);
+      emit CrowdsaleStarted(block.timestamp);
 
     } else if (
       crowdsaleState != state.crowdsaleEnded &&
-      now > endTime
+      block.timestamp > endTime
     ) {
 
       crowdsaleState = state.crowdsaleEnded;
-      emit DipTgeEnded(now);
+      emit DipTgeEnded(block.timestamp);
     }
   }
 
@@ -172,7 +171,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   function buyTokens(address _beneficiary) public payable {
     require(_beneficiary != 0x0);
     require(validPurchase());
-    require(contributorList[_beneficiary].distribution == Distribution.canBuy);
+    require(contributorList[_beneficiary].airdrop == false);
 
     setCrowdsaleState();
 
@@ -212,22 +211,14 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    */
   function tokenIsLocked(address _contributor) public constant returns (bool) {
 
-    if (now < lockInTime1 && contributorList[_contributor].lockupPeriod == 1) {
+    if (block.timestamp < lockInTime1 && contributorList[_contributor].lockupPeriod == 1) {
       return true;
-    } else if (now < lockInTime2 && contributorList[_contributor].lockupPeriod == 2) {
+    } else if (block.timestamp < lockInTime2 && contributorList[_contributor].lockupPeriod == 2) {
       return true;
     }
 
     return false;
 
-  }
-
-  /**
-   * Check if contributor is whitelisted for RSC conversion.
-   *
-   */
-  function conversionIsAllowed(address _contributor) public constant returns (bool) {
-    return contributorList[_contributor].distribution == Distribution.canConvertRSC;
   }
 
 
@@ -246,25 +237,20 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
    * This can be called only once.
    */
   function airdropFor(address _beneficiary) public {
-    require(contributorList[_beneficiary].distribution == Distribution.getsAirdrop);
+    require(_beneficiary != 0x0);
+    require(contributorList[_beneficiary].airdrop == true);
     require(contributorList[_beneficiary].tokensIssued == 0);
     require(contributorList[_beneficiary].allowance > 0);
-
-    allocate(_beneficiary, contributorList[_beneficiary].allowance.mul(rate));
-  }
-
-  function allocate(address _beneficiary, uint256 _amount) internal {
-    require(_beneficiary != 0x0);
-    require(_amount > 0);
 
     setCrowdsaleState();
 
     require(crowdsaleState == state.crowdsaleEnded);
 
-    require(token.mint(_beneficiary, _amount));
-    emit TokenAllocated(_beneficiary, _amount);
+    uint256 amount = contributorList[_beneficiary].allowance.mul(rate);
+    require(token.mint(_beneficiary, amount));
+    emit TokenAllocated(_beneficiary, amount);
 
-    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(_amount);
+    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(amount);
   }
 
   /**
@@ -275,25 +261,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   function createTokenContract() internal returns (MintableToken) {
     return new DipToken();
   }
-
-
-  /**
-   * Convert RSC Tokens in DIP Tokens.
-   * Conversion factor is defined as 1 DIP = 3.2 RSC
-   */
-  function convertRSC(uint256 _rscAmount) public {
-    require(_rscAmount > 0);
-    require(conversionIsAllowed(msg.sender));
-    require(getContributorAllowance(msg.sender) >= _rscAmount);
-    require(RSC_token.transferFrom(msg.sender, wallet, _rscAmount));
-
-    uint256 dipAmount = calculateTokens(msg.sender, _rscAmount.mul(10).div(32), 1);
-
-    allocate(msg.sender, dipAmount);
-
-    emit RSC_Conversion(msg.sender, _rscAmount, dipAmount);
-  }
-
 
   /**
    * Finalize sale and perform cleanup actions.
