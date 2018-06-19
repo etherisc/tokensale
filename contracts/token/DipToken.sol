@@ -9,7 +9,7 @@ pragma solidity 0.4.24;
 
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/PausableToken.sol";
-import "../tokensale/DipTge.sol";
+import "../tokensale/DipTgeInterface.sol";
 
 
 contract DipToken is PausableToken, MintableToken {
@@ -19,10 +19,10 @@ contract DipToken is PausableToken, MintableToken {
   uint256 public constant decimals = 18;
   uint256 public constant MAXIMUM_SUPPLY = 10**9 * 10**18; // 1 Billion 1'000'000'000
 
-  DipTge public DipTokensale;
+  DipTgeInterface public DipTokensale;
 
   constructor() public {
-    DipTokensale = DipTge(owner);
+    DipTokensale = DipTgeInterface(owner);
   }
 
   modifier shouldNotBeLockedIn(address _contributor) {
