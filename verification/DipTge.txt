@@ -3,13 +3,7 @@ pragma solidity 0.4.24;
 // File: contracts/tokensale/DipTgeInterface.sol
 
 contract DipTgeInterface {
-  function getContributorAllowance(address _contributor) public constant returns (uint256 _allowance);
-
-  function tokenIsLocked(address _contributor) public constant returns (bool);
-
-  function allocateForExchange(address _beneficiary, uint256 _amount) public;
-
-  function conversionIsAllowed(address _contributor) public constant returns (bool);
+    function tokenIsLocked(address _contributor) public constant returns (bool);
 }
 
 // File: zeppelin-solidity/contracts/ownership/Ownable.sol
@@ -385,16 +379,17 @@ contract DipToken is PausableToken, MintableToken {
   uint256 public constant decimals = 18;
   uint256 public constant MAXIMUM_SUPPLY = 10**9 * 10**18; // 1 Billion 1'000'000'000
 
-
-  DipTgeInterface DipTokensale;
+  DipTgeInterface public DipTokensale;
 
   constructor() public {
     DipTokensale = DipTgeInterface(owner);
   }
 
   modifier shouldNotBeLockedIn(address _contributor) {
+    // after LockIntTime2, we don't need to check anymore, and
+    // the DipTokensale contract is no longer required.
     require(DipTokensale.tokenIsLocked(_contributor) == false);
-      _;
+    _;
   }
 
   /**
@@ -551,27 +546,18 @@ pragma solidity 0.4.24;
 contract DipWhitelistedCrowdsale is Ownable {
   using SafeMath for uint256;
 
-  enum contributor {
-    REGULAR,
-    ECA, // bonus 10%
-    RSC, // convert RSC token
-    RSC_USA, // convert RSC token, 1 year lock-in
-    ECA_LOCK, // 25% bonus, 1 year lock-in
-    USA, // 1 year lock-in
-    TEAM, // 1 year lock-in, airdrop
-    FOUNDER // 2 years lock-in, airdrop
-  }
-
   struct ContributorData {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
-    contributor contributorType;
+    bool airdrop;
+    uint256 bonus;        // 0 == 0%, 4 == 25%, 10 == 10%
+    uint256 lockupPeriod; // 0, 1 or 2 (years)
   }
 
   mapping (address => ContributorData) public contributorList;
 
-  event Whitelisted(address indexed _contributor, uint256 _allowance, contributor _type);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, bool _airdrop, uint256 _bonus, uint256 _lockupPeriod);
 
   /**
    * Push contributor data to the contract before the crowdsale
@@ -579,76 +565,38 @@ contract DipWhitelistedCrowdsale is Ownable {
   function editContributors (
     address[] _contributorAddresses,
     uint256[] _contributorAllowance,
-    contributor[] _contributorTypes
+    bool[] _airdrop,
+    uint256[] _bonus,
+    uint256[] _lockupPeriod
   ) onlyOwner public {
     // Check if input data is consistent
     require(
       _contributorAddresses.length == _contributorAllowance.length &&
-      _contributorAddresses.length == _contributorTypes.length
+      _contributorAddresses.length == _airdrop.length &&
+      _contributorAddresses.length == _bonus.length &&
+      _contributorAddresses.length == _lockupPeriod.length
     );
 
     for (uint256 cnt = 0; cnt < _contributorAddresses.length; cnt = cnt.add(1)) {
-      contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
-      contributorList[_contributorAddresses[cnt]].contributorType = _contributorTypes[cnt];
+      require(_bonus[cnt] == 0 || _bonus[cnt] == 4 || _bonus[cnt] == 10);
+      require(_lockupPeriod[cnt] <= 2);
 
-      emit Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _contributorTypes[cnt]);
+      address contributor = _contributorAddresses[cnt];
+      contributorList[contributor].allowance = _contributorAllowance[cnt];
+      contributorList[contributor].airdrop = _airdrop[cnt];
+      contributorList[contributor].bonus = _bonus[cnt];
+      contributorList[contributor].lockupPeriod = _lockupPeriod[cnt];
+
+      emit Whitelisted(
+        _contributorAddresses[cnt],
+        _contributorAllowance[cnt],
+        _airdrop[cnt],
+        _bonus[cnt],
+        _lockupPeriod[cnt]
+      );
     }
   }
 
-  function getContributorAllowance(address _contributor) public constant returns (uint256 _allowance) {
-    _allowance = contributorList[_contributor].allowance;
-  }
-
-  function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
-    if (contributorList[_contributor].contributorType == contributor.ECA) {
-      return 10; // bonus 10%
-    }
-
-    if (contributorList[_contributor].contributorType == contributor.ECA_LOCK) {
-      return 4; // bonus 25%
-    }
-
-    return 0; // no bonus
-  }
-}
-
-// File: contracts/tokensale/RscConversion.sol
-
-contract RscConversion is Ownable {
-    using SafeMath for uint256;
-
-    ERC20 RSC; // RSC token contract
-    DipTgeInterface DipTge; // DIP tokensale contract
-    address wallet; // Wallet to collect RSC tokens
-    uint256 DipMaximumSupply = 10**9 * 10**18;
-    uint256 RscTotalSupply = 319810895 * 10**3; // TODO: Verify this number.
-
-    event Conversion(address _rsc, uint256 _rscAmount, uint256 _dipAmount);
-
-    constructor(address _rscToken, address _wallet) public {
-      require(_rscToken != 0x0);
-      require(_wallet != 0x0);
-
-      DipTge = DipTgeInterface(msg.sender);
-      RSC = ERC20(_rscToken);
-      wallet = _wallet;
-    }
-
-    function calculateDipAmount(uint256 _rscAmount) public constant returns (uint256 _dipAmount) {
-        _dipAmount = _rscAmount.mul(DipMaximumSupply).div(10).div(RscTotalSupply);
-    }
-
-    function convert(uint256 _rscAmount) public {
-        require(_rscAmount > 0);
-        require(DipTge.conversionIsAllowed(msg.sender) == true);
-        require(DipTge.getContributorAllowance(msg.sender) > 0);
-        require (RSC.transferFrom(msg.sender, wallet, _rscAmount));
-
-        uint256 dipAmount = calculateDipAmount(_rscAmount);
-        DipTge.allocateForExchange(msg.sender, dipAmount);
-
-        emit Conversion(msg.sender, _rscAmount, dipAmount);
-    }
 }
 
 // File: zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol
@@ -694,6 +642,7 @@ contract FinalizableCrowdsale is Crowdsale, Ownable {
  * @title DIP Token Generating Event
  * @notice The Decentralized Insurance Platform Token.
  * @author Christoph Mussenbrock
+ *
  * @copyright 2017 Etherisc GmbH
  */
 
@@ -705,13 +654,13 @@ pragma solidity 0.4.24;
 
 
 
-
 contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
+
   using SafeMath for uint256;
 
   enum state { pendingStart, priorityPass, crowdsale, crowdsaleEnded }
 
-  address public rscConversion;
+  ERC20 public RSC_token; // RSC token contract
   uint256 public startOpenPpTime;
   uint256 public hardCap;
   uint256 public lockInTime1; // token lock-in period for team, ECA, US accredited investors
@@ -739,7 +688,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     public
   {
     // Check arguments
-    require(_startTime >= now);
+    require(_startTime >= block.timestamp);
     require(_startOpenPpTime >= _startTime);
     require(_endTime >= _startOpenPpTime);
     require(_lockInTime1 >= _endTime);
@@ -754,9 +703,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     hardCap = _hardCap;
     lockInTime1 = _lockInTime1;
     lockInTime2 = _lockInTime2;
-
-    rscConversion = createRscConversionContract(_rscToken, _wallet);
-
+    RSC_token = ERC20(_rscToken);
     DipToken(token).pause();
   }
 
@@ -795,19 +742,25 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   /**
    * Calculate amount of tokens
+   * This is used twice:
+   * 1) For calculation of token amount plus optional bonus from wei amount contributed
+   * In this case, rate is the defined exchange rate of ETH against DIP.
+   * 2) For calculation of token amount plus optional bonus from DIP token amount
+   * In the second case, rate == 1 because we have already calculated DIP tokens from RSC amount
+   * by applying a factor of 10/32.
    * @param _contributor the address of the contributor
-   * @param _weiAmount contribution amount
+   * @param _amount contribution amount
    * @return _tokens amount of tokens
    */
-  function calculateTokens(address _contributor, uint256 _weiAmount) public constant returns (uint256 _tokens) {
-    uint256 bonus = getContributorBonus(_contributor);
+  function calculateTokens(address _contributor, uint256 _amount, uint256 _rate) public constant returns (uint256 _tokens) {
+    uint256 bonus = contributorList[_contributor].bonus;
 
     assert(bonus == 0 || bonus == 4 || bonus == 10);
 
     if (bonus > 0) {
-      _tokens = _weiAmount.add(_weiAmount.div(bonus)).mul(rate);
+      _tokens = _amount.add(_amount.div(bonus)).mul(_rate);
     } else {
-      _tokens = _weiAmount.mul(rate);
+      _tokens = _amount.mul(_rate);
     }
   }
 
@@ -818,34 +771,34 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     if (weiRaised >= hardCap && crowdsaleState != state.crowdsaleEnded) {
 
       crowdsaleState = state.crowdsaleEnded;
-      emit HardCapReached(now);
-      emit DipTgeEnded(now);
+      emit HardCapReached(block.timestamp);
+      emit DipTgeEnded(block.timestamp);
 
     } else if (
-      now >= startTime &&
-      now < startOpenPpTime &&
+      block.timestamp >= startTime &&
+      block.timestamp < startOpenPpTime &&
       crowdsaleState != state.priorityPass
     ) {
 
       crowdsaleState = state.priorityPass;
-      emit DipTgeStarted(now);
+      emit DipTgeStarted(block.timestamp);
 
     } else if (
-      now >= startOpenPpTime &&
-      now <= endTime &&
+      block.timestamp >= startOpenPpTime &&
+      block.timestamp <= endTime &&
       crowdsaleState != state.crowdsale
     ) {
 
       crowdsaleState = state.crowdsale;
-      emit CrowdsaleStarted(now);
+      emit CrowdsaleStarted(block.timestamp);
 
     } else if (
       crowdsaleState != state.crowdsaleEnded &&
-      now > endTime
+      block.timestamp > endTime
     ) {
 
       crowdsaleState = state.crowdsaleEnded;
-      emit DipTgeEnded(now);
+      emit DipTgeEnded(block.timestamp);
     }
   }
 
@@ -856,11 +809,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
   function buyTokens(address _beneficiary) public payable {
     require(_beneficiary != 0x0);
     require(validPurchase());
-    require(contributorList[_beneficiary].allowance > 0);
-    require(
-      contributorList[_beneficiary].contributorType != contributor.TEAM &&
-      contributorList[_beneficiary].contributorType != contributor.FOUNDER
-    );
+    require(contributorList[_beneficiary].airdrop == false);
 
     setCrowdsaleState();
 
@@ -877,7 +826,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(weiAmount > 0);
 
     // calculate token amount to be created
-    uint256 tokens = calculateTokens(_beneficiary, weiAmount);
+    uint256 tokens = calculateTokens(_beneficiary, weiAmount, rate);
 
     assert(tokens > 0);
 
@@ -895,68 +844,51 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     if (refund != 0) _beneficiary.transfer(refund);
   }
 
+  /**
+   * Check if token is locked.
+   */
   function tokenIsLocked(address _contributor) public constant returns (bool) {
-    if (contributorList[_contributor].contributorType < contributor.RSC_USA) {
-      return false;
-    }
 
-    if (now < lockInTime2) {
-      if (now < lockInTime1 && contributorList[_contributor].contributorType >= contributor.RSC_USA) {
-        return true;
-      }
-
-      if (contributorList[_contributor].contributorType == contributor.FOUNDER) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  function conversionIsAllowed(address _contributor) public constant returns (bool) {
-    if (
-      contributorList[_contributor].contributorType == contributor.RSC ||
-      contributorList[_contributor].contributorType == contributor.RSC_USA
-    ) {
+    if (block.timestamp < lockInTime1 && contributorList[_contributor].lockupPeriod == 1) {
+      return true;
+    } else if (block.timestamp < lockInTime2 && contributorList[_contributor].lockupPeriod == 2) {
       return true;
     }
 
     return false;
+
   }
 
+
+  /**
+   * Distribute tokens to selected team members & founders.
+   * Unit of Allowance is ETH and is converted in number of tokens by multiplying with Rate.
+   * This can be called by any whitelisted beneficiary.
+   */
   function airdrop() public {
     airdropFor(msg.sender);
   }
 
+
+  /**
+   * Alternatively to airdrop(); tokens can be directly sent to beneficiaries by this function
+   * This can be called only once.
+   */
   function airdropFor(address _beneficiary) public {
-    require(
-      contributorList[_beneficiary].contributorType == contributor.TEAM ||
-      contributorList[_beneficiary].contributorType == contributor.FOUNDER
-    );
+    require(_beneficiary != 0x0);
+    require(contributorList[_beneficiary].airdrop == true);
     require(contributorList[_beneficiary].tokensIssued == 0);
     require(contributorList[_beneficiary].allowance > 0);
-
-    allocate(_beneficiary, contributorList[_beneficiary].allowance.mul(rate));
-  }
-
-  function allocateForExchange(address _beneficiary, uint256 _amount) public {
-    require(msg.sender == rscConversion);
-
-    allocate(_beneficiary, _amount);
-  }
-
-  function allocate(address _beneficiary, uint256 _amount) internal {
-    require(_beneficiary != 0x0);
-    require(_amount > 0);
 
     setCrowdsaleState();
 
     require(crowdsaleState == state.crowdsaleEnded);
 
-    require(token.mint(_beneficiary, _amount));
-    emit TokenAllocated(_beneficiary, _amount);
+    uint256 amount = contributorList[_beneficiary].allowance.mul(rate);
+    require(token.mint(_beneficiary, amount));
+    emit TokenAllocated(_beneficiary, amount);
 
-    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(_amount);
+    contributorList[_beneficiary].tokensIssued = contributorList[_beneficiary].tokensIssued.add(amount);
   }
 
   /**
@@ -968,10 +900,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     return new DipToken();
   }
 
-  function createRscConversionContract(address _rscToken, address _wallet) internal returns (address) {
-    return new RscConversion(_rscToken, _wallet);
-  }
-
   /**
    * Finalize sale and perform cleanup actions.
    */
@@ -980,7 +908,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     token.mint(wallet, maxSupply.sub(token.totalSupply())); // Alternativly, hardcode remaining token distribution.
     token.finishMinting();
     token.transferOwnership(owner);
-    RscConversion(rscConversion).transferOwnership(owner);
   }
 
   /**
