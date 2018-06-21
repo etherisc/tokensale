@@ -5,7 +5,7 @@
     "node": ">=9.0.0"
   },
   "config": {
-    "solidity-compiler": "^0.4.11"
+    "solidity-compiler": "0.4.24"
   },
   "scripts": {
     "migrate": "truffle migrate",
@@ -25,7 +25,9 @@
     "lint-sol": "solium --dir ./",
     "prepare-verification": "./bin/prepare-verification.sh",
     "coverage": "solidity-coverage",
-    "ganache-test": "npm-run-all --parallel --race ganache-silent test"
+    "ganache-test": "npm-run-all --parallel --race ganache-silent test",
+    "prepare-migration": "./bin/prepare-migration.js",
+    "deploy-migration": "npm-run-all --sequential prepare-migration select-resources \"migrate -- {@}\" --"
   },
   "dependencies": {
     "async": "^2.6.1",
@@ -34,12 +36,15 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "chalk": "^2.4.1",
+    "checksum": "^0.1.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0",
     "fs-jetpack": "^1.3.0",
     "ganache-cli": "^6.1.0",
+    "inquirer": "^6.0.0",
     "js-yaml": "^3.12.0",
+    "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "npm-run-all": "^4.1.3",
     "rimraf": "^2.6.2",

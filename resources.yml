@@ -1,7 +1,6 @@
 migrations:
     - 1_initial_migration.js
     - 2_deploy_tge.js
-
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
@@ -18,14 +17,14 @@ test:
     - helpers/latestTime.js
     - helpers/EVMThrow.js
     - helpers/Revert.js
-#    - zeppelin/SafeMath.js
-#    - zeppelin/BasicToken.js
-#    - zeppelin/StandardToken.js
-#    - zeppelin/MintableToken.js
-#    - zeppelin/Pausable.js
-#    - zeppelin/PausableToken.js
-#    - zeppelin/FinalizableCrowdsale.js
-#    - zeppelin/Crowdsale.js
-#    - etherisc/DipToken.js
-#    - etherisc/DipTokenMock.sol
-#    - etherisc/DipTge.js
+    - zeppelin/SafeMath.js
+    - zeppelin/BasicToken.js
+    - zeppelin/StandardToken.js
+    - zeppelin/MintableToken.js
+    - zeppelin/Pausable.js
+    - zeppelin/PausableToken.js
+    - zeppelin/FinalizableCrowdsale.js
+    - zeppelin/Crowdsale.js
+    - etherisc/DipToken.js
+    - etherisc/DipTokenMock.sol
+    - etherisc/DipTge.js
