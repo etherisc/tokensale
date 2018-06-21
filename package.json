@@ -10,6 +10,7 @@
   "scripts": {
     "migrate": "truffle migrate",
     "migrate-reset": "truffle migrate --reset",
+    "migrate-ropsten": "truffle migrate --network ropsten",
     "compile": "truffle compile",
     "compile-all": "truffle compile --all",
     "test": "truffle test",

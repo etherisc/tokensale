@@ -12,9 +12,9 @@ module.exports = {
             network_id: 3, // Official Ethereum test network
             host: 'localhost',
             port: 8545,
-            from: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7',
-            from2: '0xd70c89ba0b2ba918e23cb1ba73f7454da0e075d7', // to unlock second account in parity
-            gas: 4700000,
+            from: '0xdd6045c0f24801f6f20c5f080b57a0cac4e6d6fb',
+            from2: '0xdd6045c0f24801f6f20c5f080b57a0cac4e6d6fb', // to unlock second account in parity
+            gas: 6600000,
         },
         kovan: {
             network_id: 42, // custom private network

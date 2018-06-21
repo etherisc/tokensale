@@ -84,24 +84,32 @@ contract('DipTge', (accounts) => {
 
         let maxContrib;
 
-        beforeEach(async () => {
+        let createArray = (value, cnt) => {
+            let arr = [];
+            for (let i=0; i<cnt; i++) arr.push(value);
+            return arr;
+        }
+
+        let doEdit = async cnt => {
+
 
             await this.crowdsale.editContributors(
-                [
-                    allowedInvestor
-                ], [
-                    allowance
-                ], [
-                    CAN_BUY
-                ], [
-                    BONUS_0
-                ], [
-                    LOCKUP_ZERO
-                ],
-                {
-                gaslimit: 4700000,
-            });
+                createArray(allowedInvestor, cnt),
+                createArray(allowance, cnt),
+                createArray(CAN_BUY, cnt),
+                createArray(BONUS_10, cnt),
+                createArray(LOCKUP_1YR, cnt)
+            );
 
+        };
+
+        it('should whitelist many', async () => {
+
+            for(cnt=180; cnt < 230; cnt+=10) {
+                await doEdit(cnt);
+                assert(cnt + ' done');
+                console.log(cnt + ' done');
+            }
         });
     });
 });

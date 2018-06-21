@@ -911,10 +911,12 @@ contract('DipTge', (accounts) => {
             await increaseTimeTo(this.startTime);
             await advanceBlock();
 
-            await this.crowdsale.sendTransaction({
+            let txResult = await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
                 value: allowance,
             }).should.be.fulfilled;
+
+            console.log("Gas used: ", txResult.receipt.gasUsed)
 
             await this.crowdsale.sendTransaction({
                 from: allowedInvestor,
