@@ -3,6 +3,7 @@ migrations:
     - 2_deploy_tge.js
     - 3_whitelisting.js
     - 4_whitelisting.js
+    - 5_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
