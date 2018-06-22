@@ -660,7 +660,6 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
 
   enum state { pendingStart, priorityPass, crowdsale, crowdsaleEnded }
 
-  ERC20 public RSC_token; // RSC token contract
   uint256 public startOpenPpTime;
   uint256 public hardCap;
   uint256 public lockInTime1; // token lock-in period for team, ECA, US accredited investors
@@ -681,8 +680,7 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     uint256 _lockInTime2,
     uint256 _hardCap,
     uint256 _rate,
-    address _wallet,
-    address _rscToken
+    address _wallet
   )
     Crowdsale(_startTime, _endTime, _rate, _wallet)
     public
@@ -696,14 +694,12 @@ contract DipTge is DipWhitelistedCrowdsale, FinalizableCrowdsale {
     require(_hardCap > 0);
     require(_rate > 0);
     require(_wallet != 0x0);
-    require(_rscToken != 0x0);
 
     // Set contract fields
     startOpenPpTime = _startOpenPpTime;
     hardCap = _hardCap;
     lockInTime1 = _lockInTime1;
     lockInTime2 = _lockInTime2;
-    RSC_token = ERC20(_rscToken);
     DipToken(token).pause();
   }
 
