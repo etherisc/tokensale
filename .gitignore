@@ -1,10 +1,12 @@
+*.sublime-project
+*.sublime-workspace
+npm-debug.log
 .idea
 node_modules
 build
-contracts
 migrations
 test
-external/encryptedQuery/allEncryptedQueryStrings.txt
-external/encryptedQuery/encryptedQueryString.txt
-ContractLogs.log
 .node-xmlhttprequest-*
+/lint-sol.out
+ganache-output.log
+package-lock.json

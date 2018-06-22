@@ -1,0 +1,59 @@
+{
+  "name": "etherisc-tge",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=9.0.0"
+  },
+  "config": {
+    "solidity-compiler": "0.4.24"
+  },
+  "scripts": {
+    "migrate": "truffle migrate",
+    "migrate-reset": "truffle migrate --reset",
+    "migrate-ropsten": "truffle migrate --network ropsten",
+    "compile": "truffle compile",
+    "compile-all": "truffle compile --all",
+    "test": "truffle test",
+    "console": "truffle console",
+    "clean": "rimraf build",
+    "prepare-commit": "npm run clean && COMMIT_MODE=true npm run prod-mode && npm run recompile",
+    "test-mode": "npm run clean && ./bin/preprocess.js test",
+    "prod-mode": "npm run clean && ./bin/preprocess.js prod",
+    "select-resources": "./bin/select-resources.js",
+    "ganache": "./bin/ganache.js",
+    "ganache-silent": "./bin/ganache.js 2>&1 > ./ganache-output.log",
+    "lint-js": "./node_modules/.bin/eslint **/*.js",
+    "lint-sol": "solium --dir ./",
+    "prepare-verification": "./bin/prepare-verification.sh",
+    "coverage": "solidity-coverage",
+    "ganache-test": "npm-run-all --parallel --race ganache-silent test",
+    "prepare-migration": "./bin/prepare-migration.js",
+    "deploy-migration": "npm-run-all --sequential prepare-migration select-resources \"migrate -- {@}\" --"
+  },
+  "dependencies": {
+    "async": "^2.6.1",
+    "bignumber.js": "^7.2.1",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "chalk": "^2.4.1",
+    "checksum": "^0.1.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "fs-jetpack": "^1.3.0",
+    "ganache-cli": "^6.1.3",
+    "inquirer": "^6.0.0",
+    "js-yaml": "^3.12.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "npm-run-all": "^4.1.3",
+    "rimraf": "^2.6.2",
+    "solidity-coverage": "^0.5.4",
+    "solium": "^1.1.7",
+    "truffle": "4.1.12",
+    "truffle-flattener": "^1.2.5",
+    "web3": "^0.20.6",
+    "zeppelin-solidity": "1.3.0"
+  }
+}
