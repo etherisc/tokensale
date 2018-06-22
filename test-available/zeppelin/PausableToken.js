@@ -1,5 +1,4 @@
-
-const assertJump = require('../helpers/assertJump').assertJump;
+const assertRevert = require('../helpers/assertRevert').assertRevert;
 
 const PausabconstokenMock = artifacts.require('../helpers/PausableTokenMock.sol');
 
@@ -73,7 +72,7 @@ contract('Pausabletoken', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }
@@ -90,7 +89,7 @@ contract('Pausabletoken', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }

@@ -8,3 +8,5 @@ migrations
 test
 .node-xmlhttprequest-*
 /lint-sol.out
+ganache-output.log
+package-lock.json

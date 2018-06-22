@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const TestRPC = require('ethereumjs-testrpc');
+const Ganache = require('ganache-cli');
 const log = require('../util/logger');
 
 const options = {
@@ -17,28 +17,22 @@ const options = {
     // debug: true,
     logger: { log: log.info, },
     blocktime: 0,
+    vmErrorsOnRPCResponse: true,
 };
 
-TestRPC
-    .server(options)
-    .listen(options.port, (err, state) => {
+const server = Ganache.server(options);
 
-        if (err) {
+server.listen(options.port, (err, result) => {
+    if (err) {
+        log.error(err);
+    } else {
+        const state = result || server.provider.manager.state;
+        log.info('EthereumJS TestRPC');
 
-            log.error(err);
+        log.info('Accounts:');
+        Object.keys(state.accounts).forEach((address, index) =>
+            log.info(`(${index}) ${address}${state.isUnlocked(address) === false ? ' 🔒' : ''}, pKey: ${state.accounts[address].secretKey.toString('hex')}`));
 
-        } else {
-
-            log.info('EthereumJS TestRPC');
-
-            log.info('Accounts:');
-            Object.keys(state.accounts).forEach((address, index) =>
-                log.info(
-                    `(${index}) ${address}${state.isUnlocked(address) === false ? ' 🔒' : ''}, pKey: ${state.accounts[address].secretKey.toString('hex')}`)
-            );
-
-            log.info(`Listening on ${(options.hostname || 'localhost')}:${options.port}`);
-
-        }
-
-    });
+        log.info(`Listening on ${(options.hostname || 'localhost')}:${options.port}`);
+    }
+});

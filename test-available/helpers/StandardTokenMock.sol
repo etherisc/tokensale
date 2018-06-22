@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 
 import 'zeppelin-solidity/contracts/token/StandardToken.sol';
@@ -7,7 +7,7 @@ import 'zeppelin-solidity/contracts/token/StandardToken.sol';
 // mock class using StandardToken
 contract StandardTokenMock is StandardToken {
 
-  function StandardTokenMock(address initialAccount, uint initialBalance) {
+  constructor(address initialAccount, uint initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
   }

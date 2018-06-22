@@ -1,4 +1,5 @@
 const assertJump = require('../helpers/assertJump').assertJump;
+const assertRevert = require('../helpers/assertRevert').assertRevert;
 
 const SafeMathMock = artifacts.require('../helpers/SafeMathMock.sol');
 
@@ -72,7 +73,7 @@ contract('SafeMath', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }
@@ -90,7 +91,7 @@ contract('SafeMath', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }

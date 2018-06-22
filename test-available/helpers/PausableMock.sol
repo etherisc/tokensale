@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 
 import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
@@ -9,7 +9,7 @@ contract PausableMock is Pausable {
   bool public drasticMeasureTaken;
   uint public count;
 
-  function PausableMock() {
+  constructor() public {
     drasticMeasureTaken = false;
     count = 0;
   }
