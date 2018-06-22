@@ -20865,12 +20865,160 @@
   },
   "networks": {
     "1": {
-      "events": {},
+      "events": {
+        "0x7ae66aa6794e64276976d872ac7e8376771c141ca007c7d540cf6c3a4e20d9d3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_time",
+              "type": "uint256"
+            }
+          ],
+          "name": "DipTgeStarted",
+          "type": "event"
+        },
+        "0x712173de1d50109191e0d0671c67415bf3d44508558069796106054c5600d501": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_time",
+              "type": "uint256"
+            }
+          ],
+          "name": "CrowdsaleStarted",
+          "type": "event"
+        },
+        "0x4f27c566270debe1b8a29c9ff8413f6e10dc1757ddfb9e667cc2cc205042946d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_time",
+              "type": "uint256"
+            }
+          ],
+          "name": "HardCapReached",
+          "type": "event"
+        },
+        "0x2f5acfa415b12b6c51cfab9440997eb8391c513f2e8fe90ba8cd19b851facdda": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_time",
+              "type": "uint256"
+            }
+          ],
+          "name": "DipTgeEnded",
+          "type": "event"
+        },
+        "0x355d073376c545ace08b6df926659a4228940d3214a213a7f300f2ad3ca10ce2": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_beneficiary",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokenAllocated",
+          "type": "event"
+        },
+        "0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681": {
+          "anonymous": false,
+          "inputs": [],
+          "name": "Finalized",
+          "type": "event"
+        },
+        "0x77c09a19fcd5375bb199fef6f7ff5c86bb393ad9b0574d097475dbec3263d43d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_contributor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_allowance",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_airdrop",
+              "type": "bool"
+            },
+            {
+              "indexed": false,
+              "name": "_bonus",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_lockupPeriod",
+              "type": "uint256"
+            }
+          ],
+          "name": "Whitelisted",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "purchaser",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "beneficiary",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "value",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokenPurchase",
+          "type": "event"
+        }
+      },
       "links": {},
       "address": "0x00391d08b3e68e476a774ada379258264eb74485",
       "transactionHash": "0xc8f7a32e69726a547749e840caca21b70a6074115066aeb828d84bcabcd58bfd"
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-06-22T16:57:20.921Z"
+  "updatedAt": "2018-06-22T19:09:49.381Z"
 }
