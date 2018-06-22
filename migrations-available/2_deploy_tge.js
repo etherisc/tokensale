@@ -28,7 +28,7 @@ module.exports = deployer =>
             lockInTime2:        1595516400, // 2020-07-23T15:00:00.000Z
             hardCap:            toWei(60000),
             rate:               5000,
-            wallet:             '0x14be1f9cd06d3f349eb6d8cf7de951684473259f'
+            wallet:             '0x5c3095c53743b8857d6e1d107e5014cdc7b44efc'
         };
 
         await deployer.deploy(
