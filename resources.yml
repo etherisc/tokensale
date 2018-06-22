@@ -5,6 +5,7 @@ migrations:
     - 4_whitelisting.js
     - 5_whitelisting.js
     - 6_whitelisting.js
+    - 7_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
