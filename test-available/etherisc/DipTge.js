@@ -59,8 +59,6 @@ contract('DipTge', (accounts) => {
         this.lockInTime1 = this.startTime + duration.years(1);
         this.lockInTime2 = this.startTime + duration.years(2);
 
-        this.rscToken = await StandardTokenMock.new(accounts[0], 100);
-
         this.crowdsale = await DipTge.new(
             this.startTime,
             this.startOpenPpTime,
@@ -69,8 +67,7 @@ contract('DipTge', (accounts) => {
             this.lockInTime2,
             hardCap,
             rate,
-            wallet,
-            this.rscToken.address
+            wallet
         );
 
         const tokenAddress = await this.crowdsale.token();
@@ -87,8 +84,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 zeroBig,
-                wallet,
-                this.rscToken.address
+                wallet
             );
         } catch (error) {
             assertRevert(error);
@@ -703,8 +699,7 @@ contract('DipTge', (accounts) => {
                     this.lockInTime2,
                     hardCap,
                     new BigNumber(100000000000),
-                    wallet,
-                    this.rscToken.address
+                    wallet
                 );
 
                 await increaseTimeTo(this.startOpenPpTime);
@@ -871,7 +866,6 @@ contract('DipTge', (accounts) => {
     describe('Regular contributor', () => {
 
         beforeEach(async () => {
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -880,8 +874,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 rate,
-                wallet,
-                this.rscToken.address
+                wallet
             );
 
             const tokenAddress = await this.crowdsale.token();
@@ -1015,7 +1008,6 @@ contract('DipTge', (accounts) => {
     describe('ECA_10 contributor', () => {
 
         beforeEach(async () => {
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -1024,8 +1016,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 rate,
-                wallet,
-                this.rscToken.address
+                wallet
             );
 
             const tokenAddress = await this.crowdsale.token();
@@ -1176,7 +1167,6 @@ contract('DipTge', (accounts) => {
     describe('ECA_25 contributor', () => {
 
         beforeEach(async () => {
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -1185,8 +1175,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 rate,
-                wallet,
-                this.rscToken.address
+                wallet
             );
 
             const tokenAddress = await this.crowdsale.token();
@@ -1337,7 +1326,6 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -1346,8 +1334,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 rate,
-                wallet,
-                this.rscToken.address
+                wallet
             );
 
             const tokenAddress = await this.crowdsale.token();
@@ -1516,7 +1503,6 @@ contract('DipTge', (accounts) => {
 
         beforeEach(async () => {
 
-            this.rscToken = await StandardTokenMock.new(allowedInvestor, 1000);
             this.crowdsale = await DipTge.new(
                 this.startTime,
                 this.startOpenPpTime,
@@ -1525,8 +1511,7 @@ contract('DipTge', (accounts) => {
                 this.lockInTime2,
                 hardCap,
                 rate,
-                wallet,
-                this.rscToken.address
+                wallet
             );
 
             const tokenAddress = await this.crowdsale.token();

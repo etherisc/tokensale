@@ -28,8 +28,7 @@ module.exports = deployer =>
             lockInTime2:        1595516400, // 2020-07-23T15:00:00.000Z
             hardCap:            toWei(60000),
             rate:               5000,
-            wallet:             '0x14be1f9cd06d3f349eb6d8cf7de951684473259f',
-            rscToken:           '0x14be1f9cd06d3f349eb6d8cf7de951684473259f',
+            wallet:             '0x14be1f9cd06d3f349eb6d8cf7de951684473259f'
         };
 
         await deployer.deploy(
@@ -41,8 +40,7 @@ module.exports = deployer =>
             crowdsale.lockInTime2,
             crowdsale.hardCap,
             crowdsale.rate,
-            crowdsale.wallet,
-            crowdsale.rscToken
+            crowdsale.wallet
         );
 
         const tge = await DipTge.deployed();
