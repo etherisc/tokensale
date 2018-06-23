@@ -1,0 +1,83 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Etherisc DIP Token Sale: How to Participate
+
+The DIP Token Sale (also known as Token Generating Event or TGE) will start on Monday, 25 June 2018.
+
+Token Sale key facts
+
+* The Token Sale contract is now deployed on the Ethereum mainnet:
+  ENS: tokensale.etherisc.eth, https://etherscan.io/address/tokensale.etherisc.eth 
+  Ethereum address: 0x00391d08b3e68e476a774ada379258264eb74485
+* The DIP Token Sale starts on Monday, 25 June 2018 at 15:00 UTC. That’s 08:00 PST (San Francisco), 11:00 EDT (New York), 17:00 CEST (Berlin), 23:00 CST (Beijing).
+* Please don’t send funds before the Token Sale starts.
+* The Token Sale progress can be monitored at https://etherisc.com.
+* All funds raised will go to the Decentralized Insurance Foundation, based in Zug, Switzerland.
+* The foundation is legally bound to use the funds for its defined purpose: the development and promotion of open and decentralized software for insurance applications.
+* The terms and conditions for the DIP Token Generating Event can be found here: https://etherisc.com/terms.
+
+Registration required
+
+* Before you can contribute to the DIP Token Generating Event, you first need to register and successfully pass KYC and AML checks.
+* Your Ethereum address will be whitelisted after successful registration.
+* Registration is open at https://etherisc.com/registration and will stay open until TGE ends.
+* If you already registered, you can check your registration status at etherisc.com.
+
+Token Sale phases
+
+* Phase 1 allows contributions up to an individual cap per registered address. Phase 1 will last 5 days until Saturday, 30 June 2018 15:00 UTC.
+* Phase 2 allows contributions up to hard cap and will last until Monday 23 July 2018 15:00 UTC or until the hard cap is reached.
+
+How to contribute
+
+1) Check your registration status at etherisc.com by entering your Ethereum address and clicking the button “Check your Registration”.
+
+If your address has been successfully whitelisted, you will see your maximum contribution amount for phase 1 in ETH. The standard maximum contribution amount for registered participants is 50 ETH. You can also see how much ETH you have already contributed, and your DIP token balance.
+
+Early Contributors might have higher maximum contribution amounts and — if they agreed to lock up DIP tokens for one year — will also see the applicable bonus.
+
+CFI token holders might also have higher maximum contributions. For details regarding the CFI holders, please refer to the cofound.it blog post https://blog.cofound.it/etheriscs-tge-exclusive-offer-for-cofound-it-community-members-85b27d27519.
+
+2) Fund your whitelisted address with the ETH amount you want to contribute. Remember to add a little for gas if you want to contribute the full amount.
+
+3) Prepare the ETH transaction to the token sale contract address.
+
+Stay safe
+
+Always double check the token sale contract address before submitting the transaction. Verify the address from multiple sources: The address will be published in this blog post and on our website https://etherisc.com. When using ENS, always check that the ENS name resolves to the correct address.
+
+The address will also be confirmed before the Token Sale starts in pinned messages on our Twitter account https://twitter.com/etherisc and in our Telegram community channel https://t.me/etherisc_community. More security advice can be found here https://myetherwallet.github.io/knowledge-base/getting-started/protecting-yourself-and-your-funds.html. If you notice suspicious activity, please let us know!
+
+4) Submit the ETH transaction!
+
+5) Note the transaction id and wait for the transaction to be mined. You can monitor the transactions on https://etherscan.io/address/tokensale.etherisc.eth
+
+6) Once your transaction was successfully mined, check the status of your address again on etherisc.com. You will immediately see your DIP token balance. You can also check your DIP token balance on https://etherscan.io/token/0xc719d010b63e5bbf2c0551872cd5316ed26acd83#balances.
+
+You can also verify the source code of the token sale contract on etherscan.io. The token sale smart contract code was audited in three independent audits.
+
+In case you encounter any issues at any of the stages during the contribution process, please reach out to us on Telegram or contact us by email to support@etherisc.zendesk.com.
+
+RSC token holders
+
+RSC token holders were among the earliest supporters of Etherisc and will be able to convert their RSC tokens to DIP after the DIP Token Sale has ended. There will be a separate smart contract for this. Please don’t send RSC to the DIP Token Sale contract. We will publish a separate blog post with more details after TGE has started.
+
+This announcement blog post is also available as PGP signed plain text. Our PGP key is available at https://keybase.io/etherisc. The fingerprint is 1DD1 165E 59A4 62EB 9D71 7CAC 2A02 E610 3A26 41F2. Signed messages can be verified using https://keybase.io/verify.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJbLWH5AAoJEKhkKB8IqQRsQL0QAJzidwFvsi+LrOqiMQ08DyFI
+fsun7W8NYm2Y7Vyk2Di+5AQ9riLP0vDVZ8i8UBd2PBMYphl1zR2opS6fnoXQzJZ8
+eEfCV0bwVMnIMo7Rd2nxxc8EsHsWZg8gn+GOx9prFH5LPWihwm7YG2BRGxjLGRIl
+HJwexjzbmTDyNYF3Sk0wvD78H8LpclQT9Um52SovjZ2MLG+jhogiQksFdEVDkqtr
+jMNYEaCyGP+QMHp0gliNrSYqcyyaVffcWZ4iQMzkJXD4A0ik5tznO3IRKPhW7APJ
+1EMXPemsvM8XQdWsUC9jbaYSwUdPtBNJQb1Un3xO5oU6zpjSJ/fyWUQ8mf/l5Ydb
+agX//ATj7C8BDsKs5vKovLAxNzE2zxM6eGjPhdAImG71BquwMWeOZFGzIxAQWjib
+nshD6uNpfPWkvnJbGbfprcQu8kgSq5zMQoHblFrTLquemKPEQeFX/A++eIfxvllz
+ip0vAfYlHpyseebPjIK47ryyRh7vsbB5u1wM65A3WOFmvB0ol/2tz9O1PoyiERov
+ADIRY3xKhsKzwolXQQSkjRoI3t9Xx0rsiWuo4DcaMtqmOHFpCLDNcn0j8ukpQwLw
+OxkuUFEmQHuuWry1QIJtSrCR4DTtTIRj1FBKu0HzHKdAYjiX5NoMv1D19iuwYHOk
+i40Um9DQ08sndSA8KUfo
+=2A90
+-----END PGP SIGNATURE-----
