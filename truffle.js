@@ -6,7 +6,7 @@ module.exports = {
             port: 8545,
             from: '0xd4d3e122ba3e69b8b42505a89c73dee03b72e31e',
             gas: 6700000,
-            gasPrice: 90000000000,
+            gasPrice: 60000000000,
         },
         ropsten: {
             network_id: 3, // Official Ethereum test network
