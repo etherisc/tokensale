@@ -18,6 +18,7 @@ migrations:
     - 17_whitelisting.js
     - 18_whitelisting.js
     - 19_whitelisting.js
+    - 20_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
