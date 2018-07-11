@@ -22,6 +22,7 @@ contract RSCConversion is Ownable {
   DipTge DIP_TGE;
   ERC20 RSC;
   uint256 constant TotalRSCSupply = 319999999; // TODO: insert exact number
+  bool conversionAllowed = false;
 
   mapping(address => uint256) lockedTokens;
 
@@ -33,6 +34,10 @@ contract RSCConversion is Ownable {
     RSC = ERC20(_rscToken);
   }
 
+  function setStatus(bool _conversionAllowed) public {
+    conversionAllowed = _conversionAllowed;
+  }
+
   function convert(uint256 _rscAmount) public returns(uint256 _dipAmount) {
 
     uint256 allowance;
@@ -42,6 +47,8 @@ contract RSCConversion is Ownable {
     uint256 bonus;
     uint256 lockupPeriod;
 
+    require(conversionAllowed);
+    
     (allowance, contributionAmount, tokensIssued, airdrop, bonus, lockupPeriod) =
       DIP_TGE.contributorList(msg.sender);
 
