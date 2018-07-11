@@ -18,15 +18,6 @@ contract RSCConversion is Ownable {
 
   using SafeMath for *;
 
-  struct ContributorData {
-    uint256 allowance;
-    uint256 contributionAmount;
-    uint256 tokensIssued;
-    bool airdrop;
-    uint256 bonus;        // 0 == 0%, 4 == 25%, 10 == 10%
-    uint256 lockupPeriod; // 0, 1 or 2 (years)
-  }
-
   DipToken DIP;
   DipTge DIP_TGE;
   ERC20 RSC;
@@ -36,7 +27,7 @@ contract RSCConversion is Ownable {
 
   event Conversion(uint256 _rscAmount, uint256 _dipAmount, uint256 _bonus);
 
-  constructor (address _dipToken, address _dipTge, address _rscToken, uint256 _lockInTime1) public {
+  constructor (address _dipToken, address _dipTge, address _rscToken) public {
     DIP = DipToken(_dipToken);
     DIP_TGE = DipTge(_dipTge);
     RSC = ERC20(_rscToken);
