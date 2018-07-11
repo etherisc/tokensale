@@ -21,7 +21,10 @@ contract RSCConversion is Ownable {
   DipToken DIP;
   DipTge DIP_TGE;
   ERC20 RSC;
-  uint256 constant TotalRSCSupply = 319999999; // TODO: insert exact number
+
+  // TotalSupply taken from
+  // https://etherscan.io/token/0x9b0f6a5a667cb92af0cd15dbe90e764e32f69e77#readContract
+  uint256 constant TotalRSCSupply = 319810709968;
   bool conversionAllowed = false;
 
   mapping(address => uint256) lockedTokens;
@@ -57,7 +60,7 @@ contract RSCConversion is Ownable {
     _dipAmount = _rscAmount.mul(10).div(32);
 
     if (bonus > 0) {
-      assert(lockupPeriod = 1);
+      assert(lockupPeriod == 1);
       _dipAmount = _dipAmount.mul(100).div(bonus);
     }
     require(DIP.transfer(msg.sender, _dipAmount));
@@ -66,13 +69,23 @@ contract RSCConversion is Ownable {
 
   function reclaimUnusedBonus() public onlyOwner {
     require(block.timestamp >= DIP_TGE.lockInTime1());
+    //
+    // Method to calculate unused Bonus:
+    // After lockinTime1, we only need DIP for the remaining
+    // unconverted RSC.
+    // unconverted_RSC = TotalRSCSupply - RSC.balance(this)
+    // To convert those unconverted RSC, we need
+    // unconverted_RSC * 10/32 DIP tokens.
+    // The rest, DIP.balance(this) - unconverted_RSC * 10/32,
+    // can be reclaimed by Foundation.
+    //
+    uint256 unconverted_RSC = TotalRSCSupply.sub(RSC.balanceOf(this));
     uint256 unusedBonus =
-    DIP.balanceOf(this)
-    .sub(TotalRSCSupply
-    .sub(RSC.balanceOf(this))
-    .mul(10)
-      .div(32)
-    );
+      DIP.balanceOf(this)
+      .sub(unconverted_RSC
+        .mul(10)
+          .div(32)
+      );
     DIP.transfer(owner, unusedBonus);
   }
 
