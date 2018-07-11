@@ -34,7 +34,7 @@ contract RSCConversion is Ownable {
     RSC = ERC20(_rscToken);
   }
 
-  function setStatus(bool _conversionAllowed) public {
+  function setStatus(bool _conversionAllowed) public onlyOwner {
     conversionAllowed = _conversionAllowed;
   }
 
@@ -48,7 +48,7 @@ contract RSCConversion is Ownable {
     uint256 lockupPeriod;
 
     require(conversionAllowed);
-    
+
     (allowance, contributionAmount, tokensIssued, airdrop, bonus, lockupPeriod) =
       DIP_TGE.contributorList(msg.sender);
 
@@ -57,6 +57,7 @@ contract RSCConversion is Ownable {
     _dipAmount = _rscAmount.mul(10).div(32);
 
     if (bonus > 0) {
+      assert(lockupPeriod = 1);
       _dipAmount = _dipAmount.mul(100).div(bonus);
     }
     require(DIP.transfer(msg.sender, _dipAmount));
