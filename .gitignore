@@ -9,3 +9,4 @@ test
 /lint-sol.out
 ganache-output.log
 package-lock.json
+build
