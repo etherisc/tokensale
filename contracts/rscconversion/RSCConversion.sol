@@ -49,8 +49,7 @@ contract RSCConversion is Ownable {
       DIP_TGE.contributorList(msg.sender);
 
     require(allowance > 0);
-    // we burn the converted RSC tokens
-    require(RSC.transferFrom(msg.sender, address(0x0), _rscAmount));
+    require(RSC.transferFrom(msg.sender, DIP_Pool, _rscAmount));
     dipAmount = _rscAmount.mul(10).div(32);
 
     if (bonus > 0) {
