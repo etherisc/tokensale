@@ -36,6 +36,11 @@ contract RSCConversion is Ownable {
     DIP_Pool = _dipPool;
   }
 
+  /* fallback function converts all RSC */
+  function () public {
+    convert(RSC.balanceOf(msg.sender));
+  }
+
   function convert(
     uint256 _rscAmount
   ) public {
@@ -58,6 +63,15 @@ contract RSCConversion is Ownable {
     }
     require(DIP.transferFrom(DIP_Pool, msg.sender, dipAmount));
     emit Conversion(_rscAmount, dipAmount, bonus);
+  }
+
+  /**
+   * Owner can transfer back tokens which have been sent to this contract by mistake.
+   * @param  _token address of token contract of the respective tokens
+   * @param  _to where to send the tokens
+   */
+  function salvageTokens(ERC20 _token, address _to) onlyOwner external {
+    _token.transfer(_to, _token.balanceOf(this));
   }
 
 }
