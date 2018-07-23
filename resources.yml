@@ -30,6 +30,9 @@ migrations:
     - 29_whitelisting.js
     - 30_whitelisting.js
     - 31_whitelisting.js
+    - 32_whitelisting.js
+    - 33_whitelisting.js
+    - 34_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
