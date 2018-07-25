@@ -8,52 +8,70 @@ require('chai')
 const { latestTime, } = require('../helpers/latestTime');
 const { advanceBlock, } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
+const { assertRevert, } = require('../helpers/assertRevert');
 
-const DSTContract = artifacts.require('../token/DSTContract');
-const EventInfo = artifacts.require('../token/EventInfo');
-const HackerGold = artifacts.require('../token/HackerGold');
-const DipTge = artifacts.require('../contracts/tokensale/DipTge.sol');
-const DipToken = artifacts.require('../contracts/token/DipToken');
-const RSCConversion = artifacts.require('../contracts/rscconversion/RSCConversion');
+const contracts = {
+    DSTContract: artifacts.require('../token/DSTContract'),
+    EventInfo: artifacts.require('../token/EventInfo'),
+    HackerGold: artifacts.require('../token/HackerGold'),
+    DipTge: artifacts.require('../contracts/tokensale/DipTge.sol'),
+    DipToken: artifacts.require('../contracts/token/DipToken'),
+    RSCConversion: artifacts.require('../contracts/rscconversion/RSCConversion'),
+};
 
+const bigZero = new BigNumber(0);
 
-contract('RSC conversion', (accounts) => {
+class RSCConversionTest {
 
-    // const deployer = accounts[0];
-    const rscWallet = accounts[2];
-    const dipWallet = accounts[3];
-    // const anonInvestor = accounts[4];
-    const rscHolderWhitelisted = accounts[5];
-    const rscHolderNotWhitelisted = accounts[6];
-    const dipPool = accounts[7];
+    constructor(accounts, web3, sources) {
 
-    // Predefined constants for RSC deployment
-    const rscEtherPrice = 20000;
-    const rscTotalSupply = 319810709968;
-    const DipRscRate = 10 / 32;
-    const rscDecimals = 10 ** 3;
-    // const dipDecimals = 10 ** 18;
+        this.web3 = web3;
 
-    // Predefined constants for DipTge deployment
-    const hardCap = web3.toWei(60000);
-    const rate = 5000;
+        this.contracts = sources;
 
-    // Utils
-    const bigZero = new BigNumber(0);
+        [
+            this.deployer,
+            this.rscWallet,
+            this.dipWallet,
+            this.anonInvestor,
+            this.rscHolderWhitelisted,
+            this.rscHolderNotWhitelisted,
+            this.dipPool,
+        ] = accounts;
 
-    // Deploy dependencies
-    beforeEach(async () => {
+        // Predefined constants for RSC deployment
+        this.rscEtherPrice = 20000;
+        this.rscTotalSupply = 319810709968;
+        this.DipRscRate = 10 / 32;
+        this.rscDecimals = 10 ** 3;
+        this.dipDecimals = 10 ** 18;
+
+        // Predefined constants for DipTge deployment
+        this.hardCap = web3.toWei(60000);
+        this.rate = 5000;
+
+    }
+
+    async deployRSCtoken() {
 
         // Deploy original RSC token contract
-        const { address: eventInfoAddr, } = await EventInfo.new();
-        const { address: hackerGoldAddr, } = await HackerGold.new(rscWallet);
-        this.RSCTokenInstance = await DSTContract.new(eventInfoAddr, hackerGoldAddr, 'etherisc', 'RSC');
+        const { address: eventInfoAddr, } = await this.contracts.EventInfo.new();
+        const { address: hackerGoldAddr, } = await this.contracts.HackerGold.new(this.rscWallet);
+        this.RSCTokenInstance = await this.contracts.DSTContract.new(eventInfoAddr, hackerGoldAddr, 'etherisc', 'RSC');
 
-        await this.RSCTokenInstance.issueTokens(rscEtherPrice, rscTotalSupply);
+        await this.RSCTokenInstance.issueTokens(this.rscEtherPrice, this.rscTotalSupply);
+
+    }
+
+    async buyRSC() {
 
         // RSC tokens for rscHolderWhitelisted, rscHolderWhitelisted
-        await web3.eth.sendTransaction({ from: rscHolderWhitelisted, to: this.RSCTokenInstance.address, value: web3.toWei(10), });
-        await web3.eth.sendTransaction({ from: rscHolderNotWhitelisted, to: this.RSCTokenInstance.address, value: web3.toWei(10), });
+        await this.web3.eth.sendTransaction({ from: this.rscHolderWhitelisted, to: this.RSCTokenInstance.address, value: this.web3.toWei(10), });
+        await this.web3.eth.sendTransaction({ from: this.rscHolderNotWhitelisted, to: this.RSCTokenInstance.address, value: this.web3.toWei(10), });
+
+    }
+
+    async deployTGE() {
 
         // Tge dates
         this.latestTime = await latestTime();
@@ -67,88 +85,157 @@ contract('RSC conversion', (accounts) => {
         this.lockInTime2 = this.startTime + duration.years(2);
 
         // Deploy DipTge
-        this.DipTgeInstance = await DipTge.new(
+        this.DipTgeInstance = await this.contracts.DipTge.new(
             this.startTime,
             this.startOpenPpTime,
             this.endTime,
             this.lockInTime1,
             this.lockInTime2,
-            hardCap,
-            rate,
-            dipWallet
+            this.hardCap,
+            this.rate,
+            this.dipWallet
         );
 
         this.DipTokenAddress = await this.DipTgeInstance.token();
-        this.DipTokenInstance = DipToken.at(this.DipTokenAddress);
+        this.DipTokenInstance = this.contracts.DipToken.at(this.DipTokenAddress);
+
+    }
+
+    whitelist() {
 
         // Whitelist rscHolderWhitelisted
-        const investors = [rscHolderWhitelisted];
-        const allowances = [web3.toWei(100)];
+        const investors = [this.rscHolderWhitelisted];
+        const allowances = [this.web3.toWei(100)];
         const airdrops = [false];
         const bonuses = [0];
         const lockupPeriods = [0];
 
-        await this.DipTgeInstance.editContributors(investors, allowances, airdrops, bonuses, lockupPeriods);
+        return this.DipTgeInstance.editContributors(investors, allowances, airdrops, bonuses, lockupPeriods);
+
+    }
+
+    async adjustTime() {
 
         // Adjust time
         await increaseTimeTo(this.endTime + duration.minutes(5));
         await advanceBlock();
 
+    }
+
+    async finalizeTge() {
+
         // Unpause DipToken and finalize DipTge
         await this.DipTgeInstance.unpauseToken();
         await this.DipTgeInstance.finalize();
 
+    }
+
+    async fundDipPool() {
+
         // Transfer DIP tokens to dipPool for conversions
-        const dipForConversion = rscTotalSupply * DipRscRate;
-        await this.DipTokenInstance.transfer(dipPool, dipForConversion, { from: dipWallet, });
+        this.dipForConversion = this.rscTotalSupply * this.DipRscRate;
+        await this.DipTokenInstance.transfer(this.dipPool, this.dipForConversion, { from: this.dipWallet, });
+
+    }
+
+    async deployRscConversion() {
 
         // Deploy RSCConversion contract
-        this.RSCConversionInstance = await RSCConversion.new(
+        this.RSCConversionInstance = await this.contracts.RSCConversion.new(
             this.DipTokenAddress,
             this.DipTgeInstance.address,
             this.RSCTokenInstance.address,
-            dipPool
+            this.dipPool
         );
 
+    }
+
+    async approveDipForConversion() {
+
         // Approve DIP tokens for conversion from dipPool to RSCConversion contract
-        await this.DipTokenInstance.approve(this.RSCConversionInstance.address, dipForConversion, { from: dipPool, });
+        await this.DipTokenInstance.approve(this.RSCConversionInstance.address, this.dipForConversion, { from: this.dipPool, });
 
-    });
+    }
+}
 
-    it('test setup', async () => {
+contract('RSC conversion', (accounts) => {
+
+    it('successful scenario', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
 
         // DIP balance of dipPool
-        const dipPoolBalance = await this.DipTokenInstance.balanceOf(dipPool);
-        dipPoolBalance.should.be.bignumber.equal(new BigNumber(rscTotalSupply * DipRscRate));
+        const dipPoolBalance = await test.DipTokenInstance.balanceOf(test.dipPool);
+        dipPoolBalance.should.be.bignumber.equal(new BigNumber(test.rscTotalSupply * test.DipRscRate));
+
+        // Check RSCConversion contract DIP allowance
+        const RSCConversionAllowance = await test.DipTokenInstance.allowance(test.dipPool, test.RSCConversionInstance.address);
+        RSCConversionAllowance.should.bignumber.equal(test.dipForConversion);
 
         // RSC balance of rscHolderWhitelisted
-        const rscHolderWhitelistedBalance = await this.RSCTokenInstance.balanceOf.call(rscHolderWhitelisted);
-        rscHolderWhitelistedBalance.should.be.bignumber.equal(new BigNumber(rscEtherPrice * 10 * rscDecimals));
+        const rscHolderWhitelistedBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscHolderWhitelistedBalance.should.be.bignumber.equal(new BigNumber(test.rscEtherPrice * 10 * test.rscDecimals));
 
         // RSC balance of rscHolderNotWhitelisted
-        const rscHolderNotWhitelistedBalance = await this.RSCTokenInstance.balanceOf.call(rscHolderNotWhitelisted);
-        rscHolderNotWhitelistedBalance.should.be.bignumber.equal(new BigNumber(rscEtherPrice * 10 * rscDecimals));
+        const rscHolderNotWhitelistedBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderNotWhitelisted);
+        rscHolderNotWhitelistedBalance.should.be.bignumber.equal(new BigNumber(test.rscEtherPrice * 10 * test.rscDecimals));
 
         // rscHolderWhitelisted should be whitelisted
-        const rscHolderWhitelistedTge = await this.DipTgeInstance.contributorList(rscHolderWhitelisted);
+        const rscHolderWhitelistedTge = await test.DipTgeInstance.contributorList(test.rscHolderWhitelisted);
         rscHolderWhitelistedTge[0].should.be.bignumber.greaterThan(bigZero);
 
         // rscHolderNotWhitelisted should not be whitelisted
-        const rscHolderNotWhitelistedTge = await this.DipTgeInstance.contributorList(rscHolderNotWhitelisted);
+        const rscHolderNotWhitelistedTge = await test.DipTgeInstance.contributorList(test.rscHolderNotWhitelisted);
         rscHolderNotWhitelistedTge[0].should.be.bignumber.equal(bigZero);
+
+        // Partial conversion
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        const checkBalanceRSC0 = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        const checkBalanceDIP0 = await test.DipTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        const remain = rscHolderWhitelistedBalance.sub(amount);
+        checkBalanceRSC0.should.be.bignumber.equal(remain);
+        checkBalanceDIP0.should.be.bignumber.equal(new BigNumber(amount).mul(test.DipRscRate));
+
+        // Full conversion
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, remain, { from: test.rscHolderWhitelisted, });
+        await web3.eth.sendTransaction({ from: test.rscHolderWhitelisted, to: test.RSCConversionInstance.address, });
+
+        const checkBalanceRSC1 = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        const checkBalanceDIP1 = await test.DipTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        checkBalanceRSC1.should.be.bignumber.equal(bigZero);
+        checkBalanceDIP1.should.be.bignumber.equal(rscHolderWhitelistedBalance.mul(test.DipRscRate));
 
     });
 
     // # 1
     it('should be possible to create conversion contract', async () => {
 
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.deployTGE();
+
         try {
 
-            await RSCConversion.new(
-                this.DipTokenAddress,
-                this.DipTgeInstance.address,
-                this.RSCTokenInstance.address,
-                dipPool
+            await contracts.RSCConversion.new(
+                test.DipTokenAddress,
+                test.DipTgeInstance.address,
+                test.RSCTokenInstance.address,
+                test.dipPool
             );
 
         } catch (error) {
@@ -162,11 +249,36 @@ contract('RSC conversion', (accounts) => {
 
     });
 
-    // // #2
-    // it('should not be possible to convert RSC tokens before DIP_Pool is funded with DIP Tokens', async () => {
-    //
-    // });
-    //
+    // #2
+    it('should not be possible to convert RSC tokens before DIP_Pool is funded with DIP Tokens', async () => {
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.finalizeTge();
+        await test.deployRscConversion();
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
+
     // // #3
     // it('should not be possible to convert RSC tokens if DIP_Pool has not been funded sufficiently', async () => {
     //
