@@ -122,11 +122,15 @@ class RSCConversionTest {
 
     }
 
-    async finalizeTge() {
+    unpauseToken() {
 
-        // Unpause DipToken and finalize DipTge
-        await this.DipTgeInstance.unpauseToken();
-        await this.DipTgeInstance.finalize();
+        return this.DipTgeInstance.unpauseToken();
+
+    }
+
+    finalizeTge() {
+
+        return this.DipTgeInstance.finalize();
 
     }
 
@@ -171,6 +175,7 @@ contract('RSC conversion', (accounts) => {
         await test.deployTGE();
         await test.whitelist();
         await test.adjustTime();
+        await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
         await test.deployRscConversion();
@@ -261,6 +266,7 @@ contract('RSC conversion', (accounts) => {
         await test.deployTGE();
         await test.whitelist();
         await test.adjustTime();
+        await test.unpauseToken();
         await test.finalizeTge();
         await test.deployRscConversion();
 
@@ -292,6 +298,7 @@ contract('RSC conversion', (accounts) => {
         await test.deployTGE();
         await test.whitelist();
         await test.adjustTime();
+        await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool(1);
         await test.deployRscConversion();
