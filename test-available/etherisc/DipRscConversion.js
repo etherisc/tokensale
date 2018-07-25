@@ -130,11 +130,11 @@ class RSCConversionTest {
 
     }
 
-    async fundDipPool() {
+    async fundDipPool(dipAmount) {
 
         // Transfer DIP tokens to dipPool for conversions
         this.dipForConversion = this.rscTotalSupply * this.DipRscRate;
-        await this.DipTokenInstance.transfer(this.dipPool, this.dipForConversion, { from: this.dipWallet, });
+        await this.DipTokenInstance.transfer(this.dipPool, dipAmount || this.dipForConversion, { from: this.dipWallet, });
 
     }
 
@@ -156,10 +156,12 @@ class RSCConversionTest {
         await this.DipTokenInstance.approve(this.RSCConversionInstance.address, this.dipForConversion, { from: this.dipPool, });
 
     }
+
 }
 
 contract('RSC conversion', (accounts) => {
 
+    // #0
     it('successful scenario', async () => {
 
         const test = new RSCConversionTest(accounts, web3, contracts);
@@ -221,7 +223,7 @@ contract('RSC conversion', (accounts) => {
 
     });
 
-    // # 1
+    // #1
     it('should be possible to create conversion contract', async () => {
 
         const test = new RSCConversionTest(accounts, web3, contracts);
@@ -251,6 +253,7 @@ contract('RSC conversion', (accounts) => {
 
     // #2
     it('should not be possible to convert RSC tokens before DIP_Pool is funded with DIP Tokens', async () => {
+
         const test = new RSCConversionTest(accounts, web3, contracts);
 
         await test.deployRSCtoken();
@@ -279,10 +282,38 @@ contract('RSC conversion', (accounts) => {
 
     });
 
-    // // #3
-    // it('should not be possible to convert RSC tokens if DIP_Pool has not been funded sufficiently', async () => {
-    //
-    // });
+    // #3
+    it('should not be possible to convert RSC tokens if DIP_Pool has not been funded sufficiently', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.finalizeTge();
+        await test.fundDipPool(1);
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
     //
     // // #4
     // it('should not be possible to convert RSC tokens if DIP_Pool has not given approval to transfer DIP Tokens', async () => {
