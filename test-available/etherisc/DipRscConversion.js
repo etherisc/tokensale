@@ -1,6 +1,9 @@
 const { BigNumber, } = web3;
 
-require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(BigNumber)).should();
+require('chai')
+    .use(require('chai-as-promised'))
+    .use(require('chai-bignumber')(BigNumber))
+    .should();
 
 const { latestTime, } = require('../helpers/latestTime');
 const { advanceBlock, } = require('../helpers/advanceToBlock');
@@ -119,11 +122,11 @@ contract('RSC conversion', (accounts) => {
         dipPoolBalance.should.be.bignumber.equal(new BigNumber(rscTotalSupply * DipRscRate));
 
         // RSC balance of rscHolderWhitelisted
-        const rscHolderWhitelistedBalance = await this.RSCTokenInstance.balanceOf(rscHolderWhitelisted);
+        const rscHolderWhitelistedBalance = await this.RSCTokenInstance.balanceOf.call(rscHolderWhitelisted);
         rscHolderWhitelistedBalance.should.be.bignumber.equal(new BigNumber(rscEtherPrice * 10 * rscDecimals));
 
         // RSC balance of rscHolderNotWhitelisted
-        const rscHolderNotWhitelistedBalance = await this.RSCTokenInstance.balanceOf(rscHolderNotWhitelisted);
+        const rscHolderNotWhitelistedBalance = await this.RSCTokenInstance.balanceOf.call(rscHolderNotWhitelisted);
         rscHolderNotWhitelistedBalance.should.be.bignumber.equal(new BigNumber(rscEtherPrice * 10 * rscDecimals));
 
         // rscHolderWhitelisted should be whitelisted
