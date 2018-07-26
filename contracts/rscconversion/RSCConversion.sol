@@ -55,7 +55,7 @@ contract RSCConversion is Ownable {
 
     require(allowance > 0);
     require(RSC.transferFrom(msg.sender, DIP_Pool, _rscAmount));
-    dipAmount = _rscAmount.mul(10).div(32);
+    dipAmount = _rscAmount.mul(10 ** 15).mul(10).div(32);
 
     if (bonus > 0) {
       assert(lockupPeriod == 1);

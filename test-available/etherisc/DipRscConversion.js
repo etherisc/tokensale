@@ -45,6 +45,7 @@ class RSCConversionTest {
         this.DipRscRate = 10 / 32;
         this.rscDecimals = 10 ** 3;
         this.dipDecimals = 10 ** 18;
+        this.decimalsDiff = 10 ** 15;
 
         // Predefined constants for DipTge deployment
         this.hardCap = web3.toWei(60000);
@@ -137,7 +138,7 @@ class RSCConversionTest {
     async fundDipPool(dipAmount) {
 
         // Transfer DIP tokens to dipPool for conversions
-        this.dipForConversion = this.rscTotalSupply * this.DipRscRate;
+        this.dipForConversion = this.rscTotalSupply * this.decimalsDiff * this.DipRscRate;
         await this.DipTokenInstance.transfer(this.dipPool, dipAmount || this.dipForConversion, { from: this.dipWallet, });
 
     }
@@ -181,9 +182,16 @@ contract('RSC conversion', (accounts) => {
         await test.deployRscConversion();
         await test.approveDipForConversion();
 
+        // Check consistency
+        new BigNumber(test.dipForConversion).should.be.bignumber.equal(test.rscTotalSupply * test.decimalsDiff * test.DipRscRate);
+        const dipTotalSupply = await test.DipTokenInstance.totalSupply();
+        // ~10%
+        new BigNumber(test.dipForConversion).div(dipTotalSupply).should.be.bignumber.greaterThan(0.099);
+        new BigNumber(test.dipForConversion).div(dipTotalSupply).should.be.bignumber.lessThan(0.1);
+
         // DIP balance of dipPool
         const dipPoolBalance = await test.DipTokenInstance.balanceOf(test.dipPool);
-        dipPoolBalance.should.be.bignumber.equal(new BigNumber(test.rscTotalSupply * test.DipRscRate));
+        dipPoolBalance.should.be.bignumber.equal(new BigNumber(test.dipForConversion));
 
         // Check RSCConversion contract DIP allowance
         const RSCConversionAllowance = await test.DipTokenInstance.allowance(test.dipPool, test.RSCConversionInstance.address);
@@ -206,7 +214,7 @@ contract('RSC conversion', (accounts) => {
         rscHolderNotWhitelistedTge[0].should.be.bignumber.equal(bigZero);
 
         // Partial conversion
-        const amount = 10000;
+        const amount = 32 * test.rscDecimals;
         await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
         await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
 
@@ -215,7 +223,8 @@ contract('RSC conversion', (accounts) => {
 
         const remain = rscHolderWhitelistedBalance.sub(amount);
         checkBalanceRSC0.should.be.bignumber.equal(remain);
-        checkBalanceDIP0.should.be.bignumber.equal(new BigNumber(amount).mul(test.DipRscRate));
+        checkBalanceDIP0.should.be.bignumber.equal(new BigNumber(amount).mul(test.decimalsDiff).mul(test.DipRscRate));
+        checkBalanceDIP0.should.be.bignumber.equal(new BigNumber(10).mul(10 ** 18));
 
         // Full conversion
         await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, remain, { from: test.rscHolderWhitelisted, });
@@ -224,7 +233,7 @@ contract('RSC conversion', (accounts) => {
         const checkBalanceRSC1 = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
         const checkBalanceDIP1 = await test.DipTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
         checkBalanceRSC1.should.be.bignumber.equal(bigZero);
-        checkBalanceDIP1.should.be.bignumber.equal(rscHolderWhitelistedBalance.mul(test.DipRscRate));
+        checkBalanceDIP1.should.be.bignumber.equal(rscHolderWhitelistedBalance.mul(test.decimalsDiff).mul(test.DipRscRate));
 
     });
 
