@@ -63,7 +63,7 @@ contract RSCConversion is Ownable {
 
     if (bonus > 0) {
       assert(lockupPeriod == 1);
-      dipAmount = dipAmount.add(dipAmount.mul(100).div(bonus));
+      dipAmount = dipAmount.add(dipAmount.div(bonus));
     }
     require(DIP.transferFrom(DIP_Pool, msg.sender, dipAmount));
     emit Conversion(_rscAmount, dipAmount, bonus);
