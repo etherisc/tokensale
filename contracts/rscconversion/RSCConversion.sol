@@ -7,7 +7,6 @@
 
 pragma solidity 0.4.24;
 
-import "../token/DipToken.sol";
 import "../tokensale/DipTge.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
@@ -18,7 +17,7 @@ contract RSCConversion is Ownable {
 
   using SafeMath for *;
 
-  DipToken public DIP;
+  ERC20 public DIP;
   DipTge public DIP_TGE;
   ERC20 public RSC;
   address public DIP_Pool;
@@ -34,7 +33,12 @@ contract RSCConversion is Ownable {
       address _dipTge,
       address _rscToken,
       address _dipPool) public {
-    DIP = DipToken(_dipToken);
+    require(_dipToken != address(0));
+    require(_dipTge != address(0));
+    require(_rscToken != address(0));
+    require(_dipPool != address(0));
+
+    DIP = ERC20(_dipToken);
     DIP_TGE = DipTge(_dipTge);
     RSC = ERC20(_rscToken);
     DIP_Pool = _dipPool;

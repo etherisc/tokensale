@@ -923,4 +923,112 @@ contract('RSC conversion', (accounts) => {
 
     });
 
+    it('should be not possible to create conversion contract if DIP Token contract not specified', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.deployTGE();
+
+        try {
+
+            await contracts.RSCConversion.new(
+                '0x0',
+                test.DipTgeInstance.address,
+                test.RSCTokenInstance.address,
+                test.dipPool
+            );
+
+        } catch (error) {
+
+            assertRevert(error)
+            return;
+
+        }
+
+        assert.fail('should not have thrown before');
+
+    });
+
+    it('should be not possible to create conversion contract if DIP Tge contract not specified', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.deployTGE();
+
+        try {
+
+            await contracts.RSCConversion.new(
+                test.DipTokenInstance.address,
+                '0x0',
+                test.RSCTokenInstance.address,
+                test.dipPool
+            );
+
+        } catch (error) {
+
+            assertRevert(error)
+            return;
+
+        }
+
+        assert.fail('should not have thrown before');
+
+    });
+
+    it('should be not possible to create conversion contract if RSC Token contract not specified', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.deployTGE();
+
+        try {
+
+            await contracts.RSCConversion.new(
+                test.DipTokenInstance.address,
+                test.DipTgeInstance.address,
+                '0x0',
+                test.dipPool
+            );
+
+        } catch (error) {
+
+            assertRevert(error)
+            return;
+
+        }
+
+        assert.fail('should not have thrown before');
+
+    });
+
+    it('should be not possible to create conversion contract if DIP Pool not specified', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.deployTGE();
+
+        try {
+
+            await contracts.RSCConversion.new(
+                test.DipTokenInstance.address,
+                test.DipTgeInstance.address,
+                test.RSCTokenInstance.address,
+                '0x0'
+            );
+
+        } catch (error) {
+
+            assertRevert(error)
+            return;
+
+        }
+
+        assert.fail('should not have thrown before');
+
+    });
+
 });
