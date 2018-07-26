@@ -102,14 +102,14 @@ class RSCConversionTest {
 
     }
 
-    whitelist() {
+    whitelist(allowancesArg, airdropsArg, bonusesArg, lockupPeriodsArg) {
 
         // Whitelist rscHolderWhitelisted
         const investors = [this.rscHolderWhitelisted];
-        const allowances = [this.web3.toWei(100)];
-        const airdrops = [false];
-        const bonuses = [0];
-        const lockupPeriods = [0];
+        const allowances = allowancesArg || [this.web3.toWei(100)];
+        const airdrops = airdropsArg || [false];
+        const bonuses = bonusesArg || [0];
+        const lockupPeriods = lockupPeriodsArg || [0];
 
         return this.DipTgeInstance.editContributors(investors, allowances, airdrops, bonuses, lockupPeriods);
 
@@ -330,21 +330,107 @@ contract('RSC conversion', (accounts) => {
         assert.fail('should have thrown before');
 
     });
-    //
-    // // #4
-    // it('should not be possible to convert RSC tokens if DIP_Pool has not given approval to transfer DIP Tokens', async () => {
-    //
-    // });
-    //
-    // // #5
-    // it('should not be possible to convert RSC tokens if RSC Token Holder is not whitelisted', async () => {
-    //
-    // });
-    //
-    // // #6
-    // it('should not be possible to convert RSC tokens if allowance = 0 for a whitelisted RSC Token holder', async () => {
-    //
-    // });
+
+    // #4
+    it('should not be possible to convert RSC tokens if DIP_Pool has not given approval to transfer DIP Tokens', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
+
+    // #5
+    it('should not be possible to convert RSC tokens if RSC Token Holder is not whitelisted', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
+
+    // #6
+    it('should not be possible to convert RSC tokens if allowance = 0 for a whitelisted RSC Token holder', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist([0], [0], [false], [0]);
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
     //
     // // #7
     // it('should not be possible to convert RSC tokens if RSC Token Holder has not approved conversion contract to transfer tokens', async () => {
