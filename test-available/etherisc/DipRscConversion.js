@@ -554,11 +554,52 @@ contract('RSC conversion', (accounts) => {
         assert.fail('should have thrown before');
 
     });
-    //
-    // // #10-1
-    // it('should be possible to convert RSC Tokens if DIP_Pool has sufficient DIP tokens', async () => {
-    //
-    // });
+
+    // #10-1
+    it('should be possible to convert RSC Tokens if DIP_Pool has sufficient DIP tokens', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        const requiredDipAmount = amount.mul(test.decimalsDiff).mul(test.DipRscRate);
+        const availableAmount = await test.DipTokenInstance.balanceOf(test.dipPool);
+
+        availableAmount.should.be.bignumber.greaterThan(requiredDipAmount);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assert.fail('should not throw');
+            return;
+
+        }
+
+        assert.ok('should not have thrown before');
+
+        const rscBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscBalance.should.be.bignumber.equal(bigZero);
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+        dipBalance.should.be.bignumber.equal(requiredDipAmount);
+
+    });
     //
     // // #10-2
     // it('should be possible to convert RSC Tokens if DIP_Pool has approved conversion contract to transfer tokens', async () => {
