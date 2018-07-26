@@ -23,6 +23,10 @@ contract RSCConversion is Ownable {
   ERC20 RSC;
   address DIP_Pool;
 
+  uint256 public constant CONVERSION_NUMINATOR = 10;
+  uint256 public constant CONVERSION_DENOMINATOR = 32;
+  uint256 public constant CONVERSION_DECIMAL_FACTOR = 10 ** (18 - 3);
+
   event Conversion(uint256 _rscAmount, uint256 _dipAmount, uint256 _bonus);
 
   constructor (
@@ -55,7 +59,7 @@ contract RSCConversion is Ownable {
 
     require(allowance > 0);
     require(RSC.transferFrom(msg.sender, DIP_Pool, _rscAmount));
-    dipAmount = _rscAmount.mul(10 ** 15).mul(10).div(32);
+    dipAmount = _rscAmount.mul(CONVERSION_DECIMAL_FACTOR).mul(CONVERSION_NUMINATOR).div(CONVERSION_DENOMINATOR);
 
     if (bonus > 0) {
       assert(lockupPeriod == 1);
