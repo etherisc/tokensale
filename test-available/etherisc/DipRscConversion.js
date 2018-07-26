@@ -116,7 +116,7 @@ class RSCConversionTest {
 
     }
 
-    async adjustTime() {
+    async adjustTimeToAfterTge() {
 
         // Adjust time
         await increaseTimeTo(this.endTime + duration.minutes(5));
@@ -176,7 +176,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -294,7 +294,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.deployRscConversion();
@@ -326,7 +326,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool(1);
@@ -360,7 +360,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -392,7 +392,7 @@ contract('RSC conversion', (accounts) => {
         await test.deployRSCtoken();
         await test.buyRSC();
         await test.deployTGE();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -427,7 +427,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist([0], [0], [false], [0]);
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -461,7 +461,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -482,6 +482,7 @@ contract('RSC conversion', (accounts) => {
         }
 
         assert.fail('should have thrown before');
+
     });
 
     // #8
@@ -493,7 +494,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -530,7 +531,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist([web3.toWei(100)], [false], [4], [0]);
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -564,7 +565,7 @@ contract('RSC conversion', (accounts) => {
         await test.buyRSC();
         await test.deployTGE();
         await test.whitelist();
-        await test.adjustTime();
+        await test.adjustTimeToAfterTge();
         await test.unpauseToken();
         await test.finalizeTge();
         await test.fundDipPool();
@@ -600,45 +601,326 @@ contract('RSC conversion', (accounts) => {
         dipBalance.should.be.bignumber.equal(requiredDipAmount);
 
     });
-    //
-    // // #10-2
-    // it('should be possible to convert RSC Tokens if DIP_Pool has approved conversion contract to transfer tokens', async () => {
-    //
-    // });
-    //
-    // // #10-3
-    // it('should be possible to convert RSC Tokens if RSC Token Holder is whitelisted and allowance > 0', async () => {
-    //
-    // });
-    //
-    // // #10-4
-    // it('should be possible to convert RSC Tokens if RSC Token Holder is RSC Token Holder has approved conversion contract to transfer tokens', async () => {
-    //
-    // });
-    //
-    // // #11
-    // it('should calculate number of converted DIP Tokens correctly (10/32)', async () => {
-    //
-    // });
-    //
-    // // #12
-    // it('should calculate bonus correctly (for bonus = 4 and bonus = 10)', async () => {
-    //
-    // });
-    //
-    // // #13
-    // it('should send converted RSC Tokens to 0x0', async () => {
-    //
-    // });
-    //
-    // // #14
-    // it('should lock DIP Tokens with bonus', async () => {
-    //
-    // });
-    //
-    // // #15
-    // it('should be possible to salvage Tokens sent to contract by accident', async () => {
-    //
-    // });
+
+    // #10-2
+    it('should be possible to convert RSC Tokens if DIP_Pool has approved conversion contract to transfer tokens', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        const dipAmount = amount.mul(test.decimalsDiff).mul(test.DipRscRate);
+
+        // Check conversion contract allowance
+        const allowance = await test.DipTokenInstance.allowance(test.dipPool, test.RSCConversionInstance.address);
+        allowance.should.be.bignumber.greaterThan(bigZero);
+        allowance.should.be.bignumber.greaterThan(dipAmount);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assert.fail('should not throw');
+            return;
+
+        }
+
+        assert.ok('should not have thrown before');
+
+        const rscBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscBalance.should.be.bignumber.equal(bigZero);
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+        dipBalance.should.be.bignumber.equal(dipAmount);
+
+    });
+
+    // #10-3
+    it('should be possible to convert RSC Tokens if RSC Token Holder is whitelisted and allowance > 0', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        // Check whitelisting status (allowance)
+        const rscHolderWhitelistedTge = await test.DipTgeInstance.contributorList(test.rscHolderWhitelisted);
+        const [allowance] = rscHolderWhitelistedTge;
+        allowance.should.be.bignumber.greaterThan(bigZero);
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        const dipAmount = amount.mul(test.decimalsDiff).mul(test.DipRscRate);
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assert.fail('should not throw');
+            return;
+
+        }
+
+        assert.ok('should not have thrown before');
+
+        const rscBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscBalance.should.be.bignumber.equal(bigZero);
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+        dipBalance.should.be.bignumber.equal(dipAmount);
+
+    });
+
+    // #10-4
+    it('should be possible to convert RSC Tokens if RSC Token Holder is RSC Token Holder has approved conversion contract to transfer tokens', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        const dipAmount = amount.mul(test.decimalsDiff).mul(test.DipRscRate);
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        // Check if RSC Token Holder has approved conversion
+        const rscAllowance = await test.RSCTokenInstance.allowance.call(test.rscHolderWhitelisted, test.RSCConversionInstance.address);
+        rscAllowance.should.be.bignumber.equal(amount);
+
+        try {
+
+            await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assert.fail('should not throw');
+            return;
+
+        }
+
+        assert.ok('should not have thrown before');
+
+        const rscBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscBalance.should.be.bignumber.equal(bigZero);
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+        dipBalance.should.be.bignumber.equal(dipAmount);
+
+    });
+
+    // #11
+    it('should calculate number of converted DIP Tokens correctly (10/32)', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+
+        const correctDipAmount = amount.mul(10 ** 15).mul(10).div(32);
+        dipBalance.should.be.bignumber.equal(correctDipAmount);
+
+    });
+
+    // #12
+    it('should calculate bonus correctly for bonus = 4', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist([web3.toWei(100)], [false], [4], [1]);
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+
+        const dipWithoutBonus = amount.mul(10 ** 15).mul(10).div(32);
+        dipBalance.div(dipWithoutBonus).should.be.bignumber.equal(1.25); // 25%
+
+    });
+
+    // #13
+    it('should calculate bonus correctly for bonus = 10', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist([web3.toWei(100)], [false], [10], [1]);
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        const dipBalance = await test.DipTokenInstance.balanceOf(test.rscHolderWhitelisted);
+
+        const dipWithoutBonus = amount.mul(10 ** 15).mul(10).div(32);
+        dipBalance.div(dipWithoutBonus).should.be.bignumber.equal(1.1); // 10%
+
+    });
+
+    // #13
+    it('should send converted RSC Tokens to DIP_POOL', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        const rscHolderBalance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        rscHolderBalance.should.be.bignumber.equal(bigZero);
+
+        const dipPoolBalance = await test.RSCTokenInstance.balanceOf.call(test.dipPool);
+        dipPoolBalance.should.be.bignumber.equal(amount);
+
+    });
+
+    // #14
+    it('should lock DIP Tokens with bonus', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist([web3.toWei(100)], [false], [4], [1]);
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+        await test.RSCConversionInstance.sendTransaction({ from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.DipTokenInstance.transfer(test.anonInvestor, 1, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
+
+    // #15
+    it('should be possible to salvage Tokens sent to contract by accident', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTimeToAfterTge();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = 1000;
+        await test.RSCTokenInstance.transfer(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        const balanceBefore = await test.RSCTokenInstance.balanceOf.call(test.RSCConversionInstance.address);
+        balanceBefore.should.be.bignumber.equal(1000);
+
+        const holderBalanceBefore = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        await test.RSCConversionInstance.salvageTokens(test.RSCTokenInstance.address, test.rscHolderWhitelisted);
+
+        const balanceAfter = await test.RSCTokenInstance.balanceOf.call(test.RSCConversionInstance.address);
+        balanceAfter.should.be.bignumber.equal(0);
+
+        const holderBalanceAfter = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+        holderBalanceAfter.should.be.bignumber.equal(holderBalanceBefore.add(amount));
+
+    });
 
 });
