@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>12/12</span>
+        <span class='fraction'>0/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>4/4</span>
+        <span class='fraction'>0/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>0/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>14/14</span>
+        <span class='fraction'>0/14</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -137,37 +137,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28×</span>
-<span class="cline-any cline-yes">25×</span>
-<span class="cline-any cline-yes">25×</span>
-<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13×</span>
-<span class="cline-any cline-yes">11×</span>
-<span class="cline-any cline-yes">8×</span>
-<span class="cline-any cline-yes">8×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,38 +200,38 @@ contract TokenStake {
   event Staked(address _staker, uint256 _value);
   event Released(address _beneficiary, uint256 _value);
 &nbsp;
-  function TokenStake (StandardToken _token) public {
-    token = _token;
+<span class="fstat-no" title="function not covered" >  constructor(StandardToken _token) public </span>{
+<span class="cstat-no" title="statement not covered" >    token = _token</span>;
   }
 &nbsp;
   // requires approval of token transfer before calling this function
-  function stakeFor(address _staker, uint256 _value) public returns (bool) {
-    if (token.transferFrom(msg.sender, address(this), _value)) {
-      staked[_staker] = staked[_staker].add(_value);
-      Staked(_staker, _value);
-      return true;
+<span class="fstat-no" title="function not covered" >  function stakeFor(address _staker, uint256 _value) public returns (bool) </span>{
+<span class="cstat-no" title="statement not covered" >    if (token.transferFrom(msg.sender, address(this), _value)) {</span>
+<span class="cstat-no" title="statement not covered" >      staked[_staker] = staked[_staker].add(_value)</span>;
+<span class="cstat-no" title="statement not covered" >      emit Staked(_staker, _value);</span>
+<span class="cstat-no" title="statement not covered" >      return true;</span>
     } else {
-      return false;
+<span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
 &nbsp;
-  function stake(uint256 _value) public returns (bool) {
-    return stakeFor(msg.sender, _value);
+<span class="fstat-no" title="function not covered" >  function stake(uint256 _value) public returns (bool) </span>{
+<span class="cstat-no" title="statement not covered" >    return stakeFor(msg.sender, _value);</span>
   }
 &nbsp;
-  function releaseFor(address _beneficiary, uint256 _value) internal returns (bool) {
+<span class="fstat-no" title="function not covered" >  function releaseFor(address _beneficiary, uint256 _value) internal returns (bool) </span>{
     staked[msg.sender].sub(_value); // will throw if _value &gt; staked[_staker]
-    if (token.transfer(_beneficiary, _value)) {
-      Released(_beneficiary, _value);
-      return true;
+<span class="cstat-no" title="statement not covered" >    if (token.transfer(_beneficiary, _value)) {</span>
+<span class="cstat-no" title="statement not covered" >      emit Released(_beneficiary, _value);</span>
+<span class="cstat-no" title="statement not covered" >      return true;</span>
     } else {
       staked[msg.sender].add(_value);
-      return false;
+<span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
 &nbsp;
-  function release(uint256 _value) internal returns (bool) {
-    return releaseFor(msg.sender, _value);
+<span class="fstat-no" title="function not covered" >  function release(uint256 _value) internal returns (bool) </span>{
+<span class="cstat-no" title="statement not covered" >    return releaseFor(msg.sender, _value);</span>
   }
 &nbsp;
 }
@@ -241,7 +241,7 @@ contract TokenStake {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jun 04 2018 08:21:47 GMT+0300 (+03)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jul 26 2018 18:21:30 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>
