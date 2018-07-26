@@ -45,7 +45,7 @@ class RSCConversionTest {
         this.rscTotalSupply = 319810709968;
         this.DipRscRate = 10 / 32;
         this.rscDecimals = 10 ** 3;
-        this.dipDecimals = 10 ** 18;
+        // this.dipDecimals = 10 ** 18;
         this.decimalsDiff = 10 ** 15;
 
         // Predefined constants for DipTge deployment
@@ -941,7 +941,7 @@ contract('RSC conversion', (accounts) => {
 
         } catch (error) {
 
-            assertRevert(error)
+            assertRevert(error);
             return;
 
         }
@@ -968,7 +968,7 @@ contract('RSC conversion', (accounts) => {
 
         } catch (error) {
 
-            assertRevert(error)
+            assertRevert(error);
             return;
 
         }
@@ -995,7 +995,7 @@ contract('RSC conversion', (accounts) => {
 
         } catch (error) {
 
-            assertRevert(error)
+            assertRevert(error);
             return;
 
         }
@@ -1022,7 +1022,7 @@ contract('RSC conversion', (accounts) => {
 
         } catch (error) {
 
-            assertRevert(error)
+            assertRevert(error);
             return;
 
         }
