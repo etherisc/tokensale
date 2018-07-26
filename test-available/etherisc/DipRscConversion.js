@@ -9,6 +9,7 @@ const { latestTime, } = require('../helpers/latestTime');
 const { advanceBlock, } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration, } = require('../helpers/increaseTime');
 const { assertRevert, } = require('../helpers/assertRevert');
+const { assertJump, } = require('../helpers/assertJump');
 
 const contracts = {
     DSTContract: artifacts.require('../token/DSTContract'),
@@ -519,11 +520,40 @@ contract('RSC conversion', (accounts) => {
         assert.fail('should have thrown before');
 
     });
-    //
-    // // #9
-    // it('should not be possible to convert RSC tokens if bonus > 0 and lockupPeriod != 1', async () => {
-    //
-    // });
+
+    // #9
+    it('should not be possible to convert RSC tokens if bonus > 0 and lockupPeriod != 1', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist([web3.toWei(100)], [false], [4], [0]);
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = 10000;
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertJump(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+
+    });
     //
     // // #10-1
     // it('should be possible to convert RSC Tokens if DIP_Pool has sufficient DIP tokens', async () => {
