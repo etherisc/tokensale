@@ -182,6 +182,25 @@ contract('RSC conversion', (accounts) => {
         await test.deployRscConversion();
         await test.approveDipForConversion();
 
+        // Check public fields
+        const numinator = await test.RSCConversionInstance.CONVERSION_NUMINATOR();
+        numinator.should.be.bignumber.equal(10);
+
+        const denominator = await test.RSCConversionInstance.CONVERSION_DENOMINATOR();
+        denominator.should.be.bignumber.equal(32);
+
+        const decimalFactor = await test.RSCConversionInstance.CONVERSION_DECIMAL_FACTOR();
+        decimalFactor.should.be.bignumber.equal(new BigNumber(10 ** 15));
+
+        const dip = await test.RSCConversionInstance.DIP();
+        dip.should.be.equal(test.DipTokenInstance.address);
+
+        const dipTge = await test.RSCConversionInstance.DIP_TGE();
+        dipTge.should.be.equal(test.DipTgeInstance.address);
+
+        const rsc = await test.RSCConversionInstance.RSC();
+        rsc.should.be.equal(test.RSCTokenInstance.address);
+
         // Check consistency
         new BigNumber(test.dipForConversion).should.be.bignumber.equal(test.rscTotalSupply * test.decimalsDiff * test.DipRscRate);
         const dipTotalSupply = await test.DipTokenInstance.totalSupply();
@@ -431,11 +450,13 @@ contract('RSC conversion', (accounts) => {
         assert.fail('should have thrown before');
 
     });
-    //
-    // // #7
-    // it('should not be possible to convert RSC tokens if RSC Token Holder has not approved conversion contract to transfer tokens', async () => {
-    //
-    // });
+
+    // #7
+    it('should not be possible to convert RSC tokens if RSC Token Holder has not approved conversion contract to transfer tokens', async () => {
+
+
+
+    });
     //
     // // #8
     // it('should not be possible to convert RSC tokens if RSC Token Holder has not sufficient RSC Tokens', async () => {

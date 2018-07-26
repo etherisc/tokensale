@@ -18,10 +18,10 @@ contract RSCConversion is Ownable {
 
   using SafeMath for *;
 
-  DipToken DIP;
-  DipTge DIP_TGE;
-  ERC20 RSC;
-  address DIP_Pool;
+  DipToken public DIP;
+  DipTge public DIP_TGE;
+  ERC20 public RSC;
+  address public DIP_Pool;
 
   uint256 public constant CONVERSION_NUMINATOR = 10;
   uint256 public constant CONVERSION_DENOMINATOR = 32;
