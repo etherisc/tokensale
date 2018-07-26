@@ -454,14 +454,71 @@ contract('RSC conversion', (accounts) => {
     // #7
     it('should not be possible to convert RSC tokens if RSC Token Holder has not approved conversion contract to transfer tokens', async () => {
 
+        const test = new RSCConversionTest(accounts, web3, contracts);
 
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const amount = 10000;
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
+    });
+
+    // #8
+    it('should not be possible to convert RSC tokens if RSC Token Holder has not sufficient RSC Tokens', async () => {
+
+        const test = new RSCConversionTest(accounts, web3, contracts);
+
+        await test.deployRSCtoken();
+        await test.buyRSC();
+        await test.deployTGE();
+        await test.whitelist();
+        await test.adjustTime();
+        await test.unpauseToken();
+        await test.finalizeTge();
+        await test.fundDipPool();
+        await test.deployRscConversion();
+        await test.approveDipForConversion();
+
+        const balance = await test.RSCTokenInstance.balanceOf.call(test.rscHolderWhitelisted);
+
+        const amount = balance.add(1).toString();
+
+        await test.RSCTokenInstance.approve(test.RSCConversionInstance.address, amount, { from: test.rscHolderWhitelisted, });
+
+        try {
+
+            await test.RSCConversionInstance.convert(amount, { from: test.rscHolderWhitelisted, });
+
+        } catch (error) {
+
+            assertRevert(error);
+            return;
+
+        }
+
+        assert.fail('should have thrown before');
 
     });
-    //
-    // // #8
-    // it('should not be possible to convert RSC tokens if RSC Token Holder has not sufficient RSC Tokens', async () => {
-    //
-    // });
     //
     // // #9
     // it('should not be possible to convert RSC tokens if bonus > 0 and lockupPeriod != 1', async () => {
