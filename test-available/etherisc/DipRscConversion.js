@@ -547,7 +547,7 @@ contract('RSC conversion', (accounts) => {
 
         } catch (error) {
 
-            assertJump(error);
+            assertRevert(error);
             return;
 
         }
