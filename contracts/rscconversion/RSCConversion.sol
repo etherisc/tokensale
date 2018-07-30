@@ -66,7 +66,7 @@ contract RSCConversion is Ownable {
     dipAmount = _rscAmount.mul(CONVERSION_DECIMAL_FACTOR).mul(CONVERSION_NUMINATOR).div(CONVERSION_DENOMINATOR);
 
     if (bonus > 0) {
-      assert(lockupPeriod == 1);
+      require(lockupPeriod == 1);
       dipAmount = dipAmount.add(dipAmount.div(bonus));
     }
     require(DIP.transferFrom(DIP_Pool, msg.sender, dipAmount));
