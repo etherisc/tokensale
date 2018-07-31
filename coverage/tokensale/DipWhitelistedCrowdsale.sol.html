@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>12/12</span>
+        <span class='fraction'>10/10</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>8/8</span>
+        <span class='fraction'>6/6</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>1/1</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>12/12</span>
+        <span class='fraction'>10/10</span>
       </div>
     </div>
   </div>
@@ -113,17 +113,7 @@
 68
 69
 70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+71</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -165,42 +155,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">96×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">92×</span>
+<span class="cline-any cline-yes">92×</span>
+<span class="cline-any cline-yes">91×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">102×</span>
+<span class="cline-any cline-yes">90×</span>
+<span class="cline-any cline-yes">90×</span>
+<span class="cline-any cline-yes">90×</span>
+<span class="cline-any cline-yes">90×</span>
+<span class="cline-any cline-yes">90×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">90×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">100×</span>
-<span class="cline-any cline-yes">100×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">98×</span>
-<span class="cline-any cline-yes">98×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">98×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">41×</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">34×</span>
-<span class="cline-any cline-yes">7×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -221,27 +201,18 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 contract DipWhitelistedCrowdsale is Ownable {
   using SafeMath for uint256;
 &nbsp;
-  /*
-   * Contributor's type:
-   * 1: Regular
-   * 2: ECA (bonus 10%)
-   * 3: RSC holder
-   * 4: RSC holder &amp; accredited investor from USA (1 year lock-in)
-   * 5: ECA &amp; lock-in option (25%, 1 year lock-in)
-   * 6: accredited investor form USA (1 year lock-in)
-   * 7: team member (1 year lock-in, allocation)
-   * 8: founder (2 years lock-in, allocation)
-   */
   struct ContributorData {
     uint256 allowance;
     uint256 contributionAmount;
     uint256 tokensIssued;
-    uint256 contributorType;
+    bool airdrop;
+    uint256 bonus;        // 0 == 0%, 4 == 25%, 10 == 10%
+    uint256 lockupPeriod; // 0, 1 or 2 (years)
   }
 &nbsp;
   mapping (address =&gt; ContributorData) public contributorList;
 &nbsp;
-  event Whitelisted(address indexed _contributor, uint256 _allowance, uint256 _type);
+  event Whitelisted(address indexed _contributor, uint256 _allowance, bool _airdrop, uint256 _bonus, uint256 _lockupPeriod);
 &nbsp;
   /**
    * Push contributor data to the contract before the crowdsale
@@ -249,39 +220,38 @@ contract DipWhitelistedCrowdsale is Ownable {
   function editContributors (
     address[] _contributorAddresses,
     uint256[] _contributorAllowance,
-    uint256[] _contributorTypes
+    bool[] _airdrop,
+    uint256[] _bonus,
+    uint256[] _lockupPeriod
   ) onlyOwner public {
     // Check if input data is consistent
     require(
       _contributorAddresses.length == _contributorAllowance.length &amp;&amp;
-      _contributorAddresses.length == _contributorTypes.length
+      _contributorAddresses.length == _airdrop.length &amp;&amp;
+      _contributorAddresses.length == _bonus.length &amp;&amp;
+      _contributorAddresses.length == _lockupPeriod.length
     );
 &nbsp;
     for (uint256 cnt = 0; cnt &lt; _contributorAddresses.length; cnt = cnt.add(1)) {
-      require(_contributorTypes[cnt] &gt; 0 &amp;&amp; _contributorTypes[cnt] &lt;= 8);
+      require(_bonus[cnt] == 0 || _bonus[cnt] == 4 || _bonus[cnt] == 10);
+      require(_lockupPeriod[cnt] &lt;= 2);
 &nbsp;
-      contributorList[_contributorAddresses[cnt]].allowance = _contributorAllowance[cnt];
-      contributorList[_contributorAddresses[cnt]].contributorType = _contributorTypes[cnt];
+      address contributor = _contributorAddresses[cnt];
+      contributorList[contributor].allowance = _contributorAllowance[cnt];
+      contributorList[contributor].airdrop = _airdrop[cnt];
+      contributorList[contributor].bonus = _bonus[cnt];
+      contributorList[contributor].lockupPeriod = _lockupPeriod[cnt];
 &nbsp;
-      emit Whitelisted(_contributorAddresses[cnt], _contributorAllowance[cnt], _contributorTypes[cnt]);
+      emit Whitelisted(
+        _contributorAddresses[cnt],
+        _contributorAllowance[cnt],
+        _airdrop[cnt],
+        _bonus[cnt],
+        _lockupPeriod[cnt]
+      );
     }
   }
 &nbsp;
-  function getContributorAllowance(address _contributor) public constant returns (uint256 _allowance) {
-    _allowance = contributorList[_contributor].allowance;
-  }
-&nbsp;
-  function getContributorBonus(address _contributor) public constant returns (uint256 _bonus) {
-    if (contributorList[_contributor].contributorType == 2) {
-      return 10; // bonus 10%
-    }
-&nbsp;
-    if (contributorList[_contributor].contributorType == 5) {
-      return 4; // bonus 25%
-    }
-&nbsp;
-    return 0; // no bonus
-  }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -289,7 +259,7 @@ contract DipWhitelistedCrowdsale is Ownable {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jun 04 2018 08:21:47 GMT+0300 (+03)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jul 26 2018 18:45:04 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>

@@ -7,7 +7,6 @@
 
 pragma solidity 0.4.24;
 
-import "../token/DipToken.sol";
 import "../tokensale/DipTge.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
@@ -18,10 +17,14 @@ contract RSCConversion is Ownable {
 
   using SafeMath for *;
 
-  DipToken DIP;
-  DipTge DIP_TGE;
-  ERC20 RSC;
-  address DIP_Pool;
+  ERC20 public DIP;
+  DipTge public DIP_TGE;
+  ERC20 public RSC;
+  address public DIP_Pool;
+
+  uint256 public constant CONVERSION_NUMINATOR = 10;
+  uint256 public constant CONVERSION_DENOMINATOR = 32;
+  uint256 public constant CONVERSION_DECIMAL_FACTOR = 10 ** (18 - 3);
 
   event Conversion(uint256 _rscAmount, uint256 _dipAmount, uint256 _bonus);
 
@@ -30,7 +33,12 @@ contract RSCConversion is Ownable {
       address _dipTge,
       address _rscToken,
       address _dipPool) public {
-    DIP = DipToken(_dipToken);
+    require(_dipToken != address(0));
+    require(_dipTge != address(0));
+    require(_rscToken != address(0));
+    require(_dipPool != address(0));
+
+    DIP = ERC20(_dipToken);
     DIP_TGE = DipTge(_dipTge);
     RSC = ERC20(_rscToken);
     DIP_Pool = _dipPool;
@@ -55,11 +63,11 @@ contract RSCConversion is Ownable {
 
     require(allowance > 0);
     require(RSC.transferFrom(msg.sender, DIP_Pool, _rscAmount));
-    dipAmount = _rscAmount.mul(10).div(32);
+    dipAmount = _rscAmount.mul(CONVERSION_DECIMAL_FACTOR).mul(CONVERSION_NUMINATOR).div(CONVERSION_DENOMINATOR);
 
     if (bonus > 0) {
-      assert(lockupPeriod == 1);
-      dipAmount = dipAmount.add(dipAmount.mul(100).div(bonus));
+      require(lockupPeriod == 1);
+      dipAmount = dipAmount.add(dipAmount.div(bonus));
     }
     require(DIP.transferFrom(DIP_Pool, msg.sender, dipAmount));
     emit Conversion(_rscAmount, dipAmount, bonus);

@@ -15,5 +15,6 @@ module.exports = {
     testrpcOptions: testrpc,
     testCommand: 'npm run test',
     //norpc: true,
-    copyNodeModules: true,
+    copyNodeModules: false,
+    copyPackages: ['zeppelin-solidity']
 };

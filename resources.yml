@@ -61,3 +61,7 @@ test:
     - etherisc/DipToken.js
     - etherisc/DipTokenMock.sol
     - etherisc/DipTge.js
+    - rsc/DSTContract.sol
+    - rsc/EventInfo.sol
+    - rsc/HackerGold.sol
+    - etherisc/DipRscConversion.js
