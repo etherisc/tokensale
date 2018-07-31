@@ -1,39 +1,39 @@
 migrations:
     - 1_initial_migration.js
     - 2_deploy_tge.js
-#    - 3_whitelisting.js
-#    - 4_whitelisting.js
-#    - 5_whitelisting.js
-#    - 6_whitelisting.js
-#    - 7_whitelisting.js
-#    - 8_whitelisting.js
-#    - 9_whitelisting.js
-#    - 10_whitelisting.js
-#    - 11_whitelisting.js
-#    - 12_whitelisting.js
-#    - 13_whitelisting.js
-#    - 14_whitelisting.js
-#    - 15_whitelisting.js
-#    - 16_whitelisting.js
-#    - 17_whitelisting.js
-#    - 18_whitelisting.js
-#    - 19_whitelisting.js
-#    - 20_whitelisting.js
-#    - 21_whitelisting.js
-#    - 22_whitelisting.js
-#    - 23_whitelisting.js
-#    - 24_whitelisting.js
-#    - 25_whitelisting.js
-#    - 26_whitelisting.js
-#    - 27_whitelisting.js
-#    - 28_whitelisting.js
-#    - 29_whitelisting.js
-#    - 30_whitelisting.js
-#    - 31_whitelisting.js
-#    - 32_whitelisting.js
-#    - 33_whitelisting.js
-#    - 34_whitelisting.js
-#    - 35_whitelisting.js
+    - 3_whitelisting.js
+    - 4_whitelisting.js
+    - 5_whitelisting.js
+    - 6_whitelisting.js
+    - 7_whitelisting.js
+    - 8_whitelisting.js
+    - 9_whitelisting.js
+    - 10_whitelisting.js
+    - 11_whitelisting.js
+    - 12_whitelisting.js
+    - 13_whitelisting.js
+    - 14_whitelisting.js
+    - 15_whitelisting.js
+    - 16_whitelisting.js
+    - 17_whitelisting.js
+    - 18_whitelisting.js
+    - 19_whitelisting.js
+    - 20_whitelisting.js
+    - 21_whitelisting.js
+    - 22_whitelisting.js
+    - 23_whitelisting.js
+    - 24_whitelisting.js
+    - 25_whitelisting.js
+    - 26_whitelisting.js
+    - 27_whitelisting.js
+    - 28_whitelisting.js
+    - 29_whitelisting.js
+    - 30_whitelisting.js
+    - 31_whitelisting.js
+    - 32_whitelisting.js
+    - 33_whitelisting.js
+    - 34_whitelisting.js
+    - 35_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
