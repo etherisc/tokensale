@@ -5,8 +5,8 @@ module.exports = {
             host: 'localhost',
             port: 8545,
             from: '0xd4d3e122ba3e69b8b42505a89c73dee03b72e31e',
-            gas: 6700000,
-            gasPrice: 60000000000,
+            gas: 1700000,
+            gasPrice: 4000000000,
         },
         ropsten: {
             network_id: 3, // Official Ethereum test network

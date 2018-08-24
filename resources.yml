@@ -46,6 +46,17 @@ migrations:
     - 45_whitelisting.js
     - 46_whitelisting.js
     - 47_deploy_rscconversion.js
+    - 48_deploy_rscconversion_2.js
+    - 49_whitelisting.js
+    - 50_whitelisting.js
+    - 51_allocate_pool_b.js
+    - 52_allocate_pool_c.js
+    - 53_finalize_tge.js
+    - 54_unpause_token.js
+    - 55_whitelisting.js
+    - 56_whitelisting.js
+    - 57_whitelisting.js
+    - 58_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
