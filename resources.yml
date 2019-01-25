@@ -61,6 +61,8 @@ migrations:
     - 60_whitelisting.js
     - 61_whitelisting.js
     - 62_whitelisting.js
+    - 63_whitelisting.js
+    - 64_whitelisting.js
 test:
     - helpers/assertJump.js
     - helpers/assertRevert.js
